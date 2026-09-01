@@ -4,78 +4,98 @@
     'color' => 'canary',
     'tags' => [],
     'isPinned' => false,
-    'author' => null,
+    'author' => 'Staff',
     'department' => null,
     'date' => null,
     'id' => null,
 ])
 
 @php
-    $colorThemes = [
-        'canary' => 'bg-amber-100/90 text-amber-950 border-amber-300/80 shadow-amber-900/10 dark:bg-amber-950/60 dark:text-amber-100 dark:border-amber-700/60',
-        'mint' => 'bg-emerald-100/90 text-emerald-950 border-emerald-300/80 shadow-emerald-900/10 dark:bg-emerald-950/60 dark:text-emerald-100 dark:border-emerald-700/60',
-        'azure' => 'bg-sky-100/90 text-sky-950 border-sky-300/80 shadow-sky-900/10 dark:bg-sky-950/60 dark:text-sky-100 dark:border-sky-700/60',
-        'coral' => 'bg-rose-100/90 text-rose-950 border-rose-300/80 shadow-rose-900/10 dark:bg-rose-950/60 dark:text-rose-100 dark:border-rose-700/60',
-        'lavender' => 'bg-purple-100/90 text-purple-950 border-purple-300/80 shadow-purple-900/10 dark:bg-purple-950/60 dark:text-purple-100 dark:border-purple-700/60',
-    ];
-
-    $tagColorMap = [
-        'urgent' => 'bg-rose-200/90 text-rose-900 border-rose-400/60 dark:bg-rose-900/80 dark:text-rose-200',
-        'shift-handoff' => 'bg-blue-200/90 text-blue-900 border-blue-400/60 dark:bg-blue-900/80 dark:text-blue-200',
-        'calibration' => 'bg-amber-200/90 text-amber-900 border-amber-400/60 dark:bg-amber-900/80 dark:text-amber-200',
-        'biohazard' => 'bg-red-300/90 text-red-950 border-red-500/80 dark:bg-red-950 dark:text-red-200',
-        'icu-priority' => 'bg-emerald-200/90 text-emerald-900 border-emerald-400/60 dark:bg-emerald-900/80 dark:text-emerald-200',
-    ];
-
-    $themeClass = $colorThemes[$color] ?? $colorThemes['canary'];
+    $themeStyles = match ($color) {
+        'canary' => [
+            'bg' => 'bg-[#151410] border-[#2d2818]',
+            'accent' => 'text-amber-400',
+            'tag' => 'bg-amber-950/50 text-amber-300 border-amber-800/40',
+            'bar' => 'bg-amber-500/80',
+        ],
+        'mint' => [
+            'bg' => 'bg-[#0f1513] border-[#182b24]',
+            'accent' => 'text-emerald-400',
+            'tag' => 'bg-emerald-950/50 text-emerald-300 border-emerald-800/40',
+            'bar' => 'bg-emerald-500/80',
+        ],
+        'azure' => [
+            'bg' => 'bg-[#10141b] border-[#1b2536]',
+            'accent' => 'text-sky-400',
+            'tag' => 'bg-sky-950/50 text-sky-300 border-sky-800/40',
+            'bar' => 'bg-sky-500/80',
+        ],
+        'coral' => [
+            'bg' => 'bg-[#181114] border-[#361c24]',
+            'accent' => 'text-rose-400',
+            'tag' => 'bg-rose-950/50 text-rose-300 border-rose-800/40',
+            'bar' => 'bg-rose-500/80',
+        ],
+        'lavender' => [
+            'bg' => 'bg-[#14111a] border-[#291e38]',
+            'accent' => 'text-purple-400',
+            'tag' => 'bg-purple-950/50 text-purple-300 border-purple-800/40',
+            'bar' => 'bg-purple-500/80',
+        ],
+        default => [
+            'bg' => 'bg-[#121418] border-[#22262f]',
+            'accent' => 'text-slate-300',
+            'tag' => 'bg-slate-900 text-slate-300 border-slate-700/50',
+            'bar' => 'bg-slate-600',
+        ],
+    };
 @endphp
 
-<div {{ $attributes->merge(['class' => "group relative flex flex-col justify-between rounded-xl border p-4 shadow-sm transition hover:shadow-md hover:-translate-y-0.5 $themeClass"]) }}>
-    <!-- Header: Title & Pin -->
+<div class="group relative rounded-xl border {{ $themeStyles['bg'] }} p-4 transition-all duration-200 hover:border-slate-600 flex flex-col justify-between min-h-[160px] shadow-sm">
+    <!-- Top Meta Row -->
     <div>
-        <div class="flex items-start justify-between gap-2">
-            <h4 class="text-xs font-bold uppercase tracking-wider line-clamp-1">{{ $title }}</h4>
+        <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-2.5 mb-2.5">
+            <div class="flex items-center gap-2">
+                <span class="h-1.5 w-1.5 rounded-full {{ $themeStyles['bar'] }}"></span>
+                <span class="font-mono text-[10px] tracking-widest uppercase text-slate-400 font-semibold">
+                    {{ $department ?? 'Clinical Memo' }}
+                </span>
+            </div>
+
             @if ($isPinned)
-                <span class="inline-flex items-center gap-1 rounded-full bg-slate-900/10 px-1.5 py-0.5 text-[10px] font-semibold backdrop-blur-xs dark:bg-white/10">
-                    <x-ui.icon name="pin" class="size-3 text-red-500" />
-                    {{ __('Pinned') }}
+                <span class="font-mono text-[9px] uppercase tracking-wider text-amber-400/90 font-bold flex items-center gap-1">
+                    <span class="h-1 w-1 rounded-full bg-amber-400"></span>
+                    Pinned
                 </span>
             @endif
         </div>
 
-        <!-- Note Body -->
-        <p class="mt-2 text-xs leading-relaxed whitespace-pre-line font-medium opacity-90">
+        <!-- Note Title & Content -->
+        <h4 class="text-xs font-bold tracking-tight text-white/95 leading-snug">
+            {{ $title }}
+        </h4>
+        <p class="mt-1.5 text-[11px] text-slate-300 leading-relaxed font-normal line-clamp-4">
             {{ $body }}
         </p>
     </div>
 
-    <!-- Footer: Tags, Author, Timestamp -->
-    <div class="mt-4 pt-3 border-t border-black/10 dark:border-white/10 space-y-2">
+    <!-- Bottom Footer Metadata & Tags -->
+    <div class="mt-4 pt-2.5 border-t border-white/5 space-y-2">
         @if (!empty($tags))
             <div class="flex flex-wrap items-center gap-1">
-                @foreach ($tags as $tag)
-                    @php
-                        $slug = Str::slug($tag);
-                        $tagClass = $tagColorMap[$slug] ?? 'bg-black/10 text-current border-black/10 dark:bg-white/10';
-                    @endphp
-                    <span class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold border {{ $tagClass }}">
-                        <x-ui.icon name="tag" class="size-2.5 opacity-70" />
-                        {{ $tag }}
-                    </span>
+                @foreach ((array) $tags as $t)
+                    @if (trim($t))
+                        <span class="rounded px-1.5 py-0.5 font-mono text-[9px] font-medium border {{ $themeStyles['tag'] }}">
+                            #{{ trim($t) }}
+                        </span>
+                    @endif
                 @endforeach
             </div>
         @endif
 
-        <div class="flex items-center justify-between text-[10px] opacity-75">
-            <div class="flex items-center gap-1">
-                <span class="font-semibold">{{ $author ?? __('Hospital Staff') }}</span>
-                @if ($department)
-                    <span>&middot; {{ $department }}</span>
-                @endif
-            </div>
-            @if ($date)
-                <span>{{ $date }}</span>
-            @endif
+        <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+            <span class="truncate">{{ $author }}</span>
+            <span class="shrink-0 text-slate-400">{{ $date }}</span>
         </div>
     </div>
 </div>

@@ -2,8 +2,8 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ config('app.name', 'MedTrack') }} - Hospital Equipment Manager</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MedTrack — Hospital Asset Operations System</title>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -11,143 +11,132 @@
         @fonts
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-slate-950 text-slate-100 antialiased selection:bg-teal-500 selection:text-white flex flex-col justify-between">
-        <!-- Top Navigation -->
-        <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-8 h-16 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600 text-white font-bold shadow-md shadow-teal-900/50">
-                        <x-ui.icon name="cpu" class="size-5" />
-                    </div>
-                    <div>
-                        <span class="text-base font-bold tracking-tight text-white">MedTrack</span>
-                        <span class="ml-2 rounded-full bg-teal-950 px-2.5 py-0.5 text-[10px] font-semibold text-teal-400 border border-teal-800/80">Hospital LAN Node</span>
-                    </div>
+    <body class="min-h-screen bg-[#08090a] text-[#e7eaf0] antialiased selection:bg-white selection:text-black flex flex-col justify-between">
+        <!-- Top Editorial Navigation -->
+        <header class="w-full border-b border-[#1c1f26] bg-[#0c0d10]/80 backdrop-blur-md py-4 px-8 flex items-center justify-between sticky top-0 z-30">
+            <div class="flex items-center gap-3">
+                <div class="flex h-7 w-7 items-center justify-center rounded-md bg-white text-black font-bold text-xs tracking-tighter">
+                    MT
                 </div>
+                <div class="leading-none">
+                    <span class="text-xs font-bold tracking-tight text-white">MedTrack</span>
+                    <span class="block text-[9px] font-mono tracking-widest text-slate-500 uppercase mt-0.5">Clinical Infrastructure</span>
+                </div>
+            </div>
 
-                <div class="flex items-center gap-3">
+            <div class="flex items-center gap-4 text-xs font-mono">
+                <span class="text-slate-500 hidden sm:inline">LOCAL LAN WORKSTATION</span>
+                @if (Route::has('login'))
                     @auth
                         <a
-                            href="{{ route('dashboard') }}"
-                            class="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-teal-900/40 hover:bg-teal-500 transition"
+                            href="{{ url('/dashboard') }}"
+                            class="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black hover:bg-slate-200 transition"
                         >
-                            <x-ui.icon name="home" class="size-4" />
-                            {{ __('Open Dashboard') }}
+                            Open Console &rarr;
                         </a>
                     @else
                         <a
                             href="{{ route('login') }}"
-                            class="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-teal-900/40 hover:bg-teal-500 transition"
+                            class="inline-flex items-center gap-2 rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-1.5 text-xs font-semibold text-slate-200 hover:bg-[#181a22] transition"
                         >
-                            <x-ui.icon name="logout" class="size-4 rotate-180" />
-                            {{ __('Staff Sign In') }}
+                            Staff Access &rarr;
                         </a>
                     @endauth
-                </div>
+                @endif
             </div>
         </header>
 
-        <!-- Hero Section -->
-        <main class="flex-1 flex flex-col justify-center py-20 px-8 max-w-7xl mx-auto w-full">
-            <div class="text-center max-w-3xl mx-auto">
-                <div class="inline-flex items-center gap-2 rounded-full border border-teal-800/80 bg-teal-950/60 px-4 py-1.5 text-xs font-medium text-teal-300 mb-8">
-                    <span class="h-2 w-2 rounded-full bg-teal-400 animate-pulse"></span>
-                    {{ __('Private Hospital Wi-Fi / Local Server Deployment') }}
+        <!-- Main Hero & Architectural Specimen Section -->
+        <main class="flex-1 max-w-5xl mx-auto px-8 py-16 w-full space-y-16">
+            <!-- Hero Heading Block -->
+            <div class="space-y-4 max-w-3xl">
+                <div class="inline-flex items-center gap-2 rounded border border-[#22262f] bg-[#101217] px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-400">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    Hospital Equipment Operations Standard
                 </div>
 
-                <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
-                    One Source of Truth for <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-300">Hospital Equipment</span>
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
+                    Reliable medical equipment tracking, shift handoffs, and fault triage.
                 </h1>
 
-                <p class="mt-6 text-base text-slate-400 leading-relaxed max-w-2xl mx-auto">
-                    Centralized medical device tracking, departmental ownership, real-time operational state, finite-state repair workflows, and clinical sticky note handoffs.
+                <p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl font-normal">
+                    Engineered for hospital biomedical departments and acute wards. Track high-value clinical devices, enforce finite-state repair workflows, and maintain an immutable audit trail over the local network.
                 </p>
 
-                <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-                    @auth
-                        <a
-                            href="{{ route('dashboard') }}"
-                            class="inline-flex items-center gap-2.5 rounded-xl bg-teal-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-900/40 hover:bg-teal-500 transition"
-                        >
-                            {{ __('Enter Application Dashboard') }}
-                            <x-ui.icon name="arrow-right" class="size-4" />
-                        </a>
-                    @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-flex items-center gap-2.5 rounded-xl bg-teal-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-900/40 hover:bg-teal-500 transition"
-                        >
-                            {{ __('Sign In to Hospital LAN') }}
-                            <x-ui.icon name="arrow-right" class="size-4" />
-                        </a>
-                    @endauth
-
+                <div class="pt-4 flex flex-wrap items-center gap-3">
+                    <a
+                        href="{{ route('login') }}"
+                        class="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-xs font-bold text-black hover:bg-slate-200 transition"
+                    >
+                        Sign in to Console &rarr;
+                    </a>
                     <a
                         href="{{ route('health') }}"
-                        class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/80 px-6 py-3.5 text-sm font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                        class="inline-flex items-center gap-2 rounded-lg border border-[#2c303d] bg-[#12141a] px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition font-mono"
                     >
-                        <x-ui.icon name="heart" class="size-4 text-emerald-400" />
-                        {{ __('System Health Diagnostics') }}
+                        Node Diagnostics
                     </a>
                 </div>
             </div>
 
-            <!-- 4 Pillar Feature Cards -->
-            <div class="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 hover:border-teal-700/60 transition">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-950 text-teal-400 mb-4 border border-teal-800/60">
-                        <x-ui.icon name="cpu" class="size-6" />
-                    </div>
-                    <h3 class="text-sm font-bold text-white">{{ __('Equipment Identity') }}</h3>
-                    <p class="mt-2 text-xs text-slate-400 leading-relaxed">
-                        Searchable internal asset numbers and manufacturer serial numbers with department ownership.
+            <!-- 🏛️ Editorial Architecture Spec Grid -->
+            <div class="grid gap-6 sm:grid-cols-3 border-t border-[#1c1f26] pt-12">
+                <div class="space-y-2 pr-4">
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">01 / Equipment Registry</span>
+                    <h3 class="text-sm font-bold text-white tracking-tight">Department Scoping</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Multi-column search across unique asset tags, serial identifiers, manufacturers, and physical ward bays with strict RBAC scoping.
                     </p>
                 </div>
 
-                <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 hover:border-amber-700/60 transition">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-950 text-amber-400 mb-4 border border-amber-800/60">
-                        <x-ui.icon name="wrench" class="size-6" />
-                    </div>
-                    <h3 class="text-sm font-bold text-white">{{ __('Repair Lifecycle') }}</h3>
-                    <p class="mt-2 text-xs text-slate-400 leading-relaxed">
-                        Explicit finite-state transitions: Reported → Assigned → In Progress → Resolved → Closed.
+                <div class="space-y-2 pr-4">
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">02 / Repair Lifecycle</span>
+                    <h3 class="text-sm font-bold text-white tracking-tight">Finite-State Stepper</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        8-stage repair state machine from initial defect report to technician assignment, parts procurement, and operational return-to-service certification.
                     </p>
                 </div>
 
-                <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 hover:border-blue-700/60 transition">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-950 text-blue-400 mb-4 border border-blue-800/60">
-                        <x-ui.icon name="shield" class="size-6" />
-                    </div>
-                    <h3 class="text-sm font-bold text-white">{{ __('Role-Based Access') }}</h3>
-                    <p class="mt-2 text-xs text-slate-400 leading-relaxed">
-                        Department isolation for staff with full oversight for hospital administrators.
+                <div class="space-y-2">
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">03 / Clinical Dispatch</span>
+                    <h3 class="text-sm font-bold text-white tracking-tight">Shift Handoff Board</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Digital memo dispatch system for inter-shift nursing briefings, calibration warnings, and immediate biohazard alerts.
                     </p>
                 </div>
+            </div>
 
-                <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 hover:border-purple-700/60 transition">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-950 text-purple-400 mb-4 border border-purple-800/60">
-                        <x-ui.icon name="clock" class="size-6" />
+            <!-- Quick Demo Credentials Box (Discreet Editorial Strip) -->
+            <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                    <span class="font-mono text-xs font-bold uppercase tracking-wider text-slate-300">Default Station Credentials</span>
+                    <span class="font-mono text-[11px] text-slate-500">Master Password: password</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+                    <div class="rounded border border-[#1c1f26] bg-[#12141a] p-2.5">
+                        <span class="block text-[10px] text-amber-400 font-bold">Admin</span>
+                        <span class="text-slate-300 text-[11px] truncate block">admin@medtrack.test</span>
                     </div>
-                    <h3 class="text-sm font-bold text-white">{{ __('Immutable Audit') }}</h3>
-                    <p class="mt-2 text-xs text-slate-400 leading-relaxed">
-                        Complete traceability for equipment condition changes, user actions, and progress notes.
-                    </p>
+                    <div class="rounded border border-[#1c1f26] bg-[#12141a] p-2.5">
+                        <span class="block text-[10px] text-rose-400 font-bold">Emergency Lead</span>
+                        <span class="text-slate-300 text-[11px] truncate block">emergency@medtrack.test</span>
+                    </div>
+                    <div class="rounded border border-[#1c1f26] bg-[#12141a] p-2.5">
+                        <span class="block text-[10px] text-sky-400 font-bold">ICU Lead</span>
+                        <span class="text-slate-300 text-[11px] truncate block">icu@medtrack.test</span>
+                    </div>
+                    <div class="rounded border border-[#1c1f26] bg-[#12141a] p-2.5">
+                        <span class="block text-[10px] text-emerald-400 font-bold">Biomed Tech</span>
+                        <span class="text-slate-300 text-[11px] truncate block">biomed@medtrack.test</span>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="border-t border-slate-800 py-6 px-8 bg-slate-900/80">
-            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                <div class="flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full bg-teal-400"></span>
-                    <span>MedTrack Hospital Equipment Manager — PoC Edition</span>
-                </div>
-                <div>
-                    <span>Running on Local Hospital LAN &middot; PHP {{ PHP_VERSION }} &middot; Laravel {{ app()->version() }}</span>
-                </div>
-            </div>
+        <!-- Minimalist Footer -->
+        <footer class="border-t border-[#1c1f26] py-6 px-8 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-500 bg-[#0c0d10]">
+            <div>MedTrack Local Node &middot; Hospital Infrastructure System</div>
+            <div class="mt-2 sm:mt-0">Node Latency: Optimal (0ms)</div>
         </footer>
     </body>
 </html>

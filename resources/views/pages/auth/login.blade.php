@@ -1,4 +1,4 @@
-<x-layouts.auth :title="__('Staff Authentication')">
+<x-layouts.auth :title="__('Station Access')">
     <div class="space-y-6" x-data="{
         email: '{{ old('email', '') }}',
         password: '',
@@ -12,63 +12,63 @@
         }
     }">
         <!-- Header -->
-        <div class="text-center">
-            <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-950 text-teal-400 border border-teal-800/80 mb-3 shadow-inner">
-                <x-ui.icon name="shield" class="size-6" />
+        <div>
+            <div class="font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1">
+                Authentication &middot; Local Node
             </div>
-            <h2 class="text-xl font-bold tracking-tight text-white">{{ __('Staff Authentication') }}</h2>
-            <p class="mt-1 text-xs text-slate-400">{{ __('Sign in with your hospital credentials to manage equipment and repair queues.') }}</p>
+            <h2 class="text-xl font-bold tracking-tight text-white">{{ __('Staff Identification') }}</h2>
+            <p class="mt-1 text-xs text-slate-400 font-normal">{{ __('Sign in with your clinical credentials to access departmental equipment queues.') }}</p>
         </div>
 
-        <!-- Quick-Fill Demo Credentials (Developer/Staff Helper) -->
-        <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-3 space-y-2">
-            <div class="flex items-center justify-between text-[11px]">
-                <span class="font-bold text-slate-400 uppercase tracking-wider">{{ __('Quick-Fill Credentials') }}</span>
-                <span class="text-[10px] text-teal-400 font-mono">pwd: password</span>
+        <!-- Quick-Fill Role Picker (Editorial Strip) -->
+        <div class="rounded-lg border border-[#1c1f26] bg-[#08090a] p-3 space-y-2">
+            <div class="flex items-center justify-between font-mono text-[10px]">
+                <span class="text-slate-500 uppercase tracking-widest font-semibold">{{ __('Preset Stations') }}</span>
+                <span class="text-slate-500">pwd: password</span>
             </div>
-            <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+            <div class="grid grid-cols-2 gap-1.5 font-mono text-xs">
                 <button
                     type="button"
                     @click="fillCredentials('admin@medtrack.test')"
                     onclick="quickFillLogin('admin@medtrack.test')"
-                    class="flex items-center justify-between rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-left text-slate-300 hover:border-teal-500/60 hover:text-white transition cursor-pointer"
+                    class="flex items-center justify-between rounded border border-[#1c1f26] bg-[#12141a] px-2.5 py-1.5 text-left text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
                 >
-                    <span class="font-semibold text-purple-400">👑 Admin</span>
-                    <span class="text-[10px] text-slate-500 font-mono">Fill</span>
+                    <span class="font-semibold text-amber-400">Admin</span>
+                    <span class="text-[10px] text-slate-500">&rarr;</span>
                 </button>
                 <button
                     type="button"
                     @click="fillCredentials('emergency@medtrack.test')"
                     onclick="quickFillLogin('emergency@medtrack.test')"
-                    class="flex items-center justify-between rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-left text-slate-300 hover:border-teal-500/60 hover:text-white transition cursor-pointer"
+                    class="flex items-center justify-between rounded border border-[#1c1f26] bg-[#12141a] px-2.5 py-1.5 text-left text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
                 >
-                    <span class="font-semibold text-rose-400">🩺 Emergency</span>
-                    <span class="text-[10px] text-slate-500 font-mono">Fill</span>
+                    <span class="font-semibold text-rose-400">Emergency</span>
+                    <span class="text-[10px] text-slate-500">&rarr;</span>
                 </button>
                 <button
                     type="button"
                     @click="fillCredentials('icu@medtrack.test')"
                     onclick="quickFillLogin('icu@medtrack.test')"
-                    class="flex items-center justify-between rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-left text-slate-300 hover:border-teal-500/60 hover:text-white transition cursor-pointer"
+                    class="flex items-center justify-between rounded border border-[#1c1f26] bg-[#12141a] px-2.5 py-1.5 text-left text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
                 >
-                    <span class="font-semibold text-blue-400">🏥 ICU Lead</span>
-                    <span class="text-[10px] text-slate-500 font-mono">Fill</span>
+                    <span class="font-semibold text-sky-400">ICU Lead</span>
+                    <span class="text-[10px] text-slate-500">&rarr;</span>
                 </button>
                 <button
                     type="button"
                     @click="fillCredentials('biomed@medtrack.test')"
                     onclick="quickFillLogin('biomed@medtrack.test')"
-                    class="flex items-center justify-between rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-left text-slate-300 hover:border-teal-500/60 hover:text-white transition cursor-pointer"
+                    class="flex items-center justify-between rounded border border-[#1c1f26] bg-[#12141a] px-2.5 py-1.5 text-left text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
                 >
-                    <span class="font-semibold text-amber-400">🔬 Biomed Tech</span>
-                    <span class="text-[10px] text-slate-500 font-mono">Fill</span>
+                    <span class="font-semibold text-emerald-400">Biomed</span>
+                    <span class="text-[10px] text-slate-500">&rarr;</span>
                 </button>
             </div>
         </div>
 
         <!-- Session Status -->
         @if (session('status'))
-            <div class="p-3 rounded-xl border border-emerald-800 bg-emerald-950/60 text-xs text-emerald-300 text-center font-medium">
+            <div class="p-3 rounded-lg border border-emerald-800/40 bg-emerald-950/20 text-xs font-mono text-emerald-300 text-center font-medium">
                 {{ session('status') }}
             </div>
         @endif
@@ -79,54 +79,50 @@
 
             <!-- Email Field -->
             <div>
-                <label for="email" class="block text-xs font-semibold text-slate-300 mb-1">
-                    {{ __('Hospital Email Address') }}
+                <label for="email" class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">
+                    {{ __('Hospital Email Identifier') }}
                 </label>
-                <div class="relative">
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        x-model="email"
-                        value="{{ old('email') }}"
-                        required
-                        autofocus
-                        autocomplete="email"
-                        placeholder="staff@medtrack.test"
-                        class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-hidden"
-                    />
-                </div>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    x-model="email"
+                    value="{{ old('email') }}"
+                    required
+                    autofocus
+                    autocomplete="email"
+                    placeholder="staff@medtrack.test"
+                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                />
                 @error('email')
-                    <p class="mt-1 text-[11px] text-rose-400 font-medium">{{ $message }}</p>
+                    <p class="mt-1 font-mono text-[10px] text-rose-400 font-medium">{{ $message }}</p>
                 @enderror
             </div>
 
             <!-- Password Field -->
             <div>
                 <div class="flex items-center justify-between mb-1">
-                    <label for="password" class="block text-xs font-semibold text-slate-300">
-                        {{ __('Security Password') }}
+                    <label for="password" class="block font-mono text-[10px] uppercase tracking-widest text-slate-400">
+                        {{ __('Security Passcode') }}
                     </label>
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-[11px] text-teal-400 hover:underline">
-                            {{ __('Forgot password?') }}
+                        <a href="{{ route('password.request') }}" class="font-mono text-[10px] text-slate-500 hover:text-slate-300 transition">
+                            {{ __('Reset code?') }}
                         </a>
                     @endif
                 </div>
-                <div class="relative">
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        x-model="password"
-                        required
-                        autocomplete="current-password"
-                        placeholder="••••••••"
-                        class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-hidden"
-                    />
-                </div>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    x-model="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="••••••••"
+                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                />
                 @error('password')
-                    <p class="mt-1 text-[11px] text-rose-400 font-medium">{{ $message }}</p>
+                    <p class="mt-1 font-mono text-[10px] text-rose-400 font-medium">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -136,9 +132,9 @@
                     <input
                         type="checkbox"
                         name="remember"
-                        class="h-4 w-4 rounded-md border-slate-700 bg-slate-950 text-teal-600 focus:ring-teal-500 focus:ring-offset-slate-900"
+                        class="h-3.5 w-3.5 rounded border-[#22262f] bg-[#08090a] text-white focus:ring-0"
                     />
-                    <span class="text-xs text-slate-300">{{ __('Remember terminal session') }}</span>
+                    <span class="font-mono text-xs text-slate-400">{{ __('Remember terminal session') }}</span>
                 </label>
             </div>
 
@@ -147,17 +143,17 @@
                 <button
                     type="submit"
                     data-test="login-button"
-                    class="w-full rounded-xl bg-teal-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-teal-900/40 hover:bg-teal-500 focus:outline-hidden transition cursor-pointer"
+                    class="w-full rounded-lg bg-white py-2.5 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer shadow-sm"
                 >
-                    {{ __('Authorize & Access MedTrack') }} →
+                    {{ __('Authorize & Enter Station') }} &rarr;
                 </button>
             </div>
         </form>
 
         <!-- Access Notice -->
-        <div class="border-t border-slate-800 pt-4 text-center">
-            <p class="text-[11px] text-slate-500 leading-normal">
-                {{ __('Restricted clinical network. All logins and device actions are bound to immutable audit logs.') }}
+        <div class="border-t border-[#1c1f26] pt-4 text-center">
+            <p class="font-mono text-[10px] text-slate-500 leading-normal">
+                {{ __('Restricted hospital network. All operational state changes are logged to the immutable audit ledger.') }}
             </p>
         </div>
     </div>

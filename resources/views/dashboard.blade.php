@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Dashboard')">
+<x-layouts.app :title="__('Operations Console')">
     <div class="space-y-8" x-data="{
         showNoteModal: false,
         activeTag: 'all',
@@ -13,155 +13,138 @@
             }
         }
     }">
-        <!-- Page Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-6">
+        <!-- Page Editorial Title Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-[#1c1f26] pb-6">
             <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-2xl font-bold tracking-tight text-white">{{ __('Hospital Operational Workspace') }}</h1>
-                    <span class="rounded-full bg-teal-950 px-2.5 py-0.5 text-xs font-semibold text-teal-400 border border-teal-800/80">Desktop LAN Node</span>
+                <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1">
+                    <span>Clinical Asset Operations</span>
+                    <span>/</span>
+                    <span class="text-slate-300">Live Hospital Handoff</span>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">{{ __('Centralized medical device tracking, departmental operational status, and clinical shift handoff board.') }}</p>
+                <h1 class="text-2xl font-bold tracking-tight text-white">{{ __('Operations Console') }}</h1>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
                 <button
                     type="button"
                     @click="showNoteModal = true"
-                    class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-amber-950 shadow-md shadow-amber-900/30 hover:bg-amber-400 transition"
+                    onclick="document.getElementById('noteModal').style.display='flex'"
+                    class="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer shadow-sm"
                 >
-                    <x-ui.icon name="pin" class="size-4" />
-                    {{ __('Pin Sticky Note') }}
+                    <x-ui.icon name="pin" class="size-3.5" />
+                    <span>{{ __('Pin Shift Memo') }}</span>
                 </button>
                 <a
                     href="{{ route('equipment.index') }}"
-                    class="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-teal-900/30 hover:bg-teal-500 transition"
+                    class="inline-flex items-center gap-2 rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-200 hover:bg-[#181a22] transition"
                 >
-                    <x-ui.icon name="plus" class="size-4" />
-                    {{ __('Equipment Directory') }}
+                    <x-ui.icon name="shield" class="size-3.5 text-slate-400" />
+                    <span>{{ __('Directory') }}</span>
                 </a>
             </div>
         </div>
 
-        <!-- Metric Stat Cards (Live Dynamic Counts) -->
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Equipment</span>
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-950 text-teal-400 border border-teal-800/60">
-                        <x-ui.icon name="cpu" class="size-5" />
-                    </div>
-                </div>
-                <div class="mt-3 flex items-baseline gap-2">
-                    <span class="text-3xl font-extrabold text-white">{{ $totalEquipment }}</span>
-                    <span class="text-xs text-slate-500">Registered devices</span>
+        <!-- 📊 Asymmetrical Editorial Metric Ledger -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 rounded-xl border border-[#1c1f26] bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-[#1c1f26]">
+            <!-- Stat 1: Total Registered -->
+            <div class="p-5">
+                <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Total Medical Fleet</span>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="font-mono text-3xl font-bold tracking-tight text-white">{{ $totalEquipment }}</span>
+                    <span class="font-mono text-[11px] text-slate-500">units cataloged</span>
                 </div>
             </div>
 
-            <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+            <!-- Stat 2: In Active Use -->
+            <div class="p-5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">In Active Use</span>
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800/60">
-                        <x-ui.icon name="check" class="size-5" />
-                    </div>
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Active In Ward</span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
                 </div>
-                <div class="mt-3 flex items-baseline gap-2">
-                    <span class="text-3xl font-extrabold text-emerald-400">{{ $inUseCount }}</span>
-                    <span class="text-xs text-slate-500">Ready & operational</span>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="font-mono text-3xl font-bold tracking-tight text-emerald-400">{{ $inUseCount }}</span>
+                    <span class="font-mono text-[11px] text-slate-500">operational</span>
                 </div>
             </div>
 
-            <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+            <!-- Stat 3: Under Review / Repair -->
+            <div class="p-5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Under Review / Repair</span>
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-950 text-amber-400 border border-amber-800/60">
-                        <x-ui.icon name="wrench" class="size-5" />
-                    </div>
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">In Triage / Repair</span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
                 </div>
-                <div class="mt-3 flex items-baseline gap-2">
-                    <span class="text-3xl font-extrabold text-amber-400">{{ $underReviewCount }}</span>
-                    <span class="text-xs text-slate-500">Maintenance active</span>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="font-mono text-3xl font-bold tracking-tight text-amber-400">{{ $underReviewCount }}</span>
+                    <span class="font-mono text-[11px] text-slate-500">active tickets</span>
                 </div>
             </div>
 
-            <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+            <!-- Stat 4: Out of Service -->
+            <div class="p-5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Out of Service</span>
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-950 text-rose-400 border border-rose-800/60">
-                        <x-ui.icon name="shield" class="size-5" />
-                    </div>
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Out of Service</span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
                 </div>
-                <div class="mt-3 flex items-baseline gap-2">
-                    <span class="text-3xl font-extrabold text-rose-400">{{ $outOfServiceCount }}</span>
-                    <span class="text-xs text-slate-500">Attention required</span>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="font-mono text-3xl font-bold tracking-tight text-rose-400">{{ $outOfServiceCount }}</span>
+                    <span class="font-mono text-[11px] text-slate-500">requires attention</span>
                 </div>
             </div>
         </div>
 
-        <!-- 📌 Clinical Sticky Note & Handoff Board -->
-        <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-4">
+        <!-- 📌 Clinical Shift Dispatch & Handoff Board -->
+        <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#1c1f26] pb-4">
                 <div>
                     <div class="flex items-center gap-2">
-                        <x-ui.icon name="pin" class="size-5 text-amber-400" />
-                        <h2 class="text-base font-bold text-white">{{ __('Clinical Sticky Note & Shift Handoff Board') }}</h2>
+                        <span class="h-2 w-2 rounded-xs bg-amber-400"></span>
+                        <h2 class="text-sm font-bold tracking-tight text-white uppercase">{{ __('Clinical Handoff & Dispatch Board') }}</h2>
                     </div>
-                    <p class="text-xs text-slate-400 mt-0.5">{{ __('Leave notes, warnings, maintenance reminders, and departmental handoffs with tags.') }}</p>
+                    <p class="text-xs text-slate-400 mt-0.5">{{ __('Shift briefings, equipment advisory warnings, and biomedical maintenance memos.') }}</p>
                 </div>
 
-                <!-- Tag & Color Filter Controls (Alpine.js) -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <div class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800 text-[11px]">
-                        <button
-                            type="button"
-                            @click="activeTag = 'all'"
-                            :class="activeTag === 'all' ? 'bg-teal-600 text-white font-bold' : 'text-slate-400 hover:text-white'"
-                            class="px-2.5 py-1 rounded-lg transition"
-                        >All Tags</button>
-                        <button
-                            type="button"
-                            @click="activeTag = 'urgent'"
-                            :class="activeTag === 'urgent' ? 'bg-rose-600 text-white font-bold' : 'text-slate-400 hover:text-rose-400'"
-                            class="px-2.5 py-1 rounded-lg transition"
-                        >🚨 Urgent</button>
-                        <button
-                            type="button"
-                            @click="activeTag = 'shift-handoff'"
-                            :class="activeTag === 'shift-handoff' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-blue-400'"
-                            class="px-2.5 py-1 rounded-lg transition"
-                        >🔄 Shift Handoff</button>
-                        <button
-                            type="button"
-                            @click="activeTag = 'calibration'"
-                            :class="activeTag === 'calibration' ? 'bg-amber-600 text-white font-bold' : 'text-slate-400 hover:text-amber-400'"
-                            class="px-2.5 py-1 rounded-lg transition"
-                        >🧪 Calibration</button>
-                    </div>
-
+                <!-- Minimal Monospace Tag Filters -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button
+                        type="button"
+                        @click="activeTag = 'all'"
+                        :class="activeTag === 'all' ? 'bg-[#222634] text-white font-bold border-[#3d4358]' : 'bg-[#12141a] text-slate-400 hover:text-white border-[#1c1f26]'"
+                        class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
+                    >All</button>
+                    <button
+                        type="button"
+                        @click="activeTag = 'urgent'"
+                        :class="activeTag === 'urgent' ? 'bg-rose-950/60 text-rose-300 font-bold border-rose-700/60' : 'bg-[#12141a] text-slate-400 hover:text-rose-400 border-[#1c1f26]'"
+                        class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
+                    >Urgent</button>
+                    <button
+                        type="button"
+                        @click="activeTag = 'shift-handoff'"
+                        :class="activeTag === 'shift-handoff' ? 'bg-sky-950/60 text-sky-300 font-bold border-sky-700/60' : 'bg-[#12141a] text-slate-400 hover:text-sky-400 border-[#1c1f26]'"
+                        class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
+                    >Handoff</button>
+                    <button
+                        type="button"
+                        @click="activeTag = 'calibration'"
+                        :class="activeTag === 'calibration' ? 'bg-amber-950/60 text-amber-300 font-bold border-amber-700/60' : 'bg-[#12141a] text-slate-400 hover:text-amber-400 border-[#1c1f26]'"
+                        class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
+                    >Calibration</button>
                     <button
                         type="button"
                         @click="showNoteModal = true"
-                        class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition"
-                        title="Add Note"
+                        onclick="document.getElementById('noteModal').style.display='flex'"
+                        class="p-1.5 rounded-md bg-[#12141a] hover:bg-[#181a22] text-slate-300 border border-[#1c1f26] transition cursor-pointer"
+                        title="New Memo"
                     >
-                        <x-ui.icon name="plus" class="size-4" />
+                        <x-ui.icon name="plus" class="size-3" />
                     </button>
                 </div>
             </div>
 
-            <!-- Sticky Notes Grid -->
+            <!-- Dispatch Cards Grid -->
             @if ($notes->isEmpty())
-                <div class="p-12 text-center rounded-xl border border-dashed border-slate-800 bg-slate-950/40">
-                    <x-ui.icon name="pin" class="size-8 text-amber-400/60 mx-auto mb-3" />
-                    <h3 class="text-sm font-semibold text-slate-300">{{ __('No Active Sticky Notes') }}</h3>
-                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">{{ __('Leave a memo for the next shift or pin a device warning.') }}</p>
-                    <button
-                        type="button"
-                        @click="showNoteModal = true"
-                        class="mt-4 inline-flex items-center gap-2 rounded-lg bg-amber-500/20 border border-amber-500/40 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:bg-amber-500/30 transition"
-                    >
-                        <x-ui.icon name="plus" class="size-3.5" />
-                        {{ __('Create First Sticky Note') }}
-                    </button>
+                <div class="p-8 text-center rounded-lg border border-dashed border-[#1c1f26] bg-[#08090a]">
+                    <p class="font-mono text-xs text-slate-500">{{ __('No active dispatch memos on this station.') }}</p>
                 </div>
             @else
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -185,12 +168,12 @@
                                 <form
                                     method="POST"
                                     action="{{ route('notes.destroy', $note) }}"
-                                    onsubmit="return confirm('Remove this note?');"
-                                    class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"
+                                    onsubmit="return confirm('Remove this memo?');"
+                                    class="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition"
                                 >
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-1 rounded-md bg-black/20 text-current hover:bg-rose-500 hover:text-white transition" title="Delete Note">
+                                    <button type="submit" class="p-1 rounded bg-black/40 text-slate-400 hover:text-rose-400 transition" title="Delete Note">
                                         <x-ui.icon name="trash" class="size-3" />
                                     </button>
                                 </form>
@@ -201,27 +184,27 @@
             @endif
         </div>
 
-        <!-- Recent Issues & Operational Shortcuts Grid -->
+        <!-- 🛠️ Recent Defect Log & Station Ledger -->
         <div class="grid gap-6 lg:grid-cols-3">
-            <!-- Recent Issues Feed (2 Cols) -->
-            <div class="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <x-ui.icon name="wrench" class="size-4 text-amber-400" />
-                        {{ __('Recent Defect & Repair Requests') }}
-                    </h3>
-                    <a href="{{ route('issues.index') }}" class="text-xs text-teal-400 hover:underline">
-                        {{ __('View All') }} ({{ $openIssuesCount }} {{ __('Open') }}) →
+            <!-- Recent Problem Reports (2 Cols) -->
+            <div class="lg:col-span-2 rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Active Problem Tickets') }}</span>
+                        <span class="font-mono text-[10px] text-slate-500">({{ $openIssuesCount }} pending)</span>
+                    </div>
+                    <a href="{{ route('issues.index') }}" class="font-mono text-[11px] text-slate-400 hover:text-white transition">
+                        View Queue &rarr;
                     </a>
                 </div>
 
                 @if ($recentIssues->isEmpty())
-                    <p class="text-xs text-slate-500 italic py-4 text-center">{{ __('No issues logged.') }}</p>
+                    <p class="font-mono text-xs text-slate-500 py-6 text-center">{{ __('No open repair tickets registered.') }}</p>
                 @else
-                    <div class="space-y-3">
+                    <div class="divide-y divide-[#1c1f26]">
                         @foreach ($recentIssues as $issue)
-                            <div class="rounded-xl border border-slate-800 bg-slate-950/70 p-3.5 flex items-center justify-between gap-3">
-                                <div class="space-y-0.5 truncate">
+                            <div class="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0 hover:bg-[#12141a]/60 px-2 rounded-lg transition">
+                                <div class="space-y-1 min-w-0">
                                     <div class="flex items-center gap-2">
                                         @php
                                             $priVariants = [
@@ -234,24 +217,24 @@
                                         <x-ui.badge :variant="$priVariants[$issue->priority->value] ?? 'slate'">
                                             {{ $issue->priority->label() }}
                                         </x-ui.badge>
-                                        <a href="{{ route('issues.show', $issue) }}" class="text-xs font-bold text-white hover:text-amber-400 transition truncate">
+                                        <a href="{{ route('issues.show', $issue) }}" class="text-xs font-bold text-white hover:underline truncate">
                                             {{ $issue->title }}
                                         </a>
                                     </div>
-                                    <p class="text-[11px] text-slate-400">
+                                    <p class="font-mono text-[10px] text-slate-400">
                                         [{{ $issue->equipment->asset_tag }}] {{ $issue->equipment->name }} &middot; {{ $issue->created_at->diffForHumans() }}
                                     </p>
                                 </div>
 
-                                <div class="flex items-center gap-2 shrink-0">
+                                <div class="flex items-center gap-3 shrink-0">
                                     <x-ui.badge variant="teal" dot>
                                         {{ $issue->progress_status->label() }}
                                     </x-ui.badge>
                                     <a
                                         href="{{ route('issues.show', $issue) }}"
-                                        class="p-1 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 hover:text-white transition"
+                                        class="p-1 rounded text-slate-400 hover:text-white transition"
                                     >
-                                        <x-ui.icon name="arrow-right" class="size-3.5" />
+                                        &rarr;
                                     </a>
                                 </div>
                             </div>
@@ -260,29 +243,31 @@
                 @endif
             </div>
 
-            <!-- LAN Server & Operations Info -->
-            <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-4">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider">{{ __('LAN Server Health') }}</h3>
-                <div class="space-y-3 text-xs">
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <span class="text-slate-400">Database Engine</span>
-                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-950 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-800/80">Active</span>
-                    </div>
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <span class="text-slate-400">Hospital Subnet</span>
-                        <span class="text-slate-300 font-mono text-[11px]">Private LAN Node</span>
-                    </div>
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <span class="text-slate-400">Host Workstation</span>
-                        <span class="text-slate-300 font-mono text-[11px]">{{ gethostname() ?: 'Server' }}</span>
-                    </div>
-                    <a
-                        href="{{ route('health') }}"
-                        class="mt-2 block w-full text-center rounded-xl border border-slate-700 bg-slate-800/80 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-white transition"
-                    >
-                        {{ __('Open Diagnostic Panel') }} →
-                    </a>
+            <!-- Station Diagnostics Block -->
+            <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
+                <div class="border-b border-[#1c1f26] pb-3">
+                    <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Station Node Ledger') }}</span>
                 </div>
+                <div class="space-y-3 font-mono text-xs divide-y divide-[#1c1f26]/60">
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-slate-500">Database Engine</span>
+                        <span class="text-emerald-400 font-semibold">SQLite WAL (Healthy)</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-slate-500">Local Subnet</span>
+                        <span class="text-slate-300">127.0.0.1 / LAN</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-slate-500">Station Identity</span>
+                        <span class="text-slate-300">{{ gethostname() ?: 'Server' }}</span>
+                    </div>
+                </div>
+                <a
+                    href="{{ route('health') }}"
+                    class="block w-full text-center rounded-lg border border-[#2c303d] bg-[#12141a] py-2 font-mono text-xs font-medium text-slate-300 hover:bg-[#181a22] hover:text-white transition"
+                >
+                    Run Diagnostics &rarr;
+                </a>
             </div>
         </div>
 
@@ -292,23 +277,23 @@
             x-show="showNoteModal"
             x-cloak
             style="display: none;"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
             @keydown.escape.window="showNoteModal = false; $el.style.display='none'"
         >
             <div
-                class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-5"
+                class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-5"
                 @click.outside="showNoteModal = false; document.getElementById('noteModal').style.display='none'"
             >
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
-                        <x-ui.icon name="pin" class="size-5 text-amber-400" />
-                        <h3 class="text-sm font-bold text-white">{{ __('Pin New Clinical Sticky Note') }}</h3>
+                        <span class="h-2 w-2 rounded-xs bg-amber-400"></span>
+                        <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Compose Clinical Memo') }}</h3>
                     </div>
                     <button
                         type="button"
                         @click="showNoteModal = false"
                         onclick="document.getElementById('noteModal').style.display='none'"
-                        class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
 
@@ -316,95 +301,94 @@
                     @csrf
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">{{ __('Note Title') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Memo Subject') }}</label>
                         <input
                             type="text"
                             name="title"
                             required
                             placeholder="e.g. Defibrillator calibration due / Shift Handoff"
-                            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
                         />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">{{ __('Note Content / Memo') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Content / Directives') }}</label>
                         <textarea
                             name="body"
                             rows="3"
                             required
-                            placeholder="Enter detailed message, instructions, or department notes..."
-                            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-hidden"
+                            placeholder="Enter detailed message or instructions..."
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
                         ></textarea>
                     </div>
 
                     <!-- Color Selector -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">{{ __('Sticky Note Color') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1.5">{{ __('Color Palette') }}</label>
                         <div class="flex items-center gap-2">
                             <label class="cursor-pointer">
                                 <input type="radio" name="color" value="canary" x-model="noteColor" class="sr-only" />
-                                <div :class="noteColor === 'canary' ? 'ring-2 ring-white scale-110' : 'opacity-70'" class="h-7 w-7 rounded-lg bg-amber-200 transition"></div>
+                                <div :class="noteColor === 'canary' ? 'ring-2 ring-amber-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-amber-500/80 transition"></div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="color" value="mint" x-model="noteColor" class="sr-only" />
-                                <div :class="noteColor === 'mint' ? 'ring-2 ring-white scale-110' : 'opacity-70'" class="h-7 w-7 rounded-lg bg-emerald-200 transition"></div>
+                                <div :class="noteColor === 'mint' ? 'ring-2 ring-emerald-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-emerald-500/80 transition"></div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="color" value="azure" x-model="noteColor" class="sr-only" />
-                                <div :class="noteColor === 'azure' ? 'ring-2 ring-white scale-110' : 'opacity-70'" class="h-7 w-7 rounded-lg bg-sky-200 transition"></div>
+                                <div :class="noteColor === 'azure' ? 'ring-2 ring-sky-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-sky-500/80 transition"></div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="color" value="coral" x-model="noteColor" class="sr-only" />
-                                <div :class="noteColor === 'coral' ? 'ring-2 ring-white scale-110' : 'opacity-70'" class="h-7 w-7 rounded-lg bg-rose-200 transition"></div>
+                                <div :class="noteColor === 'coral' ? 'ring-2 ring-rose-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-rose-500/80 transition"></div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="color" value="lavender" x-model="noteColor" class="sr-only" />
-                                <div :class="noteColor === 'lavender' ? 'ring-2 ring-white scale-110' : 'opacity-70'" class="h-7 w-7 rounded-lg bg-purple-200 transition"></div>
+                                <div :class="noteColor === 'lavender' ? 'ring-2 ring-purple-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-purple-500/80 transition"></div>
                             </label>
                         </div>
                     </div>
 
                     <!-- Tags -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">{{ __('Tags (comma separated)') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Tags (comma separated)') }}</label>
                         <input
                             type="text"
                             name="tags"
                             x-model="noteTags"
                             placeholder="urgent, shift-handoff, calibration"
-                            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
                         />
-                        <div class="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
-                            <span class="text-slate-500 text-[10px]">Quick Presets:</span>
-                            <button type="button" @click="addTag('urgent')" class="rounded-md bg-rose-950/80 border border-rose-800/80 px-2 py-0.5 text-rose-300 hover:bg-rose-900 transition cursor-pointer">🚨 Urgent</button>
-                            <button type="button" @click="addTag('shift-handoff')" class="rounded-md bg-blue-950/80 border border-blue-800/80 px-2 py-0.5 text-blue-300 hover:bg-blue-900 transition cursor-pointer">🔄 Shift Handoff</button>
-                            <button type="button" @click="addTag('calibration')" class="rounded-md bg-amber-950/80 border border-amber-800/80 px-2 py-0.5 text-amber-300 hover:bg-amber-900 transition cursor-pointer">🧪 Calibration</button>
-                            <button type="button" @click="addTag('biohazard')" class="rounded-md bg-red-950/80 border border-red-800/80 px-2 py-0.5 text-red-300 hover:bg-red-900 transition cursor-pointer">☣️ Biohazard</button>
-                            <button type="button" @click="addTag('icu-priority')" class="rounded-md bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 text-emerald-300 hover:bg-emerald-900 transition cursor-pointer">🏥 ICU Priority</button>
+                        <div class="mt-2 flex flex-wrap items-center gap-1 text-[10px] font-mono">
+                            <span class="text-slate-500">Presets:</span>
+                            <button type="button" @click="addTag('urgent')" class="rounded border border-rose-800/40 bg-rose-950/30 px-1.5 py-0.5 text-rose-300 hover:bg-rose-900/40 transition cursor-pointer">urgent</button>
+                            <button type="button" @click="addTag('shift-handoff')" class="rounded border border-sky-800/40 bg-sky-950/30 px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/40 transition cursor-pointer">shift-handoff</button>
+                            <button type="button" @click="addTag('calibration')" class="rounded border border-amber-800/40 bg-amber-950/30 px-1.5 py-0.5 text-amber-300 hover:bg-amber-900/40 transition cursor-pointer">calibration</button>
+                            <button type="button" @click="addTag('icu-priority')" class="rounded border border-emerald-800/40 bg-emerald-950/30 px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/40 transition cursor-pointer">icu-priority</button>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2 pt-1">
-                        <input type="checkbox" id="is_pinned" name="is_pinned" value="1" class="h-4 w-4 rounded-md border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-400" />
-                        <label for="is_pinned" class="text-xs font-medium text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="is_pinned" name="is_pinned" value="1" class="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950 text-white focus:ring-0" />
+                        <label for="is_pinned" class="font-mono text-xs text-slate-300 cursor-pointer">
                             {{ __('Pin to Top of Noticeboard') }}
                         </label>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
                         <button
                             type="button"
                             @click="showNoteModal = false"
                             onclick="document.getElementById('noteModal').style.display='none'"
-                            class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition cursor-pointer"
+                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
                         >
                             {{ __('Cancel') }}
                         </button>
                         <button
                             type="submit"
-                            class="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-amber-950 shadow-md shadow-amber-900/30 hover:bg-amber-400 transition cursor-pointer"
+                            class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
                         >
-                            {{ __('Pin Note') }}
+                            {{ __('Pin Memo') }}
                         </button>
                     </div>
                 </form>
