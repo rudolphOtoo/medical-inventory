@@ -1,0 +1,65 @@
+name: medtrack
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: medtrack-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - app_storage:/app/storage
+      - app_bootstrap_cache:/app/bootstrap/cache
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - medtrack
+
+  db:
+    image: mariadb:11.4
+    container_name: medtrack-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE:-medtrack}
+      MARIADB_USER: ${DB_USERNAME:-medtrack_app}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root -p$${MARIADB_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - medtrack
+
+  adminer:
+    image: adminer:4.8.1
+    container_name: medtrack-adminer
+    profiles: ["adminer"]
+    restart: "no"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "127.0.0.1:${ADMINER_PORT:-8081}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - medtrack
+
+networks:
+  medtrack:
+    driver: bridge
+
+volumes:
+  db_data:
+  app_storage:
+  app_bootstrap_cache:

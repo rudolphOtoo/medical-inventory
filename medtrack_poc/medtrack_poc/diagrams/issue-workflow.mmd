@@ -1,0 +1,12 @@
+stateDiagram-v2
+    [*] --> Reported: Department user reports issue
+    Reported --> Acknowledged: Admin reviews
+    Acknowledged --> Assigned: Admin assigns owner
+    Assigned --> InProgress: Work begins
+    InProgress --> AwaitingParts: Parts/info needed
+    AwaitingParts --> InProgress: Parts/info received
+    InProgress --> ReadyForTesting: Repair work complete
+    ReadyForTesting --> Resolved: Result verified
+    Resolved --> Closed: Admin closes issue
+    Resolved --> InProgress: Test fails / more work needed
+    Closed --> [*]

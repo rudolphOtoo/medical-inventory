@@ -1,0 +1,10 @@
+flowchart LR
+    A[Department browsers] -->|HTTP over private hospital Wi-Fi| B[Windows Admin/server PC]
+    B --> C[Docker Desktop]
+    C --> D[FrankenPHP + Laravel]
+    C --> E[MariaDB]
+    C --> F[Adminer optional]
+    E --> G[(Persistent DB volume)]
+    D --> H[(Persistent uploads/storage)]
+    F -->|localhost only| B
+    I[Windows Start/Stop/Backup scripts] --> C
