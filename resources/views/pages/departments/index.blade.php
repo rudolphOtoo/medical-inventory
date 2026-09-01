@@ -73,21 +73,28 @@
         <!-- Alpine Modal: Add Department (Admin Only) -->
         @if (auth()->user()->isAdmin())
             <div
+                id="deptModal"
                 x-show="showCreateModal"
                 x-cloak
+                style="display: none;"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
-                @keydown.escape.window="showCreateModal = false"
+                @keydown.escape.window="showCreateModal = false; $el.style.display='none'"
             >
                 <div
                     class="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-5"
-                    @click.outside="showCreateModal = false"
+                    @click.outside="showCreateModal = false; document.getElementById('deptModal').style.display='none'"
                 >
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                         <div class="flex items-center gap-2">
                             <x-ui.icon name="building" class="size-5 text-teal-400" />
                             <h3 class="text-sm font-bold text-white">{{ __('Create Hospital Department') }}</h3>
                         </div>
-                        <button type="button" @click="showCreateModal = false" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+                        <button
+                            type="button"
+                            @click="showCreateModal = false"
+                            onclick="document.getElementById('deptModal').style.display='none'"
+                            class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-lg font-bold leading-none cursor-pointer"
+                        >&times;</button>
                     </div>
 
                     <form method="POST" action="{{ route('departments.store') }}" class="space-y-4">
@@ -150,13 +157,14 @@
                             <button
                                 type="button"
                                 @click="showCreateModal = false"
-                                class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition"
+                                onclick="document.getElementById('deptModal').style.display='none'"
+                                class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition cursor-pointer"
                             >
                                 {{ __('Cancel') }}
                             </button>
                             <button
                                 type="submit"
-                                class="rounded-xl bg-teal-600 px-5 py-2 text-xs font-bold text-white shadow-md shadow-teal-900/40 hover:bg-teal-500 transition"
+                                class="rounded-xl bg-teal-600 px-5 py-2 text-xs font-bold text-white shadow-md shadow-teal-900/40 hover:bg-teal-500 transition cursor-pointer"
                             >
                                 {{ __('Save Department') }}
                             </button>

@@ -286,23 +286,30 @@
             </div>
         </div>
 
-        <!-- 📌 Alpine Modal: Pin Sticky Note -->
+        <!-- 📌 Modal: Pin Sticky Note -->
         <div
+            id="noteModal"
             x-show="showNoteModal"
             x-cloak
+            style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
-            @keydown.escape.window="showNoteModal = false"
+            @keydown.escape.window="showNoteModal = false; $el.style.display='none'"
         >
             <div
                 class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-5"
-                @click.outside="showNoteModal = false"
+                @click.outside="showNoteModal = false; document.getElementById('noteModal').style.display='none'"
             >
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div class="flex items-center gap-2">
                         <x-ui.icon name="pin" class="size-5 text-amber-400" />
                         <h3 class="text-sm font-bold text-white">{{ __('Pin New Clinical Sticky Note') }}</h3>
                     </div>
-                    <button type="button" @click="showNoteModal = false" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+                    <button
+                        type="button"
+                        @click="showNoteModal = false"
+                        onclick="document.getElementById('noteModal').style.display='none'"
+                        class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-lg font-bold leading-none cursor-pointer"
+                    >&times;</button>
                 </div>
 
                 <form method="POST" action="{{ route('notes.store') }}" class="space-y-4">
@@ -369,11 +376,11 @@
                         />
                         <div class="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
                             <span class="text-slate-500 text-[10px]">Quick Presets:</span>
-                            <button type="button" @click="addTag('urgent')" class="rounded-md bg-rose-950/80 border border-rose-800/80 px-2 py-0.5 text-rose-300 hover:bg-rose-900 transition">🚨 Urgent</button>
-                            <button type="button" @click="addTag('shift-handoff')" class="rounded-md bg-blue-950/80 border border-blue-800/80 px-2 py-0.5 text-blue-300 hover:bg-blue-900 transition">🔄 Shift Handoff</button>
-                            <button type="button" @click="addTag('calibration')" class="rounded-md bg-amber-950/80 border border-amber-800/80 px-2 py-0.5 text-amber-300 hover:bg-amber-900 transition">🧪 Calibration</button>
-                            <button type="button" @click="addTag('biohazard')" class="rounded-md bg-red-950/80 border border-red-800/80 px-2 py-0.5 text-red-300 hover:bg-red-900 transition">☣️ Biohazard</button>
-                            <button type="button" @click="addTag('icu-priority')" class="rounded-md bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 text-emerald-300 hover:bg-emerald-900 transition">🏥 ICU Priority</button>
+                            <button type="button" @click="addTag('urgent')" class="rounded-md bg-rose-950/80 border border-rose-800/80 px-2 py-0.5 text-rose-300 hover:bg-rose-900 transition cursor-pointer">🚨 Urgent</button>
+                            <button type="button" @click="addTag('shift-handoff')" class="rounded-md bg-blue-950/80 border border-blue-800/80 px-2 py-0.5 text-blue-300 hover:bg-blue-900 transition cursor-pointer">🔄 Shift Handoff</button>
+                            <button type="button" @click="addTag('calibration')" class="rounded-md bg-amber-950/80 border border-amber-800/80 px-2 py-0.5 text-amber-300 hover:bg-amber-900 transition cursor-pointer">🧪 Calibration</button>
+                            <button type="button" @click="addTag('biohazard')" class="rounded-md bg-red-950/80 border border-red-800/80 px-2 py-0.5 text-red-300 hover:bg-red-900 transition cursor-pointer">☣️ Biohazard</button>
+                            <button type="button" @click="addTag('icu-priority')" class="rounded-md bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 text-emerald-300 hover:bg-emerald-900 transition cursor-pointer">🏥 ICU Priority</button>
                         </div>
                     </div>
 
@@ -388,13 +395,14 @@
                         <button
                             type="button"
                             @click="showNoteModal = false"
-                            class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition"
+                            onclick="document.getElementById('noteModal').style.display='none'"
+                            class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition cursor-pointer"
                         >
                             {{ __('Cancel') }}
                         </button>
                         <button
                             type="submit"
-                            class="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-amber-950 shadow-md shadow-amber-900/30 hover:bg-amber-400 transition"
+                            class="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-amber-950 shadow-md shadow-amber-900/30 hover:bg-amber-400 transition cursor-pointer"
                         >
                             {{ __('Pin Note') }}
                         </button>

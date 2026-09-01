@@ -175,23 +175,30 @@
             @endif
         </div>
 
-        <!-- 📌 Alpine Modal: Report New Issue -->
+        <!-- 📌 Modal: Report New Issue -->
         <div
+            id="reportIssueModal"
             x-show="showReportModal"
             x-cloak
+            style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs"
-            @keydown.escape.window="showReportModal = false"
+            @keydown.escape.window="showReportModal = false; $el.style.display='none'"
         >
             <div
                 class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-                @click.outside="showReportModal = false"
+                @click.outside="showReportModal = false; document.getElementById('reportIssueModal').style.display='none'"
             >
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div class="flex items-center gap-2">
                         <x-ui.icon name="wrench" class="size-5 text-amber-400" />
                         <h3 class="text-sm font-bold text-white">{{ __('Report Equipment Issue / Defect') }}</h3>
                     </div>
-                    <button type="button" @click="showReportModal = false" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+                    <button
+                        type="button"
+                        @click="showReportModal = false"
+                        onclick="document.getElementById('reportIssueModal').style.display='none'"
+                        class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-lg font-bold leading-none cursor-pointer"
+                    >&times;</button>
                 </div>
 
                 <form method="POST" action="{{ route('issues.store') }}" class="space-y-4">
@@ -254,13 +261,14 @@
                         <button
                             type="button"
                             @click="showReportModal = false"
-                            class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition"
+                            onclick="document.getElementById('reportIssueModal').style.display='none'"
+                            class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition cursor-pointer"
                         >
                             {{ __('Cancel') }}
                         </button>
                         <button
                             type="submit"
-                            class="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-amber-950 shadow-md shadow-amber-900/30 hover:bg-amber-400 transition"
+                            class="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-amber-950 shadow-md shadow-amber-900/30 hover:bg-amber-400 transition cursor-pointer"
                         >
                             {{ __('Submit Issue Ticket') }}
                         </button>
