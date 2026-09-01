@@ -1,30 +1,61 @@
-# 👨‍💻 Developer A: Sprint Task Checklist
+# 👨‍💻 Developer A: Sprint Task Checklist & Backlog
 
 > Verified under `/senior-stable-delivery`, `/pipeline`, and `/VibeSec-Skill` guidelines.
 
-## 📋 Task Breakdown & Status
+---
 
-### Milestone 1: Department Subsystem
-- [x] Create `Department` Model & Migration (`name`, `code`, `floor`, `contact_number`, `head_of_department`).
-- [x] Seed standard hospital departments (`ED`, `ICU`, `RAD`, `SURG`, `BIOMED`, `ONC`).
-- [x] Build Department Index view with equipment count badges and Admin create modal.
-- [x] Feature test: Department creation, listing, and Admin authorization.
+## 🟢 Phase 1: Completed Scaffolding Foundation (Ready & Tested)
 
-### Milestone 2: Equipment Model & Migration
-- [x] Create `Equipment` Model & Migration (`name`, `model_number`, `manufacturer`, `asset_tag`, `serial_number`, `department_id`, `location`, `status`, `description`, `is_archived`, `created_by`).
-- [x] Server-side unique validation on `asset_tag` and `serial_number`.
-- [x] Seed 12+ real-world medical devices with realistic asset tags and manufacturer specs.
-- [x] Feature test: Scoping (Department users see own equipment; Admin sees all).
+- [x] **Department Subsystem**: Model, Migration, Seeder, Admin Creation Modal, Directory Index ([`DepartmentController.php`](file:///c:/Users/doks/Herd/medtrack/app/Http/Controllers/DepartmentController.php)).
+- [x] **Equipment Registry Subsystem**: Model, Migration with unique asset/serial validations, Scoped queries (`Equipment::forUser()`), Directory Index with multi-column search & status filters ([`EquipmentController.php`](file:///c:/Users/doks/Herd/medtrack/app/Http/Controllers/EquipmentController.php)).
+- [x] **Device Spec Sheet (`/equipment/{id}`)**: Full spec view, operational status quick-changer, archiving toggle, and pinned clinical memos.
+- [x] **Inventory CSV Export**: Admin-only streamed export (`GET /equipment/export`).
+- [x] **Automated Feature Tests**: `EquipmentManagementTest.php` and `DepartmentManagementTest.php` (All passing).
 
-### Milestone 3: Equipment Directory UI (Search & Filtering)
-- [x] Build Equipment Index Table with status badge indicators and quick actions.
-- [x] Implement multi-column search (Name, Serial, Asset Tag, Manufacturer) and multi-filter (Department, Status).
-- [x] Build Equipment Detail Spec Sheet View (`/equipment/{id}`) showing device identity, department, current operational state, open issues, and history.
-- [x] Embed `<x-ui.sticky-note>` clinical memos pinned to specific medical equipment items.
+---
 
-### Milestone 4: Archiving, Status Updates & Export
-- [x] Implement instant status transition route (`PATCH /equipment/{id}/status`).
-- [x] Implement Archiving toggle (`is_archived = true`) to hide equipment from operational lists without losing history.
-- [x] Implement CSV Export for administrators (`GET /equipment/export`).
-- [x] Use pure Tailwind CSS UI utilities (`<x-ui.*>`) without third-party component bloat.
-- [x] Automated tests: `tests/Feature/EquipmentManagementTest.php` and `tests/Feature/DepartmentManagementTest.php`.
+## 🎯 Phase 2: Next Backlog Tasks (Choose Your Next Task)
+
+### 📸 Task A1: Equipment Photo & PDF Manual Uploads
+- **Goal**: Allow staff to attach device photos and user manual PDFs to equipment records.
+- **Requirements**:
+  - Add `photo_path` and `manual_path` fields to `equipment` table.
+  - VibeSec validation: mime types (`image/jpeg,image/png,image/webp,application/pdf`), max 10MB.
+  - Store files securely on local disk (`storage/app/public/equipment/`).
+  - Render photo preview and manual download link on [`equipment/show.blade.php`](file:///c:/Users/doks/Herd/medtrack/resources/views/pages/equipment/show.blade.php).
+
+### 🏷️ Task A2: Asset Tag QR Code & Barcode Generation
+- **Goal**: Generate printable asset tag QR codes for equipment items for fast physical scanning.
+- **Requirements**:
+  - Add a "Print Asset Tag" modal / route on `/equipment/{id}/tag`.
+  - Render device Name, Asset Tag, Serial, Department, and QR code pointing to `http://medtrack.test/equipment/{id}`.
+
+### 🧪 Task A3: Calibration & Preventive Maintenance Countdown
+- **Goal**: Track routine calibration expiration dates for medical equipment.
+- **Requirements**:
+  - Add `last_calibrated_at` and `next_calibration_due` datetime columns.
+  - Display color-coded calibration badges (`Valid`, `Expiring Soon < 30 days`, `Overdue`) in the equipment directory and spec sheet.
+  - Filter equipment by "Calibration Due".
+
+### 🏢 Task A4: Equipment Department Transfer / Re-allocation History
+- **Goal**: Track movement of equipment between hospital wards.
+- **Requirements**:
+  - Add "Transfer Department" action button on `/equipment/{id}`.
+  - Update `department_id` and automatically record an `ActivityLog` entry: `"Transferred device from ICU to Surgery"`.
+
+---
+
+## 🛠️ Developer A Workflow & Verification
+
+Run these commands after making changes:
+```powershell
+# 1. Format code to standards
+vendor\bin\pint --dirty --format agent
+
+# 2. Run your specific test suite
+php artisan test --filter=EquipmentManagementTest
+php artisan test --filter=DepartmentManagementTest
+
+# 3. Build frontend assets if modifying Blade/CSS
+npm run build
+```

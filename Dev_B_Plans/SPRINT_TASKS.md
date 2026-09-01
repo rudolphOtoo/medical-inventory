@@ -1,32 +1,62 @@
-# 👩‍💻 Developer B: Sprint Task Checklist
+# 👩‍💻 Developer B: Sprint Task Checklist & Backlog
 
 > Verified under `/senior-stable-delivery`, `/pipeline`, and `/VibeSec-Skill` guidelines.
 
-## 📋 Task Breakdown & Status
+---
 
-### Milestone 1: Issue Report Model & Scoping
-- [x] Create `IssueReport` Model & Migration (`equipment_id`, `reporter_id`, `department_id`, `assigned_to_id`, `title`, `description`, `priority`, `progress_status`, `resolution_notes`, `resolved_at`, `closed_at`).
-- [x] Enums: `IssuePriority` (`Low`, `Medium`, `High`, `Critical`), `IssueProgress` (8 states).
-- [x] Seed realistic medical equipment tickets across multiple wards.
-- [x] Feature test: Department user scoping & high-priority auto-status updates.
+## 🟢 Phase 1: Completed Scaffolding Foundation (Ready & Tested)
 
-### Milestone 2: Finite State Machine & Triage Terminal
-- [x] Implement Finite State stepper (`Reported` → `Acknowledged` → `Assigned` → `InProgress` → `AwaitingParts` → `ReadyForTesting` → `Resolved` → `Closed`).
-- [x] Build Triage Control Terminal (`/issues/{id}`) with progress updates and resolution notes.
-- [x] Implement **Operational Return-to-Service Gate**: Certifies equipment operational condition when resolving tickets.
-- [x] Feature test: `tests/Feature/IssueLifecycleTest.php`.
+- [x] **Issue Reporting Subsystem**: Model, Migration, Scoped queries (`IssueReport::forUser()`), Report Defect modal ([`IssueController.php`](file:///c:/Users/doks/Herd/medtrack/app/Http/Controllers/IssueController.php)).
+- [x] **8-Stage Finite State Machine Stepper**: `Reported` → `Acknowledged` → `Assigned` → `InProgress` → `AwaitingParts` → `ReadyForTesting` → `Resolved` → `Closed`.
+- [x] **Triage Terminal (`/issues/{id}`)**: Visual milestone progress, technician assignment, resolution notes, and **Operational Return-to-Service Gate**.
+- [x] **Activity & Audit Subsystem**: `ActivityLog` polymorphic logging, chronological timeline ([`ActivityController.php`](file:///c:/Users/doks/Herd/medtrack/app/Http/Controllers/ActivityController.php)).
+- [x] **Clinical Error Suite & Health**: `404`, `403`, `500`, `419`, `503` error views and `/health` diagnostics.
+- [x] **Automated Feature Tests**: `IssueLifecycleTest.php` and `StarterShellRoutesTest.php` (All passing).
 
-### Milestone 3: Issue Queue & Filtering
-- [x] Implement Issue Queue table with priority badge indicators and status tabs (`/issues`).
-- [x] Build Report Problem modal with department equipment dropdown.
-- [x] Feature test: Tabbed filtering by progress state and priority.
+---
 
-### Milestone 4: Polymorphic Activity & Audit Trail
-- [x] Create `ActivityLog` Model, Migration, and Helper (`record()`).
-- [x] Record all domain events across equipment, issues, departments, and clinical notes.
-- [x] Build Activity Timeline View (`/activity`) with filterable event badges.
+## 🎯 Phase 2: Next Backlog Tasks (Choose Your Next Task)
 
-### Milestone 5: LAN Operations & System Health
-- [x] Built `/health` diagnostics endpoint and panel.
-- [x] Built bespoke clinical error pages (`404`, `403`, `500`, `419`, `503`) with return-to-landing actions.
-- [x] Automated tests: 51/51 passing.
+### 💬 Task B1: Multi-Entry Repair Work Log / Comments Thread
+- **Goal**: Allow engineers and nurses to append ongoing diagnostic notes to a ticket without overwriting existing history.
+- **Requirements**:
+  - Create `IssueComment` model & migration (`issue_report_id`, `user_id`, `body`, `is_internal_only`).
+  - Render an interactive conversation thread on [`issues/show.blade.php`](file:///c:/Users/doks/Herd/medtrack/resources/views/pages/issues/show.blade.php).
+  - Feature test: Comments appended correctly with author attribution.
+
+### ⏱️ Task B2: Mean-Time-To-Repair (MTTR) & SLA Resolution Metrics
+- **Goal**: Calculate and display equipment downtime and repair turnaround times.
+- **Requirements**:
+  - Calculate duration between `created_at` and `resolved_at` on resolved issues.
+  - Display MTTR stat badge on the dashboard and issue details.
+  - Flag overdue high-priority tickets (> 24 hours unresolved).
+
+### 🔩 Task B3: Spare Parts & Component Tracking
+- **Goal**: Track replacement parts used during repairs (e.g. sensor cables, battery packs, filter assemblies).
+- **Requirements**:
+  - Create `SparePart` model (`name`, `part_number`, `stock_quantity`, `unit_cost`).
+  - Add "Parts Used" picker in the Triage Terminal when transitioning to `AwaitingParts` or `Resolved`.
+
+### 💾 Task B4: Automated Hospital LAN Backup Script
+- **Goal**: One-click local backup of SQLite database and attached assets to a timestamped archive.
+- **Requirements**:
+  - Artisan command: `php artisan medtrack:backup`.
+  - Compress `database/database.sqlite` and `storage/app/public/` into `storage/backups/medtrack_backup_YYYYMMDD_HHMM.zip`.
+  - Add "Download LAN Backup" button on [`health/index.blade.php`](file:///c:/Users/doks/Herd/medtrack/resources/views/pages/health/index.blade.php).
+
+---
+
+## 🛠️ Developer B Workflow & Verification
+
+Run these commands after making changes:
+```powershell
+# 1. Format code to standards
+vendor\bin\pint --dirty --format agent
+
+# 2. Run your specific test suite
+php artisan test --filter=IssueLifecycleTest
+php artisan test --filter=StarterShellRoutesTest
+
+# 3. Build frontend assets if modifying Blade/CSS
+npm run build
+```
