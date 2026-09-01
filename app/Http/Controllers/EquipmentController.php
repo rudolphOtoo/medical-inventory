@@ -99,7 +99,7 @@ class EquipmentController extends Controller
             abort(403, 'Unauthorized device access.');
         }
 
-        $equipment->load(['department', 'creator', 'issues.reporter', 'issues.assignee', 'notes.author']);
+        $equipment->load(['department', 'creator', 'issues.reporter', 'issues.assignee', 'clinicalNotes.author']);
         $statuses = EquipmentStatus::cases();
 
         return view('pages.equipment.show', compact('equipment', 'statuses'));

@@ -125,4 +125,26 @@ class EquipmentManagementTest extends TestCase
         $archiveResponse->assertRedirect();
         $this->assertTrue($equipment->fresh()->is_archived);
     }
+
+    public function test_equipment_show_renders_technical_passport_and_handles_empty_or_attached_notes(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $dept = Department::create(['name' => 'Biomed', 'code' => 'BIOMED']);
+
+        $equipment = Equipment::create([
+            'name' => 'Autoclave Steam Sterilizer',
+            'asset_tag' => 'MED-BIO-001',
+            'department_id' => $dept->id,
+            'status' => EquipmentStatus::InUse,
+            'notes' => 'Some legacy column text',
+        ]);
+
+        $this->actingAs($admin);
+        $response = $this->get(route('equipment.show', $equipment));
+
+        $response->assertOk()
+            ->assertSee('MED-BIO-001')
+            ->assertSee('Autoclave Steam Sterilizer')
+            ->assertSee('No memos pinned to this specific device');
+    }
 }

@@ -58,9 +58,9 @@ class Equipment extends Model
     }
 
     /**
-     * Sticky notes attached to this equipment.
+     * Sticky notes / clinical memos attached to this equipment.
      */
-    public function notes(): HasMany
+    public function clinicalNotes(): HasMany
     {
         return $this->hasMany(ClinicalNote::class)->latest();
     }

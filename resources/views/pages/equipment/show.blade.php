@@ -121,11 +121,11 @@
                         </button>
                     </div>
 
-                    @if ($equipment->notes->isEmpty())
+                    @if ($equipment->clinicalNotes->isEmpty())
                         <p class="font-mono text-xs text-slate-500 italic py-2">{{ __('No memos pinned to this specific device.') }}</p>
                     @else
                         <div class="space-y-3">
-                            @foreach ($equipment->notes as $note)
+                            @foreach ($equipment->clinicalNotes as $note)
                                 <x-ui.sticky-note
                                     :title="$note->title"
                                     :body="$note->body"
