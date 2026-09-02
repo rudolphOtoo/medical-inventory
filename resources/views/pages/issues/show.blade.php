@@ -35,6 +35,9 @@
                 <x-ui.badge variant="teal" dot>
                     {{ $issue->progress_status->label() }}
                 </x-ui.badge>
+                @if ($isOverdue)
+                    <x-ui.badge variant="rose">Overdue &gt;24h</x-ui.badge>
+                @endif
             </div>
         </div>
 
@@ -119,6 +122,12 @@
                             <span>{{ $issue->resolved_at->format('Y-m-d H:i') }} UTC</span>
                         </div>
                     @endif
+                    @if ($downtimeMinutes !== null)
+                        <div class="flex items-center justify-between pt-2 text-sky-400">
+                            <span>{{ __('Downtime') }}:</span>
+                            <span>{{ $downtimeMinutes }} min</span>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -138,6 +147,21 @@
                         <span class="font-mono text-xs font-bold text-emerald-400 uppercase tracking-wider block">{{ __('Engineering Resolution Statement') }}</span>
                         <div class="p-4 rounded-lg border border-emerald-900/30 bg-[#08090a] text-xs text-emerald-200 leading-relaxed whitespace-pre-line font-normal">
                             {{ $issue->resolution_notes }}
+                        </div>
+                    </div>
+                @endif
+
+                @if ($issue->spareParts->isNotEmpty())
+                    <!-- Spare Parts Used Inventory Statement -->
+                    <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-3">
+                        <span class="font-mono text-xs font-bold text-white uppercase tracking-wider block">{{ __('Components Consumed') }}</span>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($issue->spareParts as $part)
+                                <span class="inline-flex items-center gap-1.5 rounded-md border border-[#22262f] bg-[#12141a] px-2.5 py-1 font-mono text-[11px] text-slate-300">
+                                    {{ $part->name }}
+                                    <span class="text-slate-500">&times;{{ $part->pivot->quantity_used }}</span>
+                                </span>
+                            @endforeach
                         </div>
                     </div>
                 @endif
@@ -217,6 +241,54 @@
                             >{{ old('resolution_notes', $issue->resolution_notes) }}</textarea>
                         </div>
 
+                        <!-- Spare Parts Used Picker -->
+                        <div @if (count($issue->spareParts)) x-data="{ showParts: true }" @else x-data="{ showParts: false }" @endif>
+                            <div class="flex items-center justify-between border-t border-[#1c1f26] pt-3">
+                                <label class="flex items-center gap-2 cursor-pointer" for="partsToggle">
+                                    <input type="checkbox" id="partsToggle" x-model="showParts" class="rounded border-[#22262f] bg-[#08090a] text-slate-400 focus:ring-slate-500" />
+                                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-400">{{ __('Spare Parts Used') }}</span>
+                                </label>
+                                @if ($issue->spareParts->isNotEmpty())
+                                    <span class="font-mono text-[10px] text-slate-500">{{ $issue->spareParts->sum('pivot.quantity_used') }} logged</span>
+                                @endif
+                            </div>
+
+                            <div x-show="showParts" x-collapse class="mt-3 space-y-2" x-cloak>
+                                @if ($spareParts->isEmpty())
+                                    <p class="font-mono text-[10px] text-slate-600 py-1">No spare parts cataloged yet.</p>
+                                @else
+                                    @foreach ($spareParts as $part)
+                                        <div class="flex items-center justify-between gap-3 rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <input
+                                                    type="checkbox"
+                                                    name="spare_part_ids[]"
+                                                    value="{{ $part->id }}"
+                                                    class="rounded border-[#22262f] bg-[#08090a] text-slate-400 focus:ring-slate-500"
+                                                />
+                                                <div class="min-w-0">
+                                                    <span class="block font-mono text-[11px] font-bold text-white truncate">{{ $part->name }}</span>
+                                                    <span class="block font-mono text-[9px] text-slate-500 uppercase">
+                                                        #{{ $part->part_number }} &middot; stock: {{ $part->stock_quantity }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-1.5 shrink-0">
+                                                <label class="font-mono text-[9px] text-slate-500 uppercase">Qty</label>
+                                                <input
+                                                    type="number"
+                                                    name="spare_part_quantities[]"
+                                                    min="1"
+                                                    value="1"
+                                                    class="w-16 rounded-lg border border-[#22262f] bg-[#08090a] px-2 py-1 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                                                />
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="flex items-center justify-end pt-3 border-t border-[#1c1f26]">
                             <button
                                 type="submit"
@@ -226,6 +298,77 @@
                             </button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Repair Work Log / Comments Thread -->
+                <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
+                    <div class="border-b border-[#1c1f26] pb-3">
+                        <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Repair Work Log') }}</span>
+                        <span class="font-mono text-[10px] text-slate-500 uppercase ml-2">{{ $issue->comments->count() }} entries</span>
+                    </div>
+
+                    <!-- Comment Form -->
+                    <form method="POST" action="{{ route('issues.comments.store', $issue) }}" class="space-y-3">
+                        @csrf
+                        <textarea
+                            name="body"
+                            rows="2"
+                            required
+                            placeholder="Append diagnostic notes, parts replaced, test observations..."
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                        ></textarea>
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="is_internal_only" value="1" class="rounded border-[#22262f] bg-[#08090a] text-slate-400 focus:ring-slate-500" />
+                                <span class="font-mono text-[10px] text-slate-500 uppercase">Internal Only</span>
+                            </label>
+                            <button
+                                type="submit"
+                                class="rounded-lg border border-[#2c303d] bg-[#12141a] px-4 py-1.5 font-mono text-[11px] font-medium text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
+                            >
+                                {{ __('Append Entry') }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Comment Thread -->
+                    @if ($issue->comments->isEmpty())
+                        <div class="py-6 text-center">
+                            <p class="font-mono text-xs text-slate-600">No entries yet. Append the first diagnostic note above.</p>
+                        </div>
+                    @else
+                        <div class="space-y-3 divide-y divide-[#1c1f26]">
+                            @foreach ($issue->comments->sortByDesc('created_at') as $comment)
+                                <div class="pt-3 first:pt-0">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="font-mono text-[11px] font-bold text-white">{{ $comment->author->name ?? 'Staff' }}</span>
+                                                @if ($comment->is_internal_only)
+                                                    <x-ui.badge variant="amber">Internal</x-ui.badge>
+                                                @endif
+                                                <span class="font-mono text-[10px] text-slate-600">{{ $comment->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">{{ $comment->body }}</p>
+                                        </div>
+                                        @if ($comment->user_id === $request->user()->id || $request->user()->isAdmin())
+                                            <form method="POST" action="{{ route('issues.comments.destroy', $comment) }}" class="shrink-0">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    type="submit"
+                                                    class="p-1 rounded text-slate-600 hover:text-rose-400 hover:bg-rose-900/20 transition cursor-pointer"
+                                                    title="Delete comment"
+                                                >
+                                                    <x-ui.icon name="trash" class="size-3" />
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

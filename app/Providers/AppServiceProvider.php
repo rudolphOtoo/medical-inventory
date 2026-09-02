@@ -30,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('admin', fn (User $user): bool => $user->isAdmin());
 
+        Gate::define('manage-backups', fn (User $user): bool => $user->isAdmin());
+
         Blade::anonymousComponentPath(resource_path('views/layouts'), 'layouts');
     }
 

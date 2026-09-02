@@ -45,7 +45,7 @@
         </div>
 
         <!-- 📊 Asymmetrical Editorial Metric Ledger -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 rounded-xl border border-[#1c1f26] bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-[#1c1f26]">
+        <div class="grid grid-cols-2 lg:grid-cols-6 rounded-xl border border-[#1c1f26] bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-[#1c1f26]">
             <!-- Stat 1: Total Registered -->
             <div class="p-5">
                 <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Total Medical Fleet</span>
@@ -88,6 +88,30 @@
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight text-rose-400">{{ $outOfServiceCount }}</span>
                     <span class="font-mono text-[11px] text-slate-500">requires attention</span>
+                </div>
+            </div>
+
+            <!-- Stat 5: MTTR -->
+            <div class="p-5">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Avg MTTR</span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="font-mono text-3xl font-bold tracking-tight text-sky-400">{{ $mttrMinutes }}</span>
+                    <span class="font-mono text-[11px] text-slate-500">min avg</span>
+                </div>
+            </div>
+
+            <!-- Stat 6: Overdue Tickets -->
+            <div class="p-5">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Overdue (&gt;24h)</span>
+                    <span class="h-1.5 w-1.5 rounded-full {{ $overdueIssues > 0 ? 'bg-rose-400' : 'bg-emerald-400' }}"></span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="font-mono text-3xl font-bold tracking-tight {{ $overdueIssues > 0 ? 'text-rose-400' : 'text-emerald-400' }}">{{ $overdueIssues }}</span>
+                    <span class="font-mono text-[11px] text-slate-500">tickets flagged</span>
                 </div>
             </div>
         </div>
