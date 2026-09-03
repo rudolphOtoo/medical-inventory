@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EquipmentStatus;
+use App\Enums\IssuePriority;
 use App\Enums\IssueProgress;
 use App\Models\ClinicalNote;
 use App\Models\Equipment;
 use App\Models\IssueReport;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -28,6 +30,19 @@ class DashboardController extends Controller
         // 2. Open Issues Count
         $openIssuesCount = IssueReport::forUser($user)
             ->whereNotIn('progress_status', [IssueProgress::Resolved, IssueProgress::Closed])
+            ->count();
+
+        // 2b. MTTR — average minutes from report to resolution (aggregated in SQL)
+        $mttrMinutes = round((float) IssueReport::forUser($user)
+            ->whereNotNull('resolved_at')
+            ->selectRaw('AVG((julianday(resolved_at) - julianday(created_at)) * 24 * 60) AS avg_mttr_minutes')
+            ->value('avg_mttr_minutes') ?? 0);
+
+        // 2c. Overdue high/critical issues open > 24 hours
+        $overdueIssues = IssueReport::forUser($user)
+            ->whereIn('priority', [IssuePriority::High, IssuePriority::Critical])
+            ->whereNotIn('progress_status', [IssueProgress::Resolved, IssueProgress::Closed])
+            ->where('created_at', '<', Carbon::now()->subHours(24))
             ->count();
 
         // 3. Clinical Sticky Notes (User Scoped)
@@ -56,6 +71,8 @@ class DashboardController extends Controller
             'underReviewCount',
             'outOfServiceCount',
             'openIssuesCount',
+            'mttrMinutes',
+            'overdueIssues',
             'notes',
             'recentIssues'
         ));

@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\IssueCommentController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\NoteController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('issues/{issue}', [IssueController::class, 'show'])->name('issues.show');
     Route::patch('issues/{issue}/status', [IssueController::class, 'updateStatus'])->name('issues.status');
 
+    // 💬 Issue Comments / Repair Work Log
+    Route::post('issues/{issue}/comments', [IssueCommentController::class, 'store'])->name('issues.comments.store');
+    Route::delete('issues/comments/{comment}', [IssueCommentController::class, 'destroy'])->name('issues.comments.destroy');
+
     // 📜 Activity & Audit Trail
     Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
 
@@ -48,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 🩺 Operations & Health Diagnostics
     Route::get('health', HealthController::class)->name('health');
+    Route::get('health/backup', [HealthController::class, 'download'])->name('health.backup.download');
 });
 
 require __DIR__.'/settings.php';

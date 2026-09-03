@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class HealthController extends Controller
 {
@@ -27,8 +30,19 @@ class HealthController extends Controller
             $dbOk = false;
         }
 
-        $storageOk = Storage::disk('local')->exists('.gitkeep') || true;
         $status = $dbOk ? 'healthy' : 'degraded';
+
+        // Latest LAN backup info
+        $latestBackupFile = cache('latest_backup_file');
+        $latestBackupPath = $latestBackupFile ? storage_path('backups/'.$latestBackupFile) : null;
+        $latestBackup = null;
+        if ($latestBackupPath && File::exists($latestBackupPath)) {
+            $latestBackup = [
+                'filename' => $latestBackupFile,
+                'size' => File::size($latestBackupPath),
+                'created_at' => File::lastModified($latestBackupPath),
+            ];
+        }
 
         $data = [
             'status' => $status,
@@ -52,6 +66,7 @@ class HealthController extends Controller
                 'php_version' => PHP_VERSION,
                 'laravel_version' => app()->version(),
             ],
+            'backup' => $latestBackup,
         ];
 
         if ($request->wantsJson()) {
@@ -59,5 +74,35 @@ class HealthController extends Controller
         }
 
         return view('pages.health.index', compact('data'));
+    }
+
+    /**
+     * Stream the latest LAN backup archive to the browser.
+     */
+    public function download(Request $request): StreamedResponse
+    {
+        Gate::authorize('manage-backups');
+
+        $latestBackupFile = cache('latest_backup_file');
+
+        if (! $latestBackupFile) {
+            abort(404, 'No backup archive exists yet. Run `php artisan medtrack:backup` first.');
+        }
+
+        $path = storage_path('backups/'.$latestBackupFile);
+
+        if (! File::exists($path)) {
+            abort(404, 'Backup archive no longer exists on disk.');
+        }
+
+        ActivityLog::record(
+            $request->user(),
+            'backup.downloaded',
+            "Downloaded LAN backup archive '{$latestBackupFile}'"
+        );
+
+        return response()->streamDownload(function () use ($path) {
+            echo File::get($path);
+        }, $latestBackupFile, ['Content-Type' => 'application/zip']);
     }
 }

@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Enums\EquipmentStatus;
 use App\Enums\IssuePriority;
 use App\Enums\IssueProgress;
+use App\Enums\UserRole;
 use App\Models\ActivityLog;
 use App\Models\Department;
 use App\Models\Equipment;
 use App\Models\IssueReport;
+use App\Models\SparePart;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -110,12 +114,27 @@ class IssueController extends Controller
             abort(403, 'Unauthorized issue access.');
         }
 
-        $issue->load(['equipment.department', 'reporter', 'department', 'assignee']);
+        $issue->load(['equipment.department', 'reporter', 'department', 'assignee', 'comments.author', 'spareParts']);
         $progressStates = IssueProgress::cases();
         $equipmentStatuses = EquipmentStatus::cases();
-        $staffUsers = User::orderBy('name')->get();
+        $staffUsers = User::where('department_id', $issue->department_id)
+            ->orWhere('role', UserRole::Admin->value)
+            ->orderBy('name')
+            ->get();
+        $spareParts = SparePart::orderBy('name')->get();
 
-        return view('pages.issues.show', compact('issue', 'progressStates', 'equipmentStatuses', 'staffUsers'));
+        // Per-issue downtime (MTTR) if resolved
+        $downtimeMinutes = null;
+        if ($issue->resolved_at) {
+            $downtimeMinutes = $issue->created_at->diffInMinutes($issue->resolved_at);
+        }
+
+        // Overdue flag: high/critical unresolved > 24 hours
+        $isOverdue = in_array($issue->priority, [IssuePriority::High, IssuePriority::Critical])
+            && ! in_array($issue->progress_status, [IssueProgress::Resolved, IssueProgress::Closed])
+            && $issue->created_at->lessThan(Carbon::now()->subHours(24));
+
+        return view('pages.issues.show', compact('issue', 'progressStates', 'equipmentStatuses', 'staffUsers', 'spareParts', 'downtimeMinutes', 'isOverdue'));
     }
 
     /**
@@ -131,9 +150,16 @@ class IssueController extends Controller
 
         $validated = $request->validate([
             'progress_status' => ['required', Rule::enum(IssueProgress::class)],
-            'assigned_to_id' => ['nullable', 'exists:users,id'],
+            'assigned_to_id' => ['nullable', Rule::exists('users', 'id')->where(function ($q) use ($issue) {
+                $q->where('department_id', $issue->department_id)
+                    ->orWhere('role', UserRole::Admin->value);
+            })],
             'resolution_notes' => ['nullable', 'string', 'max:2000'],
             'equipment_status' => ['nullable', Rule::enum(EquipmentStatus::class)],
+            'spare_part_ids' => ['nullable', 'array'],
+            'spare_part_ids.*' => ['integer', 'exists:spare_parts,id'],
+            'spare_part_quantities' => ['nullable', 'array'],
+            'spare_part_quantities.*' => ['integer', 'min:1'],
         ]);
 
         $updateData = [
@@ -157,12 +183,29 @@ class IssueController extends Controller
 
         $issue->update($updateData);
 
-        // Update equipment return-to-service gate if provided
-        if (! empty($validated['equipment_status'])) {
-            $issue->equipment->update(['status' => $validated['equipment_status']]);
-        }
+        // Attach spare parts used, decrement stock, and update equipment gate atomically
+        $partsUsed = DB::transaction(function () use ($request, $issue, $validated) {
+            $partsUsed = $this->attachSpareParts($request, $issue);
+
+            // Update equipment return-to-service gate if provided
+            if (! empty($validated['equipment_status'])) {
+                $issue->equipment->update(['status' => $validated['equipment_status']]);
+            }
+
+            return $partsUsed;
+        });
 
         $statusLabel = $issue->progress_status->label();
+
+        if ($partsUsed) {
+            ActivityLog::record(
+                $user,
+                'issue.parts_used',
+                "Logged {$partsUsed} part(s) used on issue #{$issue->id} ('{$issue->title}')",
+                $issue
+            );
+        }
+
         ActivityLog::record(
             $user,
             'issue.status_changed',
@@ -171,5 +214,51 @@ class IssueController extends Controller
         );
 
         return back()->with('success', "Ticket status updated to '{$statusLabel}'.");
+    }
+
+    /**
+     * Attach newly-submitted spare parts to an issue and decrement stock.
+     *
+     * Stock is withdrawn atomically and only for parts not already attached to
+     * the issue, so repeated submissions never double-deduct. Parts that cannot
+     * be fully supplied are skipped rather than driving stock negative.
+     *
+     * @return int number of part records attached
+     */
+    private function attachSpareParts(Request $request, IssueReport $issue): int
+    {
+        $parts = $request->input('spare_part_ids', []);
+        $quantities = $request->input('spare_part_quantities', []);
+
+        if (empty($parts)) {
+            return 0;
+        }
+
+        // Parts already logged against this issue are ignored (idempotency).
+        $alreadyAttached = $issue->spareParts()->pluck('spare_part_id')->all();
+
+        $syncData = [];
+        foreach ($parts as $index => $partId) {
+            if (in_array((int) $partId, $alreadyAttached, true)) {
+                continue;
+            }
+
+            $quantity = (int) ($quantities[$index] ?? 1);
+
+            // Atomic conditional decrement — safe against concurrent overselling.
+            $decremented = SparePart::where('id', $partId)
+                ->where('stock_quantity', '>=', $quantity)
+                ->decrement('stock_quantity', $quantity);
+
+            if ($decremented === 1) {
+                $syncData[$partId] = ['quantity_used' => $quantity];
+            }
+        }
+
+        if (! empty($syncData)) {
+            $issue->spareParts()->attach($syncData);
+        }
+
+        return count($syncData);
     }
 }

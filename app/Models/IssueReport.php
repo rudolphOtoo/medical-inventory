@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['equipment_id', 'reporter_id', 'department_id', 'assigned_to_id', 'title', 'description', 'priority', 'progress_status', 'resolution_notes', 'resolved_at', 'closed_at'])]
 class IssueReport extends Model
@@ -61,6 +63,24 @@ class IssueReport extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to_id');
+    }
+
+    /**
+     * Repair work log comments.
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(IssueComment::class);
+    }
+
+    /**
+     * Spare parts used during repair.
+     */
+    public function spareParts(): BelongsToMany
+    {
+        return $this->belongsToMany(SparePart::class, 'issue_spare_parts')
+            ->withPivot('quantity_used')
+            ->withTimestamps();
     }
 
     /**
