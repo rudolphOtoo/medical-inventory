@@ -35,26 +35,26 @@
             </div>
         </div>
 
-        <!-- Filter & Search Bar -->
+        <!-- Filter & Search Bar (5 columns responsive) -->
         <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-4">
-            <form method="GET" action="{{ route('equipment.index') }}" class="grid gap-3 sm:grid-cols-4">
+            <form method="GET" action="{{ route('equipment.index') }}" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 <!-- Search Input -->
-                <div class="sm:col-span-2">
+                <div class="lg:col-span-2">
                     <input
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search name, asset tag, serial, manufacturer, model..."
+                        placeholder="Search name, asset tag, serial, model..."
                         class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
                     />
                 </div>
 
-                <!-- Department Filter (Admin only or disabled for dept users) -->
+                <!-- Department Filter -->
                 <div>
                     <select
                         name="department_id"
                         onchange="this.form.submit()"
-                        class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden"
+                        class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
                     >
                         <option value="all">{{ __('All Departments') }}</option>
                         @foreach ($departments as $dept)
@@ -65,19 +65,34 @@
                     </select>
                 </div>
 
-                <!-- Status Filter -->
+                <!-- Operational Status Filter -->
                 <div>
                     <select
                         name="status"
                         onchange="this.form.submit()"
-                        class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden"
+                        class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
                     >
-                        <option value="all">{{ __('All Statuses') }}</option>
+                        <option value="all">{{ __('All Operational Statuses') }}</option>
                         @foreach ($statuses as $st)
                             <option value="{{ $st->value }}" {{ request('status') === $st->value ? 'selected' : '' }}>
                                 {{ $st->label() }}
                             </option>
                         @endforeach
+                    </select>
+                </div>
+
+                <!-- 🧪 Calibration Expiry Filter -->
+                <div>
+                    <select
+                        name="calibration_status"
+                        onchange="this.form.submit()"
+                        class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                    >
+                        <option value="all">{{ __('All Calibrations') }}</option>
+                        <option value="overdue" {{ request('calibration_status') === 'overdue' ? 'selected' : '' }}>⚠️ Overdue</option>
+                        <option value="due_soon" {{ request('calibration_status') === 'due_soon' ? 'selected' : '' }}>⏳ Due Soon (&le; 30d)</option>
+                        <option value="certified" {{ request('calibration_status') === 'certified' ? 'selected' : '' }}>✓ Certified</option>
+                        <option value="uncalibrated" {{ request('calibration_status') === 'uncalibrated' ? 'selected' : '' }}>- Unscheduled</option>
                     </select>
                 </div>
             </form>
@@ -96,17 +111,32 @@
                             <th scope="col" class="py-3 px-4">{{ __('Asset Tag') }}</th>
                             <th scope="col" class="py-3 px-4">{{ __('Medical Device') }}</th>
                             <th scope="col" class="py-3 px-4">{{ __('Department') }}</th>
-                            <th scope="col" class="py-3 px-4">{{ __('Location / Bay') }}</th>
-                            <th scope="col" class="py-3 px-4">{{ __('Operational Status') }}</th>
-                            <th scope="col" class="py-3 px-4 text-right">{{ __('Passport') }}</th>
+                            <th scope="col" class="py-3 px-4">{{ __('Operational State') }}</th>
+                            <th scope="col" class="py-3 px-4">{{ __('Calibration') }}</th>
+                            <th scope="col" class="py-3 px-4 text-right">{{ __('Passport & Tag') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#1c1f26]">
                         @foreach ($equipmentList as $item)
                             <tr class="hover:bg-[#12141a]/60 transition">
-                                <!-- Asset Tag -->
-                                <td class="py-3 px-4 font-mono text-xs font-semibold text-white">
-                                    {{ $item->asset_tag }}
+                                <!-- Asset Tag & Photo Thumbnail -->
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-2.5">
+                                        @if ($item->photo_path)
+                                            <img
+                                                src="{{ $item->photo_url }}"
+                                                alt="{{ $item->name }}"
+                                                class="h-7 w-7 rounded object-cover border border-[#2c303d] shrink-0"
+                                            />
+                                        @else
+                                            <div class="h-7 w-7 rounded bg-[#161820] border border-[#2c303d] flex items-center justify-center font-mono text-[9px] text-slate-500 shrink-0">
+                                                MT
+                                            </div>
+                                        @endif
+                                        <span class="font-mono text-xs font-semibold text-white">
+                                            {{ $item->asset_tag }}
+                                        </span>
+                                    </div>
                                 </td>
 
                                 <!-- Equipment Name & Model -->
@@ -119,17 +149,15 @@
                                     </span>
                                 </td>
 
-                                <!-- Department -->
+                                <!-- Department & Location -->
                                 <td class="py-3 px-4">
                                     <span class="font-medium text-slate-300">{{ $item->department->name ?? 'Unassigned' }}</span>
+                                    <span class="block font-mono text-[10px] text-slate-500 mt-0.5">
+                                        {{ $item->location ?? 'General Ward' }}
+                                    </span>
                                 </td>
 
-                                <!-- Location -->
-                                <td class="py-3 px-4 font-mono text-[11px] text-slate-400">
-                                    {{ $item->location ?? 'General Ward' }}
-                                </td>
-
-                                <!-- Status Badge -->
+                                <!-- Operational Status Badge -->
                                 <td class="py-3 px-4">
                                     @php
                                         $statusVariants = [
@@ -146,14 +174,33 @@
                                     </x-ui.badge>
                                 </td>
 
-                                <!-- Actions -->
+                                <!-- 🧪 Calibration Status Badge -->
+                                <td class="py-3 px-4">
+                                    @php
+                                        $cal = $item->calibrationStatus();
+                                    @endphp
+                                    <x-ui.badge :variant="$cal['variant']">
+                                        {{ $cal['label'] }}
+                                    </x-ui.badge>
+                                </td>
+
+                                <!-- Actions & Label -->
                                 <td class="py-3 px-4 text-right font-mono text-xs">
-                                    <a
-                                        href="{{ route('equipment.show', $item) }}"
-                                        class="text-slate-400 hover:text-white transition"
-                                    >
-                                        View &rarr;
-                                    </a>
+                                    <div class="flex items-center justify-end gap-3">
+                                        <a
+                                            href="{{ route('equipment.tag', $item) }}"
+                                            class="text-slate-400 hover:text-white transition"
+                                            title="Print Label"
+                                        >
+                                            🏷️ Tag
+                                        </a>
+                                        <a
+                                            href="{{ route('equipment.show', $item) }}"
+                                            class="text-slate-300 hover:text-white transition font-medium"
+                                        >
+                                            View &rarr;
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -192,7 +239,7 @@
                     >&times;</button>
                 </div>
 
-                <form method="POST" action="{{ route('equipment.store') }}" class="space-y-4">
+                <form method="POST" action="{{ route('equipment.store') }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
 
                     <div>
@@ -288,14 +335,46 @@
                         />
                     </div>
 
-                    <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Description & Notes') }}</label>
-                        <textarea
-                            name="description"
-                            rows="2"
-                            placeholder="Clinical purpose, accessories, special power requirements..."
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
-                        ></textarea>
+                    <!-- Calibration Dates -->
+                    <div class="grid grid-cols-2 gap-3 border-t border-[#1c1f26] pt-3">
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Last Calibrated Date') }}</label>
+                            <input
+                                type="date"
+                                name="last_calibrated_at"
+                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                            />
+                        </div>
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Next Calibration Due') }}</label>
+                            <input
+                                type="date"
+                                name="next_calibration_due"
+                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="grid grid-cols-2 gap-3 border-t border-[#1c1f26] pt-3">
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Device Photo') }}</label>
+                            <input
+                                type="file"
+                                name="photo"
+                                accept="image/jpeg,image/png,image/webp"
+                                class="w-full text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-[#1c1f26] file:text-slate-300 hover:file:bg-[#252932] cursor-pointer"
+                            />
+                        </div>
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('PDF Manual') }}</label>
+                            <input
+                                type="file"
+                                name="manual"
+                                accept="application/pdf"
+                                class="w-full text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-[#1c1f26] file:text-slate-300 hover:file:bg-[#252932] cursor-pointer"
+                            />
+                        </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">

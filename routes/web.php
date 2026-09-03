@@ -21,9 +21,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('equipment/export', [EquipmentController::class, 'exportCsv'])->name('equipment.export');
     Route::get('equipment', [EquipmentController::class, 'index'])->name('equipment.index');
     Route::post('equipment', [EquipmentController::class, 'store'])->name('equipment.store');
+    Route::get('equipment/{equipment}/tag', [EquipmentController::class, 'printTag'])->name('equipment.tag');
     Route::get('equipment/{equipment}', [EquipmentController::class, 'show'])->name('equipment.show');
     Route::patch('equipment/{equipment}/status', [EquipmentController::class, 'updateStatus'])->name('equipment.status');
     Route::post('equipment/{equipment}/archive', [EquipmentController::class, 'toggleArchive'])->name('equipment.archive');
+    Route::post('equipment/{equipment}/attachments', [EquipmentController::class, 'uploadAttachment'])->name('equipment.attachments.store');
+    Route::delete('equipment/{equipment}/attachments/{type}', [EquipmentController::class, 'deleteAttachment'])->name('equipment.attachments.destroy');
+    Route::post('equipment/{equipment}/calibration', [EquipmentController::class, 'updateCalibration'])->name('equipment.calibration');
+    Route::post('equipment/{equipment}/transfer', [EquipmentController::class, 'transferDepartment'])->name('equipment.transfer');
 
     Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
     Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');
