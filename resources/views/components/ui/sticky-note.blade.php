@@ -8,6 +8,8 @@
     'department' => null,
     'date' => null,
     'id' => null,
+    'canEdit' => true,
+    'canDelete' => true,
 ])
 
 @php
@@ -57,17 +59,66 @@
         <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-2.5 mb-2.5">
             <div class="flex items-center gap-2">
                 <span class="h-1.5 w-1.5 rounded-full {{ $themeStyles['bar'] }}"></span>
-                <span class="font-mono text-[10px] tracking-widest uppercase text-slate-400 font-semibold">
+                <span class="font-mono text-[10px] tracking-widest uppercase text-slate-400 font-semibold truncate max-w-[140px]">
                     {{ $department ?? 'Clinical Memo' }}
                 </span>
             </div>
 
-            @if ($isPinned)
-                <span class="font-mono text-[9px] uppercase tracking-wider text-amber-400/90 font-bold flex items-center gap-1">
-                    <span class="h-1 w-1 rounded-full bg-amber-400"></span>
-                    Pinned
-                </span>
-            @endif
+            <!-- Quick Action Icons (Pin, Edit, Delete) -->
+            <div class="flex items-center gap-1.5 font-mono text-[10px]">
+                @if ($id)
+                    <!-- Pin Toggle Button -->
+                    <form method="POST" action="{{ route('notes.pin', $id) }}" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button
+                            type="submit"
+                            title="{{ $isPinned ? 'Unpin Memo' : 'Pin Memo' }}"
+                            class="p-0.5 rounded text-slate-400 hover:text-amber-400 transition cursor-pointer"
+                        >
+                            @if ($isPinned)
+                                <span class="text-amber-400 font-bold text-xs">★</span>
+                            @else
+                                <span class="text-slate-500 hover:text-slate-300 text-xs">☆</span>
+                            @endif
+                        </button>
+                    </form>
+
+                    <!-- Edit Trigger Button -->
+                    @if ($canEdit)
+                        <button
+                            type="button"
+                            @click="$dispatch('open-edit-note', {
+                                id: {{ $id }},
+                                title: '{{ addslashes($title) }}',
+                                body: '{{ addslashes(preg_replace('/\r?\n/', ' ', $body)) }}',
+                                color: '{{ $color }}',
+                                tags: '{{ implode(', ', (array) $tags) }}',
+                                isPinned: {{ $isPinned ? 'true' : 'false' }}
+                            })"
+                            title="Edit Memo"
+                            class="p-0.5 rounded text-slate-500 hover:text-white transition cursor-pointer text-xs"
+                        >
+                            ✎
+                        </button>
+                    @endif
+
+                    <!-- Delete Button -->
+                    @if ($canDelete)
+                        <form method="POST" action="{{ route('notes.destroy', $id) }}" onsubmit="return confirm('Delete this clinical memo?');" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button
+                                type="submit"
+                                title="Delete Memo"
+                                class="p-0.5 rounded text-slate-600 hover:text-rose-400 transition cursor-pointer text-xs"
+                            >
+                                ✕
+                            </button>
+                        </form>
+                    @endif
+                @endif
+            </div>
         </div>
 
         <!-- Note Title & Content -->

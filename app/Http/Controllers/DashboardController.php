@@ -45,6 +45,28 @@ class DashboardController extends Controller
             ->where('created_at', '<', Carbon::now()->subHours(24))
             ->count();
 
+        // 2d. 🧪 Calibration Status Alerts
+        $today = now()->toDateString();
+        $dueThreshold = now()->addDays(30)->toDateString();
+
+        $overdueCalibrationCount = Equipment::forUser($user)
+            ->active()
+            ->whereNotNull('next_calibration_due')
+            ->where('next_calibration_due', '<', $today)
+            ->count();
+
+        $dueSoonCalibrationCount = Equipment::forUser($user)
+            ->active()
+            ->whereNotNull('next_calibration_due')
+            ->whereBetween('next_calibration_due', [$today, $dueThreshold])
+            ->count();
+
+        $certifiedCalibrationCount = Equipment::forUser($user)
+            ->active()
+            ->whereNotNull('next_calibration_due')
+            ->where('next_calibration_due', '>', $dueThreshold)
+            ->count();
+
         // 3. Clinical Sticky Notes (User Scoped)
         $notes = ClinicalNote::with('author')
             ->when(! $user->isAdmin(), function ($query) use ($user) {
@@ -73,6 +95,9 @@ class DashboardController extends Controller
             'openIssuesCount',
             'mttrMinutes',
             'overdueIssues',
+            'overdueCalibrationCount',
+            'dueSoonCalibrationCount',
+            'certifiedCalibrationCount',
             'notes',
             'recentIssues'
         ));

@@ -1,6 +1,15 @@
 <x-layouts.app :title="__('Operations Console')">
     <div class="space-y-8" x-data="{
         showNoteModal: false,
+        showEditNoteModal: false,
+        editNote: {
+            id: null,
+            title: '',
+            body: '',
+            color: 'canary',
+            tags: '',
+            isPinned: false,
+        },
         activeTag: 'all',
         activeColor: 'all',
         noteColor: 'canary',
@@ -12,7 +21,13 @@
                 this.noteTags = current.join(', ');
             }
         }
-    }">
+    }"
+    @open-edit-note.window="
+        editNote = $event.detail;
+        showEditNoteModal = true;
+        document.getElementById('editNoteModal').style.display = 'flex';
+    "
+    >
         <!-- Page Editorial Title Bar -->
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-[#1c1f26] pb-6">
             <div>
@@ -44,74 +59,106 @@
             </div>
         </div>
 
-        <!-- 📊 Asymmetrical Editorial Metric Ledger -->
-        <div class="grid grid-cols-2 lg:grid-cols-6 rounded-xl border border-[#1c1f26] bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-[#1c1f26]">
+        <!-- 📊 Asymmetrical Editorial Metric Ledger (7 Columns with Calibration Alerts) -->
+        <div class="grid grid-cols-2 lg:grid-cols-7 rounded-xl border border-[#1c1f26] bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-[#1c1f26]">
             <!-- Stat 1: Total Registered -->
-            <div class="p-5">
-                <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Total Medical Fleet</span>
+            <div class="p-4 sm:p-5">
+                <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Total Fleet</span>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight text-white">{{ $totalEquipment }}</span>
-                    <span class="font-mono text-[11px] text-slate-500">units cataloged</span>
+                    <span class="font-mono text-[11px] text-slate-500">units</span>
                 </div>
             </div>
 
             <!-- Stat 2: In Active Use -->
-            <div class="p-5">
+            <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
-                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Active In Ward</span>
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Active</span>
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight text-emerald-400">{{ $inUseCount }}</span>
-                    <span class="font-mono text-[11px] text-slate-500">operational</span>
+                    <span class="font-mono text-[11px] text-slate-500">ward</span>
                 </div>
             </div>
 
             <!-- Stat 3: Under Review / Repair -->
-            <div class="p-5">
+            <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
-                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">In Triage / Repair</span>
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Triage</span>
                     <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight text-amber-400">{{ $underReviewCount }}</span>
-                    <span class="font-mono text-[11px] text-slate-500">active tickets</span>
+                    <span class="font-mono text-[11px] text-slate-500">repair</span>
                 </div>
             </div>
 
             <!-- Stat 4: Out of Service -->
-            <div class="p-5">
+            <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
-                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Out of Service</span>
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Offline</span>
                     <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight text-rose-400">{{ $outOfServiceCount }}</span>
-                    <span class="font-mono text-[11px] text-slate-500">requires attention</span>
+                    <span class="font-mono text-[11px] text-slate-500">fault</span>
                 </div>
             </div>
 
-            <!-- Stat 5: MTTR -->
-            <div class="p-5">
+            <!-- 🧪 Stat 5: Calibration Alerts (Option 2) -->
+            <div class="p-4 sm:p-5">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Calibration</span>
+                    <span class="h-1.5 w-1.5 rounded-full {{ $overdueCalibrationCount > 0 ? 'bg-rose-400 animate-pulse' : ($dueSoonCalibrationCount > 0 ? 'bg-amber-400' : 'bg-emerald-400') }}"></span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    @if ($overdueCalibrationCount > 0)
+                        <a
+                            href="{{ route('equipment.index', ['calibration_status' => 'overdue']) }}"
+                            class="font-mono text-lg font-bold text-rose-400 hover:underline flex items-baseline gap-1"
+                            title="View Overdue Devices"
+                        >
+                            {{ $overdueCalibrationCount }} <span class="text-[10px] uppercase text-rose-500 font-normal">Overdue</span>
+                        </a>
+                    @endif
+                    @if ($dueSoonCalibrationCount > 0)
+                        <a
+                            href="{{ route('equipment.index', ['calibration_status' => 'due_soon']) }}"
+                            class="font-mono text-lg font-bold text-amber-400 hover:underline flex items-baseline gap-1"
+                            title="View Due Soon Devices"
+                        >
+                            {{ $dueSoonCalibrationCount }} <span class="text-[10px] uppercase text-amber-500 font-normal">Soon</span>
+                        </a>
+                    @endif
+                    @if ($overdueCalibrationCount === 0 && $dueSoonCalibrationCount === 0)
+                        <span class="font-mono text-xl font-bold text-emerald-400">100%</span>
+                        <span class="font-mono text-[10px] text-emerald-500">Certified</span>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Stat 6: MTTR -->
+            <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Avg MTTR</span>
                     <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight text-sky-400">{{ $mttrMinutes }}</span>
-                    <span class="font-mono text-[11px] text-slate-500">min avg</span>
+                    <span class="font-mono text-[11px] text-slate-500">min</span>
                 </div>
             </div>
 
-            <!-- Stat 6: Overdue Tickets -->
-            <div class="p-5">
+            <!-- Stat 7: Overdue Tickets -->
+            <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Overdue (&gt;24h)</span>
                     <span class="h-1.5 w-1.5 rounded-full {{ $overdueIssues > 0 ? 'bg-rose-400' : 'bg-emerald-400' }}"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight {{ $overdueIssues > 0 ? 'text-rose-400' : 'text-emerald-400' }}">{{ $overdueIssues }}</span>
-                    <span class="font-mono text-[11px] text-slate-500">tickets flagged</span>
+                    <span class="font-mono text-[11px] text-slate-500">tickets</span>
                 </div>
             </div>
         </div>
@@ -175,7 +222,6 @@
                     @foreach ($notes as $note)
                         <div
                             x-show="(activeTag === 'all' || {{ json_encode($note->tags ?? []) }}.map(t => t.toLowerCase()).includes(activeTag)) && (activeColor === 'all' || '{{ $note->color }}' === activeColor)"
-                            class="relative"
                         >
                             <x-ui.sticky-note
                                 :title="$note->title"
@@ -187,21 +233,9 @@
                                 :department="$note->department->name ?? null"
                                 :date="$note->created_at->diffForHumans()"
                                 :id="$note->id"
+                                :canEdit="auth()->user()->isAdmin() || auth()->user()->id === $note->author_id"
+                                :canDelete="auth()->user()->isAdmin() || auth()->user()->id === $note->author_id"
                             />
-                            @if (auth()->user()->isAdmin() || auth()->user()->id === $note->author_id)
-                                <form
-                                    method="POST"
-                                    action="{{ route('notes.destroy', $note) }}"
-                                    onsubmit="return confirm('Remove this memo?');"
-                                    class="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition"
-                                >
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-1 rounded bg-black/40 text-slate-400 hover:text-rose-400 transition" title="Delete Note">
-                                        <x-ui.icon name="trash" class="size-3" />
-                                    </button>
-                                </form>
-                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -295,7 +329,7 @@
             </div>
         </div>
 
-        <!-- 📌 Modal: Pin Sticky Note -->
+        <!-- 📌 Modal 1: Create New Memo -->
         <div
             id="noteModal"
             x-show="showNoteModal"
@@ -413,6 +447,123 @@
                             class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
                         >
                             {{ __('Pin Memo') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 📌 Modal 2: Edit Memo Modal (Full CRUD Update) -->
+        <div
+            id="editNoteModal"
+            x-show="showEditNoteModal"
+            x-cloak
+            style="display: none;"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+            @keydown.escape.window="showEditNoteModal = false; $el.style.display='none'"
+        >
+            <div
+                class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-5"
+                @click.outside="showEditNoteModal = false; document.getElementById('editNoteModal').style.display='none'"
+            >
+                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-xs bg-sky-400"></span>
+                        <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Edit Clinical Memo') }}</h3>
+                    </div>
+                    <button
+                        type="button"
+                        @click="showEditNoteModal = false"
+                        onclick="document.getElementById('editNoteModal').style.display='none'"
+                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                    >&times;</button>
+                </div>
+
+                <form method="POST" :action="'/notes/' + editNote.id" class="space-y-4">
+                    @csrf
+                    @method('PUT')
+
+                    <div>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Memo Subject') }}</label>
+                        <input
+                            type="text"
+                            name="title"
+                            x-model="editNote.title"
+                            required
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Content / Directives') }}</label>
+                        <textarea
+                            name="body"
+                            rows="3"
+                            x-model="editNote.body"
+                            required
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                        ></textarea>
+                    </div>
+
+                    <!-- Color Selector -->
+                    <div>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1.5">{{ __('Color Palette') }}</label>
+                        <div class="flex items-center gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="color" value="canary" x-model="editNote.color" class="sr-only" />
+                                <div :class="editNote.color === 'canary' ? 'ring-2 ring-amber-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-amber-500/80 transition"></div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="color" value="mint" x-model="editNote.color" class="sr-only" />
+                                <div :class="editNote.color === 'mint' ? 'ring-2 ring-emerald-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-emerald-500/80 transition"></div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="color" value="azure" x-model="editNote.color" class="sr-only" />
+                                <div :class="editNote.color === 'azure' ? 'ring-2 ring-sky-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-sky-500/80 transition"></div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="color" value="coral" x-model="editNote.color" class="sr-only" />
+                                <div :class="editNote.color === 'coral' ? 'ring-2 ring-rose-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-rose-500/80 transition"></div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="color" value="lavender" x-model="editNote.color" class="sr-only" />
+                                <div :class="editNote.color === 'lavender' ? 'ring-2 ring-purple-400 scale-105' : 'opacity-60'" class="h-6 w-6 rounded bg-purple-500/80 transition"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Tags (comma separated)') }}</label>
+                        <input
+                            type="text"
+                            name="tags"
+                            x-model="editNote.tags"
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                        />
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-1">
+                        <input type="checkbox" id="edit_is_pinned" name="is_pinned" value="1" x-model="editNote.isPinned" class="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950 text-white focus:ring-0" />
+                        <label for="edit_is_pinned" class="font-mono text-xs text-slate-300 cursor-pointer">
+                            {{ __('Pin to Top of Noticeboard') }}
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                        <button
+                            type="button"
+                            @click="showEditNoteModal = false"
+                            onclick="document.getElementById('editNoteModal').style.display='none'"
+                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                        >
+                            {{ __('Cancel') }}
+                        </button>
+                        <button
+                            type="submit"
+                            class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
+                        >
+                            {{ __('Update Memo') }}
                         </button>
                     </div>
                 </form>

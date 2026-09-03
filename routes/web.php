@@ -47,8 +47,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // 📜 Activity & Audit Trail
     Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
 
-    // 📌 Clinical Sticky Notes Subsystem
+    // 📌 Clinical Sticky Notes Subsystem (Full CRUD)
     Route::post('notes', [NoteController::class, 'store'])->name('notes.store');
+    Route::put('notes/{note}', [NoteController::class, 'update'])->name('notes.update');
+    Route::patch('notes/{note}/pin', [NoteController::class, 'togglePin'])->name('notes.pin');
     Route::delete('notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
 
     // 🩺 Operations & Health Diagnostics

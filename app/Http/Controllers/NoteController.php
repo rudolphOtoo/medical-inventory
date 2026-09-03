@@ -25,7 +25,7 @@ class NoteController extends Controller
 
         $tagsArray = [];
         if (! empty($validated['tags'])) {
-            $tagsArray = array_filter(array_map('trim', explode(',', $validated['tags'])));
+            $tagsArray = array_values(array_filter(array_map('trim', explode(',', $validated['tags']))));
         }
 
         ClinicalNote::create([
@@ -40,6 +40,63 @@ class NoteController extends Controller
         ]);
 
         return back()->with('success', 'Clinical memo pinned successfully.');
+    }
+
+    /**
+     * Update an existing clinical sticky note.
+     */
+    public function update(Request $request, ClinicalNote $note): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Admin or Author can edit note
+        if (! $user->isAdmin() && $note->author_id !== $user->id) {
+            abort(403, 'Unauthorized to edit this note.');
+        }
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:100'],
+            'body' => ['required', 'string', 'max:1000'],
+            'color' => ['required', 'string', 'in:canary,mint,azure,coral,lavender'],
+            'tags' => ['nullable', 'string'],
+            'is_pinned' => ['nullable', 'boolean'],
+        ]);
+
+        $tagsArray = [];
+        if (! empty($validated['tags'])) {
+            $tagsArray = array_values(array_filter(array_map('trim', explode(',', $validated['tags']))));
+        }
+
+        $note->update([
+            'title' => $validated['title'],
+            'body' => $validated['body'],
+            'color' => $validated['color'],
+            'tags' => $tagsArray,
+            'is_pinned' => $request->has('is_pinned') ? $request->boolean('is_pinned') : $note->is_pinned,
+        ]);
+
+        return back()->with('success', 'Clinical memo updated successfully.');
+    }
+
+    /**
+     * Toggle the pinned status of a sticky note.
+     */
+    public function togglePin(Request $request, ClinicalNote $note): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Admin or Author can toggle pin
+        if (! $user->isAdmin() && $note->author_id !== $user->id) {
+            abort(403, 'Unauthorized to pin this note.');
+        }
+
+        $note->update([
+            'is_pinned' => ! $note->is_pinned,
+        ]);
+
+        $status = $note->is_pinned ? 'pinned' : 'unpinned';
+
+        return back()->with('success', "Clinical memo {$status}.");
     }
 
     /**
