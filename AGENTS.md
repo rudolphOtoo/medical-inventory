@@ -28,6 +28,10 @@ This workspace is integrated with the **Conscience OS** methodology and skill su
 | **`/git-workflow`** | Standard git branch lifecycle (`feat/<slug>` -> PR -> `develop` -> `main`). |
 | **`/env-workflow`** | Multi-stage environment variable promotion flow (Local -> Staging -> Production). |
 | **`/ai-workflow-rules`** | Spec-driven incremental AI coding, scoping, and invariant preservation rules. |
+| **`/production-laravel`** | High-performance, secure production Laravel caching and deployment pipeline. |
+| **`/vercel-laravel`** | Serverless Laravel deployment & ephemeral storage configuration on Vercel. |
+| **`/render-cron`** | External webhook and cron trigger architecture for serverless scheduled jobs. |
+| **`/storage-integration`** | Cloudflare R2, AWS S3, and Cloudinary media driver integration for Laravel. |
 
 ---
 
