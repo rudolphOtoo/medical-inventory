@@ -1,10 +1,115 @@
 {
-  "entries": [
+  "$schema": "https://raw.githubusercontent.com/google/antigravity/main/schemas/skills.json",
+  "skills": [
     {
-      "path": ".agents/skills"
+      "name": "senior-stable-delivery",
+      "path": "skills/senior-stable-delivery/SKILL.md",
+      "description": "Strict senior engineer operating model: anti-feature-creep, Rabit Auditor plan triage, and testable guardrails."
     },
     {
-      "path": "llm-conscience/skills"
+      "name": "architect",
+      "path": "skills/architect/SKILL.md",
+      "description": "Plan before you build: asks clarifying questions one at a time and creates comprehensive implementation plans."
+    },
+    {
+      "name": "pipeline",
+      "path": "skills/pipeline/SKILL.md",
+      "description": "Applied Mathematician + PM + Senior Engineer problem-solving pipeline with Elm architecture & TDD."
+    },
+    {
+      "name": "grill",
+      "path": "skills/grill/SKILL.md",
+      "description": "Pre-work probing interview to force edge cases and align technical/architectural constraints."
+    },
+    {
+      "name": "same-wavelength",
+      "path": "skills/same-wavelength/SKILL.md",
+      "description": "Structured pre-work alignment grill (scope, non-goals, architecture tradeoffs, DoD) before coding."
+    },
+    {
+      "name": "impeccable",
+      "path": "skills/impeccable/SKILL.md",
+      "description": "Design & UI excellence system for frontend craftsmanship, UX polish, and typography."
+    },
+    {
+      "name": "imprint",
+      "path": "skills/imprint/SKILL.md",
+      "description": "UI consistency tracking: captures component patterns into the UI registry."
+    },
+    {
+      "name": "remember",
+      "path": "skills/remember/SKILL.md",
+      "description": "Session state management (save to compress context, restore to resume without re-explaining)."
+    },
+    {
+      "name": "recover",
+      "path": "skills/recover/SKILL.md",
+      "description": "Root cause diagnosis for terminal errors and broken states with single-shot fixes."
+    },
+    {
+      "name": "review",
+      "path": "skills/review/SKILL.md",
+      "description": "Post-implementation QA check against plan and boundaries grouped by severity without auto-fixing."
+    },
+    {
+      "name": "rabit-auditor",
+      "path": "skills/rabit-auditor/SKILL.md",
+      "description": "Multi-pass CodeRabbit-style code audit: correctness, security, performance, maintainability."
+    },
+    {
+      "name": "vibesec",
+      "path": "skills/vibesec/SKILL.md",
+      "description": "Web application security auditing and hardening against vulnerabilities."
+    },
+    {
+      "name": "the-basis",
+      "path": "skills/the-basis/SKILL.md",
+      "description": "First-principles epistemological framework for complex math and algorithmic breakdown."
+    },
+    {
+      "name": "graphify-ide",
+      "path": "skills/graphify-ide/SKILL.md",
+      "description": "Inline IDE semantic extraction & graph generation workflow without external API keys."
+    },
+    {
+      "name": "ste-writing",
+      "path": "skills/ste-writing/SKILL.md",
+      "description": "ASD-STE100 Simplified Technical English converter for clear, anti-slop documentation."
+    },
+    {
+      "name": "git-workflow",
+      "path": "skills/git-workflow/SKILL.md",
+      "description": "Standard git branch lifecycle (feat/<slug> -> PR -> develop -> main)."
+    },
+    {
+      "name": "env-workflow",
+      "path": "skills/env-workflow/SKILL.md",
+      "description": "Multi-stage environment variable promotion flow (Local -> Staging -> Production)."
+    },
+    {
+      "name": "ai-workflow-rules",
+      "path": "skills/ai-workflow-rules/SKILL.md",
+      "description": "Spec-driven incremental AI coding, scoping, and invariant preservation rules."
+    },
+    {
+      "name": "production-laravel",
+      "path": "skills/production-laravel/SKILL.md",
+      "description": "High-performance, secure production Laravel caching and deployment pipeline."
+    },
+    {
+      "name": "vercel-laravel",
+      "path": "skills/vercel-laravel/SKILL.md",
+      "description": "Serverless Laravel deployment & ephemeral storage configuration on Vercel."
+    },
+    {
+      "name": "render-cron",
+      "path": "skills/render-cron/SKILL.md",
+      "description": "External webhook and cron trigger architecture for serverless scheduled jobs."
+    },
+    {
+      "name": "storage-integration",
+      "path": "skills/storage-integration/SKILL.md",
+      "description": "Cloudflare R2, AWS S3, and Cloudinary media driver integration for Laravel."
     }
   ]
 }
