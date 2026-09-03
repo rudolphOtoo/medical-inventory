@@ -8,7 +8,11 @@
                 <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1">
                     <span>Asset Management</span>
                     <span>/</span>
-                    <span class="text-slate-300">Active Hospital Inventory</span>
+                    @if (auth()->user()->isAdmin())
+                        <span class="text-slate-300">All Hospital Wards</span>
+                    @else
+                        <span class="text-slate-300">{{ auth()->user()->department->name ?? 'Assigned Ward' }}</span>
+                    @endif
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight text-white">{{ __('Equipment Directory') }}</h1>
             </div>
@@ -26,7 +30,6 @@
                 <button
                     type="button"
                     @click="showRegisterModal = true"
-                    onclick="document.getElementById('registerEqModal').style.display='flex'"
                     class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer shadow-sm"
                 >
                     <x-ui.icon name="plus" class="size-3.5" />
@@ -35,9 +38,9 @@
             </div>
         </div>
 
-        <!-- Filter & Search Bar (5 columns responsive) -->
+        <!-- Filter & Search Bar -->
         <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-4">
-            <form method="GET" action="{{ route('equipment.index') }}" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <form method="GET" action="{{ route('equipment.index') }}" class="grid gap-3 sm:grid-cols-2 {{ auth()->user()->isAdmin() ? 'lg:grid-cols-5' : 'lg:grid-cols-4' }}">
                 <!-- Search Input -->
                 <div class="lg:col-span-2">
                     <input
@@ -49,21 +52,23 @@
                     />
                 </div>
 
-                <!-- Department Filter -->
-                <div>
-                    <select
-                        name="department_id"
-                        onchange="this.form.submit()"
-                        class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
-                    >
-                        <option value="all">{{ __('All Departments') }}</option>
-                        @foreach ($departments as $dept)
-                            <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
-                                {{ $dept->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                <!-- Department Filter (Admin Only) -->
+                @if (auth()->user()->isAdmin())
+                    <div>
+                        <select
+                            name="department_id"
+                            onchange="this.form.submit()"
+                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                        >
+                            <option value="all">{{ __('All Departments') }}</option>
+                            @foreach ($departments as $dept)
+                                <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
+                                    {{ $dept->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
 
                 <!-- Operational Status Filter -->
                 <div>
@@ -81,7 +86,7 @@
                     </select>
                 </div>
 
-                <!-- 🧪 Calibration Expiry Filter -->
+                <!-- Calibration Expiry Filter -->
                 <div>
                     <select
                         name="calibration_status"
@@ -174,7 +179,7 @@
                                     </x-ui.badge>
                                 </td>
 
-                                <!-- 🧪 Calibration Status Badge -->
+                                <!-- Calibration Status Badge -->
                                 <td class="py-3 px-4">
                                     @php
                                         $cal = $item->calibrationStatus();
@@ -215,16 +220,14 @@
 
         <!-- 📌 Modal: Register New Equipment -->
         <div
-            id="registerEqModal"
             x-show="showRegisterModal"
             x-cloak
-            style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-            @keydown.escape.window="showRegisterModal = false; $el.style.display='none'"
+            @keydown.escape.window="showRegisterModal = false"
         >
             <div
                 class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto"
-                @click.outside="showRegisterModal = false; document.getElementById('registerEqModal').style.display='none'"
+                @click.outside="showRegisterModal = false"
             >
                 <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
@@ -234,7 +237,6 @@
                     <button
                         type="button"
                         @click="showRegisterModal = false"
-                        onclick="document.getElementById('registerEqModal').style.display='none'"
                         class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
@@ -299,17 +301,24 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Department') }}</label>
-                            <select
-                                name="department_id"
-                                required
-                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
-                            >
-                                @foreach ($departments as $dept)
-                                    <option value="{{ $dept->id }}" {{ !auth()->user()->isAdmin() && auth()->user()->department_id == $dept->id ? 'selected' : '' }}>
-                                        {{ $dept->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            @if (auth()->user()->isAdmin())
+                                <select
+                                    name="department_id"
+                                    required
+                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                                >
+                                    @foreach ($departments as $dept)
+                                        <option value="{{ $dept->id }}">
+                                            {{ $dept->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <input type="hidden" name="department_id" value="{{ auth()->user()->department_id }}" />
+                                <div class="w-full rounded-lg border border-[#22262f] bg-[#12141a] px-3 py-2 text-xs text-slate-300 font-mono">
+                                    {{ auth()->user()->department->name ?? 'Assigned Ward' }}
+                                </div>
+                            @endif
                         </div>
                         <div>
                             <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Initial State') }}</label>
@@ -381,7 +390,6 @@
                         <button
                             type="button"
                             @click="showRegisterModal = false"
-                            onclick="document.getElementById('registerEqModal').style.display='none'"
                             class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
                         >
                             {{ __('Cancel') }}

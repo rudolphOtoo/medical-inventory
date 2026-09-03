@@ -36,33 +36,36 @@
                     🏷️ <span>Print Tag</span>
                 </a>
 
-                <!-- Transfer Department Button -->
-                <button
-                    type="button"
-                    @click="showTransferModal = true"
-                    onclick="document.getElementById('transferModal').style.display='flex'"
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-[#2c303d] bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
-                >
-                    🏢 <span>Transfer Ward</span>
-                </button>
-
-                <!-- Status Update Form -->
-                <form method="POST" action="{{ route('equipment.status', $equipment) }}" class="flex items-center gap-1.5">
-                    @csrf
-                    @method('PATCH')
-                    <select
-                        name="status"
-                        id="status"
-                        onchange="this.form.submit()"
-                        class="rounded-lg border border-[#2c303d] bg-[#12141a] px-2.5 py-1.5 text-xs font-semibold text-white focus:border-slate-400 focus:outline-hidden"
+                <!-- Transfer Department Button (Admin Only) -->
+                @if (auth()->user()->isAdmin())
+                    <button
+                        type="button"
+                        @click="showTransferModal = true"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-[#2c303d] bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
                     >
-                        @foreach ($statuses as $st)
-                            <option value="{{ $st->value }}" {{ $equipment->status === $st ? 'selected' : '' }}>
-                                {{ $st->label() }}
-                            </option>
-                        @endforeach
-                    </select>
-                </form>
+                        🏢 <span>Transfer Ward</span>
+                    </button>
+                @endif
+
+                <!-- Status Update Form (Authorized Users) -->
+                @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+                    <form method="POST" action="{{ route('equipment.status', $equipment) }}" class="flex items-center gap-1.5">
+                        @csrf
+                        @method('PATCH')
+                        <select
+                            name="status"
+                            id="status"
+                            onchange="this.form.submit()"
+                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-2.5 py-1.5 text-xs font-semibold text-white focus:border-slate-400 focus:outline-hidden"
+                        >
+                            @foreach ($statuses as $st)
+                                <option value="{{ $st->value }}" {{ $equipment->status === $st ? 'selected' : '' }}>
+                                    {{ $st->label() }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                @endif
 
                 @if (auth()->user()->isAdmin())
                     <form method="POST" action="{{ route('equipment.archive', $equipment) }}" onsubmit="return confirm('Toggle archive status for this equipment?');">
@@ -117,13 +120,15 @@
                                 >
                                     Full Image ↗
                                 </a>
-                                <form method="POST" action="{{ route('equipment.attachments.destroy', [$equipment, 'photo']) }}" onsubmit="return confirm('Remove device photo?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="rounded bg-rose-600 text-white px-2.5 py-1 text-[11px] font-mono font-bold hover:bg-rose-700 cursor-pointer">
-                                        Delete
-                                    </button>
-                                </form>
+                                @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+                                    <form method="POST" action="{{ route('equipment.attachments.destroy', [$equipment, 'photo']) }}" onsubmit="return confirm('Remove device photo?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="rounded bg-rose-600 text-white px-2.5 py-1 text-[11px] font-mono font-bold hover:bg-rose-700 cursor-pointer">
+                                            Delete
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -177,30 +182,33 @@
                                 >
                                     📄 <span>User Manual (PDF)</span>
                                 </a>
-                                <form method="POST" action="{{ route('equipment.attachments.destroy', [$equipment, 'manual']) }}" onsubmit="return confirm('Remove PDF manual?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-slate-500 hover:text-rose-400 cursor-pointer text-[10px]">
-                                        ✕
-                                    </button>
-                                </form>
+                                @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+                                    <form method="POST" action="{{ route('equipment.attachments.destroy', [$equipment, 'manual']) }}" onsubmit="return confirm('Remove PDF manual?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-slate-500 hover:text-rose-400 cursor-pointer text-[10px]">
+                                            ✕
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         @else
                             <span class="text-slate-600 italic text-[11px]">No PDF manual attached</span>
                         @endif
 
-                        <button
-                            type="button"
-                            @click="showAttachModal = true"
-                            onclick="document.getElementById('attachModal').style.display='flex'"
-                            class="text-slate-400 hover:text-white transition cursor-pointer text-[11px]"
-                        >
-                            + Attach Media
-                        </button>
+                        @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+                            <button
+                                type="button"
+                                @click="showAttachModal = true"
+                                class="text-slate-400 hover:text-white transition cursor-pointer text-[11px]"
+                            >
+                                + Attach Media
+                            </button>
+                        @endif
                     </div>
                 </div>
 
-                <!-- 🧪 Calibration Passport Block -->
+                <!-- Calibration Passport Block -->
                 <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
                     @php
                         $cal = $equipment->calibrationStatus();
@@ -227,28 +235,30 @@
                         </div>
                     </div>
 
-                    <button
-                        type="button"
-                        @click="showCalModal = true"
-                        onclick="document.getElementById('calModal').style.display='flex'"
-                        class="w-full text-center rounded-lg border border-[#2c303d] bg-[#12141a] py-2 font-mono text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
-                    >
-                        🧪 Record Calibration Certificate
-                    </button>
+                    @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+                        <button
+                            type="button"
+                            @click="showCalModal = true"
+                            class="w-full text-center rounded-lg border border-[#2c303d] bg-[#12141a] py-2 font-mono text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
+                        >
+                            🧪 Record Calibration Certificate
+                        </button>
+                    @endif
                 </div>
 
                 <!-- Pinned Clinical Memos -->
                 <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
                     <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                         <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Attached Memos') }}</span>
-                        <button
-                            type="button"
-                            @click="showNoteModal = true"
-                            onclick="document.getElementById('deviceNoteModal').style.display='flex'"
-                            class="font-mono text-[11px] text-amber-400 hover:underline cursor-pointer"
-                        >
-                            + Pin Memo
-                        </button>
+                        @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+                            <button
+                                type="button"
+                                @click="showNoteModal = true"
+                                class="font-mono text-[11px] text-amber-400 hover:underline cursor-pointer"
+                            >
+                                + Pin Memo
+                            </button>
+                        @endif
                     </div>
 
                     @if ($equipment->clinicalNotes->isEmpty())
@@ -264,6 +274,9 @@
                                     :isPinned="$note->is_pinned"
                                     :author="$note->author->name ?? 'Staff'"
                                     :date="$note->created_at->diffForHumans()"
+                                    :id="$note->id"
+                                    :canEdit="auth()->user()->isAdmin() || auth()->user()->id === $note->author_id"
+                                    :canDelete="auth()->user()->isAdmin() || auth()->user()->id === $note->author_id"
                                 />
                             @endforeach
                         </div>
@@ -344,23 +357,20 @@
 
         <!-- 📌 Modal 1: Update Calibration -->
         <div
-            id="calModal"
             x-show="showCalModal"
             x-cloak
-            style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-            @keydown.escape.window="showCalModal = false; $el.style.display='none'"
+            @keydown.escape.window="showCalModal = false"
         >
             <div
                 class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
-                @click.outside="showCalModal = false; document.getElementById('calModal').style.display='none'"
+                @click.outside="showCalModal = false"
             >
                 <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">Record Calibration Certificate</h3>
                     <button
                         type="button"
                         @click="showCalModal = false"
-                        onclick="document.getElementById('calModal').style.display='none'"
                         class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
@@ -391,7 +401,6 @@
                         <button
                             type="button"
                             @click="showCalModal = false"
-                            onclick="document.getElementById('calModal').style.display='none'"
                             class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
                         >Cancel</button>
                         <button type="submit" class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer">
@@ -402,89 +411,84 @@
             </div>
         </div>
 
-        <!-- 📌 Modal 2: Transfer Department -->
-        <div
-            id="transferModal"
-            x-show="showTransferModal"
-            x-cloak
-            style="display: none;"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-            @keydown.escape.window="showTransferModal = false; $el.style.display='none'"
-        >
+        <!-- 📌 Modal 2: Transfer Department (Admin Only) -->
+        @if (auth()->user()->isAdmin())
             <div
-                class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
-                @click.outside="showTransferModal = false; document.getElementById('transferModal').style.display='none'"
+                x-show="showTransferModal"
+                x-cloak
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+                @keydown.escape.window="showTransferModal = false"
             >
-                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
-                    <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">Transfer Ward Allocation</h3>
-                    <button
-                        type="button"
-                        @click="showTransferModal = false"
-                        onclick="document.getElementById('transferModal').style.display='none'"
-                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
-                    >&times;</button>
-                </div>
-
-                <form method="POST" action="{{ route('equipment.transfer', $equipment) }}" class="space-y-4">
-                    @csrf
-                    <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">Target Department</label>
-                        <select
-                            name="department_id"
-                            required
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
-                        >
-                            @foreach ($departments as $dept)
-                                <option value="{{ $dept->id }}" {{ $equipment->department_id == $dept->id ? 'selected' : '' }}>
-                                    {{ $dept->name }} ({{ $dept->code }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">New Room / Bay Location</label>
-                        <input
-                            type="text"
-                            name="location"
-                            value="{{ $equipment->location }}"
-                            placeholder="e.g. Bay 2 / Procedure Room A"
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
-                        />
-                    </div>
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                <div
+                    class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
+                    @click.outside="showTransferModal = false"
+                >
+                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                        <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">Transfer Ward Allocation</h3>
                         <button
                             type="button"
                             @click="showTransferModal = false"
-                            onclick="document.getElementById('transferModal').style.display='none'"
-                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
-                        >Cancel</button>
-                        <button type="submit" class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer">
-                            Execute Transfer
-                        </button>
+                            class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        >&times;</button>
                     </div>
-                </form>
+
+                    <form method="POST" action="{{ route('equipment.transfer', $equipment) }}" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">Target Department</label>
+                            <select
+                                name="department_id"
+                                required
+                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                            >
+                                @foreach ($departments as $dept)
+                                    <option value="{{ $dept->id }}" {{ $equipment->department_id == $dept->id ? 'selected' : '' }}>
+                                        {{ $dept->name }} ({{ $dept->code }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">New Room / Bay Location</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value="{{ $equipment->location }}"
+                                placeholder="e.g. Bay 2 / Procedure Room A"
+                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                            />
+                        </div>
+                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                            <button
+                                type="button"
+                                @click="showTransferModal = false"
+                                class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                            >Cancel</button>
+                            <button type="submit" class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer">
+                                Execute Transfer
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        @endif
 
         <!-- 📌 Modal 3: Attach Media (Photo / PDF) -->
         <div
-            id="attachModal"
             x-show="showAttachModal"
             x-cloak
-            style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-            @keydown.escape.window="showAttachModal = false; $el.style.display='none'"
+            @keydown.escape.window="showAttachModal = false"
         >
             <div
                 class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
-                @click.outside="showAttachModal = false; document.getElementById('attachModal').style.display='none'"
+                @click.outside="showAttachModal = false"
             >
                 <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">Upload Device Attachments</h3>
                     <button
                         type="button"
                         @click="showAttachModal = false"
-                        onclick="document.getElementById('attachModal').style.display='none'"
                         class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
@@ -513,7 +517,6 @@
                         <button
                             type="button"
                             @click="showAttachModal = false"
-                            onclick="document.getElementById('attachModal').style.display='none'"
                             class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
                         >Cancel</button>
                         <button type="submit" class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer">
@@ -526,23 +529,20 @@
 
         <!-- 📌 Modal 4: Pin Memo Modal -->
         <div
-            id="deviceNoteModal"
             x-show="showNoteModal"
             x-cloak
-            style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-            @keydown.escape.window="showNoteModal = false; $el.style.display='none'"
+            @keydown.escape.window="showNoteModal = false"
         >
             <div
                 class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
-                @click.outside="showNoteModal = false; document.getElementById('deviceNoteModal').style.display='none'"
+                @click.outside="showNoteModal = false"
             >
                 <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Pin Memo on ') }}{{ $equipment->asset_tag }}</h3>
                     <button
                         type="button"
                         @click="showNoteModal = false"
-                        onclick="document.getElementById('deviceNoteModal').style.display='none'"
                         class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
@@ -602,7 +602,6 @@
                         <button
                             type="button"
                             @click="showNoteModal = false"
-                            onclick="document.getElementById('deviceNoteModal').style.display='none'"
                             class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
                         >
                             {{ __('Cancel') }}

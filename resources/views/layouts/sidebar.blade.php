@@ -50,21 +50,24 @@
                 @endif
             </a>
 
-            <a
-                href="{{ route('departments.index') }}"
-                class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('departments.*') ? 'bg-[#181a22] text-white font-semibold border border-[#2c303d]' : 'text-slate-400 hover:bg-[#12141a] hover:text-slate-200 border border-transparent' }}"
-            >
-                <div class="flex items-center gap-2.5">
-                    <x-ui.icon name="building" class="size-4 opacity-70 group-hover:opacity-100" />
-                    <span>{{ __('Hospital Departments') }}</span>
-                </div>
-                @if (request()->routeIs('departments.*'))
-                    <span class="h-1 w-1 rounded-full bg-white"></span>
-                @endif
-            </a>
+            <!-- Admin-only Department Management -->
+            @if (auth()->user()->isAdmin())
+                <a
+                    href="{{ route('departments.index') }}"
+                    class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('departments.*') ? 'bg-[#181a22] text-white font-semibold border border-[#2c303d]' : 'text-slate-400 hover:bg-[#12141a] hover:text-slate-200 border border-transparent' }}"
+                >
+                    <div class="flex items-center gap-2.5">
+                        <x-ui.icon name="building" class="size-4 opacity-70 group-hover:opacity-100" />
+                        <span>{{ __('Hospital Departments') }}</span>
+                    </div>
+                    @if (request()->routeIs('departments.*'))
+                        <span class="h-1 w-1 rounded-full bg-white"></span>
+                    @endif
+                </a>
+            @endif
 
             <div class="px-3 pt-5 pb-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-500 font-semibold">
-                {{ __('Maintenance & Audit') }}
+                {{ __('Maintenance') }}
             </div>
 
             <a
@@ -80,31 +83,38 @@
                 @endif
             </a>
 
-            <a
-                href="{{ route('activity.index') }}"
-                class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('activity.*') ? 'bg-[#181a22] text-white font-semibold border border-[#2c303d]' : 'text-slate-400 hover:bg-[#12141a] hover:text-slate-200 border border-transparent' }}"
-            >
-                <div class="flex items-center gap-2.5">
-                    <x-ui.icon name="clock" class="size-4 opacity-70 group-hover:opacity-100" />
-                    <span>{{ __('Audit Ledger') }}</span>
+            <!-- Admin-only Audit & Diagnostics -->
+            @if (auth()->user()->isAdmin())
+                <div class="px-3 pt-5 pb-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-500 font-semibold">
+                    {{ __('Administration') }}
                 </div>
-                @if (request()->routeIs('activity.*'))
-                    <span class="h-1 w-1 rounded-full bg-white"></span>
-                @endif
-            </a>
 
-            <a
-                href="{{ route('health') }}"
-                class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('health') ? 'bg-[#181a22] text-white font-semibold border border-[#2c303d]' : 'text-slate-400 hover:bg-[#12141a] hover:text-slate-200 border border-transparent' }}"
-            >
-                <div class="flex items-center gap-2.5">
-                    <x-ui.icon name="heart" class="size-4 opacity-70 group-hover:opacity-100" />
-                    <span>{{ __('System Diagnostics') }}</span>
-                </div>
-                @if (request()->routeIs('health'))
-                    <span class="h-1 w-1 rounded-full bg-white"></span>
-                @endif
-            </a>
+                <a
+                    href="{{ route('activity.index') }}"
+                    class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('activity.*') ? 'bg-[#181a22] text-white font-semibold border border-[#2c303d]' : 'text-slate-400 hover:bg-[#12141a] hover:text-slate-200 border border-transparent' }}"
+                >
+                    <div class="flex items-center gap-2.5">
+                        <x-ui.icon name="clock" class="size-4 opacity-70 group-hover:opacity-100" />
+                        <span>{{ __('Audit Ledger') }}</span>
+                    </div>
+                    @if (request()->routeIs('activity.*'))
+                        <span class="h-1 w-1 rounded-full bg-white"></span>
+                    @endif
+                </a>
+
+                <a
+                    href="{{ route('health') }}"
+                    class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('health') ? 'bg-[#181a22] text-white font-semibold border border-[#2c303d]' : 'text-slate-400 hover:bg-[#12141a] hover:text-slate-200 border border-transparent' }}"
+                >
+                    <div class="flex items-center gap-2.5">
+                        <x-ui.icon name="heart" class="size-4 opacity-70 group-hover:opacity-100" />
+                        <span>{{ __('System Diagnostics') }}</span>
+                    </div>
+                    @if (request()->routeIs('health'))
+                        <span class="h-1 w-1 rounded-full bg-white"></span>
+                    @endif
+                </a>
+            @endif
         </nav>
     </div>
 

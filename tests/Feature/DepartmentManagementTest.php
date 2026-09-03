@@ -46,4 +46,14 @@ class DepartmentManagementTest extends TestCase
         $response->assertForbidden();
         $this->assertDatabaseMissing('departments', ['code' => 'UNAUTH']);
     }
+
+    public function test_non_admin_cannot_access_departments_index(): void
+    {
+        $staff = User::factory()->departmentStaff()->create();
+
+        $this->actingAs($staff);
+        $response = $this->get(route('departments.index'));
+
+        $response->assertForbidden();
+    }
 }

@@ -17,7 +17,6 @@
                 <button
                     type="button"
                     @click="showCreateModal = true"
-                    onclick="document.getElementById('deptModal').style.display='flex'"
                     class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer shadow-sm"
                 >
                     <x-ui.icon name="plus" class="size-3.5" />
@@ -74,16 +73,14 @@
         <!-- 📌 Modal: Add Department (Admin Only) -->
         @if (auth()->user()->isAdmin())
             <div
-                id="deptModal"
                 x-show="showCreateModal"
                 x-cloak
-                style="display: none;"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-                @keydown.escape.window="showCreateModal = false; $el.style.display='none'"
+                @keydown.escape.window="showCreateModal = false"
             >
                 <div
                     class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-5"
-                    @click.outside="showCreateModal = false; document.getElementById('deptModal').style.display='none'"
+                    @click.outside="showCreateModal = false"
                 >
                     <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                         <div class="flex items-center gap-2">
@@ -93,7 +90,6 @@
                         <button
                             type="button"
                             @click="showCreateModal = false"
-                            onclick="document.getElementById('deptModal').style.display='none'"
                             class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
                         >&times;</button>
                     </div>
@@ -158,7 +154,6 @@
                             <button
                                 type="button"
                                 @click="showCreateModal = false"
-                                onclick="document.getElementById('deptModal').style.display='none'"
                                 class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
                             >
                                 {{ __('Cancel') }}

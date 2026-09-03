@@ -9,10 +9,14 @@ use Illuminate\View\View;
 class ActivityController extends Controller
 {
     /**
-     * Display the hospital activity and audit trail.
+     * Display the hospital activity and audit trail (Admin only).
      */
     public function index(Request $request): View
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, 'Restricted to hospital administrators.');
+        }
+
         $activities = ActivityLog::with('causer')
             ->when($request->filled('event_type') && $request->event_type !== 'all', function ($q) use ($request) {
                 $q->where('event_type', $request->event_type);

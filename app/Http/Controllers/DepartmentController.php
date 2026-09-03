@@ -11,10 +11,14 @@ use Illuminate\View\View;
 class DepartmentController extends Controller
 {
     /**
-     * Display a listing of hospital departments.
+     * Display a listing of hospital departments (Admin only).
      */
     public function index(Request $request): View
     {
+        if (! $request->user()->isAdmin()) {
+            abort(403, 'Restricted to hospital administrators.');
+        }
+
         $departments = Department::withCount(['equipment', 'activeEquipment', 'issues', 'staff'])
             ->orderBy('name')
             ->get();

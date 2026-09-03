@@ -27,10 +27,10 @@ class StarterShellRoutesTest extends TestCase
         }
     }
 
-    public function test_authenticated_users_can_access_all_starter_routes(): void
+    public function test_admin_can_access_all_starter_routes(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
 
         $routes = [
             'dashboard',
@@ -45,6 +45,22 @@ class StarterShellRoutesTest extends TestCase
             $response = $this->get(route($routeName));
             $response->assertOk();
         }
+    }
+
+    public function test_department_staff_can_access_staff_routes_and_is_forbidden_from_admin_routes(): void
+    {
+        $staff = User::factory()->departmentStaff()->create();
+        $this->actingAs($staff);
+
+        // Staff routes
+        $this->get(route('dashboard'))->assertOk();
+        $this->get(route('equipment.index'))->assertOk();
+        $this->get(route('issues.index'))->assertOk();
+
+        // Admin-only routes
+        $this->get(route('departments.index'))->assertForbidden();
+        $this->get(route('activity.index'))->assertForbidden();
+        $this->get(route('health'))->assertForbidden();
     }
 
     public function test_health_check_endpoint_returns_json_when_requested(): void

@@ -8,7 +8,11 @@
                 <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1">
                     <span>Biomedical Maintenance</span>
                     <span>/</span>
-                    <span class="text-slate-300">Triage & Repair Queue</span>
+                    @if (auth()->user()->isAdmin())
+                        <span class="text-slate-300">All Hospital Wards</span>
+                    @else
+                        <span class="text-slate-300">{{ auth()->user()->department->name ?? 'Assigned Ward' }}</span>
+                    @endif
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight text-white">{{ __('Repair & Issue Queue') }}</h1>
             </div>
@@ -16,7 +20,6 @@
             <button
                 type="button"
                 @click="showReportModal = true"
-                onclick="document.getElementById('reportIssueModal').style.display='flex'"
                 class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer shadow-sm"
             >
                 <x-ui.icon name="wrench" class="size-3.5" />
@@ -151,7 +154,7 @@
                                 <td class="py-3 px-4 text-right font-mono text-xs">
                                     <a
                                         href="{{ route('issues.show', $issue) }}"
-                                        class="text-slate-400 hover:text-white transition"
+                                        class="text-slate-400 hover:text-white transition font-medium"
                                     >
                                         Triage &rarr;
                                     </a>
@@ -169,16 +172,14 @@
 
         <!-- 📌 Modal: Report New Issue -->
         <div
-            id="reportIssueModal"
             x-show="showReportModal"
             x-cloak
-            style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
-            @keydown.escape.window="showReportModal = false; $el.style.display='none'"
+            @keydown.escape.window="showReportModal = false"
         >
             <div
                 class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-                @click.outside="showReportModal = false; document.getElementById('reportIssueModal').style.display='none'"
+                @click.outside="showReportModal = false"
             >
                 <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
@@ -188,7 +189,6 @@
                     <button
                         type="button"
                         @click="showReportModal = false"
-                        onclick="document.getElementById('reportIssueModal').style.display='none'"
                         class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
@@ -253,7 +253,6 @@
                         <button
                             type="button"
                             @click="showReportModal = false"
-                            onclick="document.getElementById('reportIssueModal').style.display='none'"
                             class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
                         >
                             {{ __('Cancel') }}
