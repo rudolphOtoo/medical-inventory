@@ -1,0 +1,19 @@
+{
+    frankenphp
+    order php_server before file_server
+}
+
+:80 {
+    root * /app/public
+    encode zstd gzip
+
+    # Static assets cache
+    @static {
+        file
+        path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.pdf
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    php_server
+    file_server
+}
