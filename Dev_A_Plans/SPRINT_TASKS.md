@@ -38,9 +38,17 @@
 
 ---
 
+## 🎯 Phase 3: Future Backlog
+
+- [ ] **Task A5: Automated Daily Cron for Database & Attachment Backups**
+  - Configure scheduled execution of `php artisan medtrack:backup` (Daily at 02:00 UTC via Laravel Scheduler / Render cron / Docker crond).
+  - Add email/webhook health notification on backup completion or disk threshold failure.
+
+---
+
 ## 🧪 Test Coverage & Verification
 
 - `tests/Feature/EquipmentAttachmentsTest.php` (4 tests)
 - `tests/Feature/EquipmentCalibrationTest.php` (3 tests)
 - `tests/Feature/EquipmentTransferTest.php` (3 tests)
-- Total Suite: **62 / 62 tests passing** (206 assertions).
+- Total Suite: **86 / 86 tests passing** (272 assertions).

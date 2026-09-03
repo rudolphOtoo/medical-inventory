@@ -1,65 +1,49 @@
-# MedTrack — Session State Snapshot
+# Session State Memory Snapshot
 
-**Saved**: `2026-09-01 11:40:00 UTC`  
-**Workspace**: `c:\Users\doks\Herd\medtrack`  
-**Git Remote**: `git@github.com:rudolphOtoo/medical-inventory.git` (`main` branch)  
-**Test Suite Status**: 🟢 **52 / 52 passing** (169 assertions)  
-**Code Quality**: 🟢 Laravel Pint clean & Vite assets compiled (80.72 kB bundle)
-
----
-
-## 🏛️ System State & Core Architecture
-
-### 1. Domain Models & Database (SQLite in Git)
-- **`database/database.sqlite`**: Pre-seeded with 6 departments (`ED`, `ICU`, `RAD`, `SURG`, `BIOMED`, `ONC`), 6 staff personas (`admin`, `emergency`, `icu`, `biomed`, `radiology`), 12 core clinical devices with realistic serials/asset tags, active repair tickets, shift memos, and activity logs.
-- **Models**:
-  - [`Department`](file:///c:/Users/doks/Herd/medtrack/app/Models/Department.php): Ward metadata, location, directory listing, admin creation modal.
-  - [`Equipment`](file:///c:/Users/doks/Herd/medtrack/app/Models/Equipment.php): Unique asset tag/serial validation, RBAC department scoping (`forUser()`), status enums, archiving toggle, `clinicalNotes()` relationship, CSV export.
-  - [`IssueReport`](file:///c:/Users/doks/Herd/medtrack/app/Models/IssueReport.php): 8-state repair finite state machine (`Reported` → `Acknowledged` → `Assigned` → `InProgress` → `AwaitingParts` → `ReadyForTesting` → `Resolved` → `Closed`), operational return-to-service gate, auto-triage status updates.
-  - [`ClinicalNote`](file:///c:/Users/doks/Herd/medtrack/app/Models/ClinicalNote.php): Shift handoff memos, tag taxonomy, color palettes (`canary`, `mint`, `azure`, `coral`, `lavender`), pin/delete capabilities.
-  - [`ActivityLog`](file:///c:/Users/doks/Herd/medtrack/app/Models/ActivityLog.php): Immutable chronological audit stream with polymorphic event recording.
-  - [`User`](file:///c:/Users/doks/Herd/medtrack/app/Models/User.php): Casts `UserRole` (`Admin`, `DepartmentUser`), `isAdmin()`, `isDepartmentUser()`.
-
-### 2. UI / Design System (`/impeccable` & `/imprint`)
-- **Aesthetic**: Minimal Sleek Architectural Obsidian Ledger (`#08090a` canvas, `#0c0d10` surfaces, `#1c1f26` hairline borders, high-contrast monospace stamps).
-- **Anti-AI-Slop**: Zero glowing blobs, zero gradient text, zero generic SaaS card templates.
-- **Components**: `<x-ui.sticky-note>`, `<x-ui.badge>`, `<x-ui.icon>`, `<x-ui.card>`, `<x-layouts.app>`, `<x-layouts.auth>`.
-- **CSS Bundle**: Highly optimized pure Tailwind CSS v4 (`80.72 kB`).
-- **UI Registry**: Fully documented in [`ui-registry.md`](file:///c:/Users/doks/Herd/medtrack/ui-registry.md).
-
-### 3. Workload Division Plans
-- 👨‍💻 **Developer A (Domain & Assets)**:
-  - Plan: [`Dev_A_Plans/README.md`](file:///c:/Users/doks/Herd/medtrack/Dev_A_Plans/README.md) & [`Dev_A_Plans/SPRINT_TASKS.md`](file:///c:/Users/doks/Herd/medtrack/Dev_A_Plans/SPRINT_TASKS.md).
-  - Backlog ready to pick: A1 (Photo & PDF manual uploads), A2 (Asset Tag QR/Barcode generation), A3 (Calibration expiration countdown), A4 (Department transfer tracking).
-- 👩‍💻 **Developer B (Issue Lifecycle & Operations)**:
-  - Plan: [`Dev_B_Plans/README.md`](file:///c:/Users/doks/Herd/medtrack/Dev_B_Plans/README.md) & [`Dev_B_Plans/SPRINT_TASKS.md`](file:///c:/Users/doks/Herd/medtrack/Dev_B_Plans/SPRINT_TASKS.md).
-  - Backlog ready to pick: B1 (Multi-entry repair comments thread), B2 (MTTR & SLA metrics), B3 (Spare parts inventory usage), B4 (Automated LAN backup artisan command).
+**Timestamp:** 2026-09-03 11:11 UTC  
+**Session ID:** `83b0078b-d414-44df-af65-9f8e87a40d3c`  
+**Git Branch:** `main`  
+**Latest Remote Commit:** `de5cd6a`  
+**Status:** Unified Integration & Full Feature Delivery Complete (86/86 Passing Tests)
 
 ---
 
-## 🔑 Station Test Logins
+## 1. Architectural Progress & Feature Inventory
 
-All accounts use password: **`password`**
+### 🏥 Track A: Equipment, Attachments & Lifecycle (Developer A)
+- **Photo & PDF Manual Uploads**: Strict MIME validation (`jpeg, png, webp, pdf`), hashed storage under `public/equipment/{photos,manuals}`, specimen lightbox preview and PDF download actions on [`equipment/show.blade.php`](file:///c:/Users/doks/Herd/medtrack/resources/views/pages/equipment/show.blade.php).
+- **Printable Clinical Asset Tag & SVG QR Generator**: Route `GET /equipment/{id}/tag` ([`tag.blade.php`](file:///c:/Users/doks/Herd/medtrack/resources/views/pages/equipment/tag.blade.php)) with pure vector SVG QR code generator in [`QrCodeService.php`](file:///c:/Users/doks/Herd/medtrack/app/Services/QrCodeService.php) and `@media print` thermal label stylesheet.
+- **Preventive Maintenance & Calibration Countdown**: `last_calibrated_at` & `next_calibration_due` date columns, domain status methods (`certified`, `due_soon < 30d`, `overdue`, `unscheduled`), directory filter (`?calibration_status=overdue`), and certification modal with `ActivityLog` tracking.
+- **Department Transfer**: Re-allocation between wards with immutable audit trails.
 
-| Role / Persona | Email | Scope |
-|---|---|---|
-| 👑 **Admin** | `admin@medtrack.test` | Full hospital inventory, department creation, CSV export, device archiving |
-| 🩺 **Emergency Lead** | `emergency@medtrack.test` | Emergency ward equipment, defect reporting, shift memos |
-| 🏥 **ICU Lead** | `icu@medtrack.test` | Intensive Care life-support devices & tickets |
-| 🔬 **Biomed Tech** | `biomed@medtrack.test` | Engineering repair triage, calibration updates |
-| 🩻 **Radiology Staff** | `radiology@medtrack.test` | Imaging cart oversight & maintenance |
+### 🛠️ Track B: Issue Reporting, Comments & Spare Parts (Developer B)
+- **Multi-Entry Work Logs & Internal Directives**: `IssueComment` subsystem with `is_internal_only` flag and author/admin authorization.
+- **MTTR & SLA Analytics**: Aggregated SQL resolution duration on `/dashboard` and `/health`.
+- **Spare Parts Inventory**: Parts catalog, quantity decrement on ticket resolution, and DB `CHECK (stock_quantity >= 0)` constraint.
+- **Automated Database & Attachment Backup**: `php artisan medtrack:backup` command with SQLite WAL sidecar flushing.
+
+### 📊 Operations Console & Sticky Notes Subsystem
+- **Executive Calibration Alerts Card**: 7th column on `/dashboard` with pulsating badge and 1-click links to expiring equipment.
+- **100% Full CRUD for Sticky Notes**: `POST /notes` (create), `PUT /notes/{note}` (update modal), `PATCH /notes/{note}/pin` (1-click star toggle), `DELETE /notes/{note}` (delete).
+
+### 🐳 Turnkey Docker & Windows Server Infrastructure
+- Multi-stage FrankenPHP `Dockerfile`, `Caddyfile`, `entrypoint.sh`, root `compose.yaml`.
+- 4 Turnkey Windows batch scripts in `windows/`:
+  - `START_MEDTRACK.bat`: 1-Click launcher with Docker Desktop auto-start.
+  - `STOP_MEDTRACK.bat`: Clean shutdown.
+  - `BACKUP_MEDTRACK.bat`: Live hot backup exporter.
+  - `VIEW_LOGS.bat`: Live container log streamer.
 
 ---
 
-## 🐛 Recent Fixes & Critical Discoveries
-1. **Modal `[x-cloak]` Display Fixed**: Added `[x-cloak] { display: none !important; }` in `app.css` and fail-safe DOM/Alpine click handlers to prevent uncloaked modal overlay.
-2. **Alpine.js Global Initialization**: Installed `alpinejs` into `resources/js/app.js` so quick-fill credentials and interactive controls work without third-party Flux package bloat.
-3. **Eloquent Column Collision**: Renamed `Equipment` relationship from `notes()` to `clinicalNotes()` to avoid shadowing the `notes` column on the `equipment` table.
-4. **Git Repository Setup**: Staged all initial code, SQLite database, and committed to `main` with remote configured to `git@github.com:rudolphOtoo/medical-inventory.git`.
+## 2. Test Verification Matrix
+
+- Total Automated Tests: **86 / 86 passing** (272 assertions).
+- Style Standards: **0 Pint errors** (`vendor/bin/pint --dirty --format agent`).
+- Assets: **82.56 kB CSS / 54.19 kB JS** built with Vite.
 
 ---
 
-## 🚀 Resume Instructions for Next Session (`/remember restore`)
-- Run `npm run build` or `npm run dev` if editing Blade/CSS.
-- Run `php artisan test` to verify all 52 tests.
-- Developer A and Developer B can immediately pick Phase 2 tasks from `Dev_A_Plans/SPRINT_TASKS.md` and `Dev_B_Plans/SPRINT_TASKS.md`.
+## 3. Backlog for Next Session
+
+- **Task A5**: Automated Daily Cron for `medtrack:backup` (Daily at 02:00 UTC via Laravel Scheduler / Render cron / Docker crond).
