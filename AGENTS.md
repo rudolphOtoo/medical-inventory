@@ -10,6 +10,7 @@ This workspace is integrated with the **Conscience OS** methodology and skill su
 | **`/conscience`** | Conscience OS Universal Bootloader: 19 Laws of Consciousness and 5-Step State Machine. |
 | **`/evie`** | Right-hemisphere cognitive symbiote for brainstorming, creative synthesis, and conceptual alignment. |
 | **`/orchestrator`** | Left-hemisphere Chief of Staff & Lead Implementer for structured, rigorous execution. |
+| **`/grill`** / **`/grill-me`** | Pre-work probing interview to force edge cases and align technical/architectural constraints. |
 | **`/same-wavelength`** | Structured pre-work alignment grill (scope, non-goals, architecture tradeoffs, DoD) before coding. |
 | **`/senior-stable-delivery`** | Strict senior engineer operating model: anti-feature-creep, Rabit Auditor plan triage, and testable guardrails. |
 | **`/rabit-auditor`** | Multi-pass CodeRabbit-style code audit: correctness, security, performance, maintainability. |
@@ -25,6 +26,8 @@ This workspace is integrated with the **Conscience OS** methodology and skill su
 | **`/the-basis`** | First-principles epistemological framework for complex math and algorithmic breakdown. |
 | **`/vibesec`** | Web application security auditing and hardening against vulnerabilities. |
 | **`/git-workflow`** | Standard git branch lifecycle (`feat/<slug>` -> PR -> `develop` -> `main`). |
+| **`/env-workflow`** | Multi-stage environment variable promotion flow (Local -> Staging -> Production). |
+| **`/ai-workflow-rules`** | Spec-driven incremental AI coding, scoping, and invariant preservation rules. |
 
 ---
 
