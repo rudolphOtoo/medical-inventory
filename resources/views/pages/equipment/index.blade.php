@@ -1,7 +1,18 @@
 <x-layouts.app :title="__('Equipment Directory')">
-    <div class="space-y-6" x-data="{
-        showRegisterModal: false,
-    }">
+    <div
+        class="space-y-6"
+        x-data="{
+            showRegisterModal: false,
+            handleSlashKey(e) {
+                if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+                    e.preventDefault();
+                    this.$refs.searchInput?.focus();
+                    this.$refs.searchInput?.select();
+                }
+            }
+        }"
+        @keydown.window="handleSlashKey($event)"
+    >
         <!-- Page Header -->
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-6">
             <div>
@@ -41,66 +52,84 @@
 
         <!-- Filter & Search Bar -->
         <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-4 shadow-xs">
-            <form method="GET" action="{{ route('equipment.index') }}" class="grid gap-3 sm:grid-cols-2 {{ auth()->user()->isAdmin() ? 'lg:grid-cols-5' : 'lg:grid-cols-4' }}">
+            <form method="GET" action="{{ route('equipment.index') }}" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
                 <!-- Search Input with Keyboard Shortcut -->
-                <div class="lg:col-span-2 relative" x-data @keydown.window.prevent.slash="$refs.searchInput.focus()">
+                <div class="relative flex-1">
+                    <x-ui.icon name="magnifying-glass" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
                     <input
                         x-ref="searchInput"
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search name, asset tag, serial, model... (Press '/' to focus)"
-                        class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
+                        placeholder="{{ __('Search name, asset tag, serial, model, ward... (Press \'/\')') }}"
+                        class="w-full pl-9 pr-12 rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                     />
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                        <kbd class="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-slate-100 dark:bg-[#1a1d26] border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 shadow-2xs">/</kbd>
+                    </div>
                 </div>
 
-                <!-- Department Filter (Admin Only) -->
-                @if (auth()->user()->isAdmin())
-                    <div>
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                    <!-- Department Filter (Admin Only) -->
+                    @if (auth()->user()->isAdmin())
+                        <div class="w-full sm:w-auto">
+                            <select
+                                name="department_id"
+                                onchange="this.form.submit()"
+                                class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
+                            >
+                                <option value="all">{{ __('All Wards') }}</option>
+                                @foreach ($departments as $dept)
+                                    <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
+                                        {{ $dept->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+
+                    <!-- Operational Status Filter -->
+                    <div class="w-full sm:w-auto">
                         <select
-                            name="department_id"
+                            name="status"
                             onchange="this.form.submit()"
                             class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                         >
-                            <option value="all">{{ __('All Departments') }}</option>
-                            @foreach ($departments as $dept)
-                                <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
-                                    {{ $dept->name }}
+                            <option value="all">{{ __('All Statuses') }}</option>
+                            @foreach ($statuses as $st)
+                                <option value="{{ $st->value }}" {{ request('status') === $st->value ? 'selected' : '' }}>
+                                    {{ $st->label() }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                @endif
 
-                <!-- Operational Status Filter -->
-                <div>
-                    <select
-                        name="status"
-                        onchange="this.form.submit()"
-                        class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
-                    >
-                        <option value="all">{{ __('All Operational Statuses') }}</option>
-                        @foreach ($statuses as $st)
-                            <option value="{{ $st->value }}" {{ request('status') === $st->value ? 'selected' : '' }}>
-                                {{ $st->label() }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                    <!-- Calibration Expiry Filter -->
+                    <div class="w-full sm:w-auto">
+                        <select
+                            name="calibration_status"
+                            onchange="this.form.submit()"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
+                        >
+                            <option value="all">{{ __('All Calibrations') }}</option>
+                            <option value="overdue" {{ request('calibration_status') === 'overdue' ? 'selected' : '' }}>Overdue</option>
+                            <option value="due_soon" {{ request('calibration_status') === 'due_soon' ? 'selected' : '' }}>Due Soon (&le; 30d)</option>
+                            <option value="certified" {{ request('calibration_status') === 'certified' ? 'selected' : '' }}>Certified</option>
+                            <option value="uncalibrated" {{ request('calibration_status') === 'uncalibrated' ? 'selected' : '' }}>Unscheduled</option>
+                        </select>
+                    </div>
 
-                <!-- Calibration Expiry Filter -->
-                <div>
-                    <select
-                        name="calibration_status"
-                        onchange="this.form.submit()"
-                        class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
-                    >
-                        <option value="all">{{ __('All Calibrations') }}</option>
-                        <option value="overdue" {{ request('calibration_status') === 'overdue' ? 'selected' : '' }}>Overdue</option>
-                        <option value="due_soon" {{ request('calibration_status') === 'due_soon' ? 'selected' : '' }}>Due Soon (&le; 30d)</option>
-                        <option value="certified" {{ request('calibration_status') === 'certified' ? 'selected' : '' }}>Certified</option>
-                        <option value="uncalibrated" {{ request('calibration_status') === 'uncalibrated' ? 'selected' : '' }}>Unscheduled</option>
-                    </select>
+                    <!-- Reset Filters Action -->
+                    @if (request()->hasAny(['search', 'department_id', 'status', 'calibration_status']) && (request('search') || request('department_id') !== 'all' || request('status') !== 'all' || request('calibration_status') !== 'all'))
+                        <a
+                            href="{{ route('equipment.index') }}"
+                            class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition font-mono shadow-2xs shrink-0"
+                            title="Reset all search filters"
+                        >
+                            <x-ui.icon name="x-mark" class="size-3.5" />
+                            <span>{{ __('Reset Filters') }}</span>
+                        </a>
+                    @endif
                 </div>
             </form>
         </div>

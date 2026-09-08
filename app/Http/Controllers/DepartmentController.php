@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Department;
+use App\Support\FuzzySearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,15 @@ class DepartmentController extends Controller
         }
 
         $departments = Department::withCount(['equipment', 'activeEquipment', 'issues', 'staff'])
+            ->when($request->filled('search'), function ($q) use ($request) {
+                FuzzySearch::apply($q, [
+                    'name',
+                    'code',
+                    'head_of_department',
+                    'floor',
+                    'contact_number',
+                ], $request->string('search'));
+            })
             ->orderBy('name')
             ->get();
 

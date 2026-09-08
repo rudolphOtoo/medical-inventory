@@ -1,28 +1,40 @@
 <x-layouts.app :title="__('Spare Parts Inventory')">
-    <div class="space-y-6" x-data="{
-        showCreateModal: false,
-        showEditModal: false,
-        editPart: {
-            id: null,
-            name: '',
-            part_number: '',
-            manufacturer: '',
-            stock_quantity: 0,
-            unit_cost: 0,
-            description: ''
-        },
-        openEdit(part) {
-            this.editPart = { ...part };
-            this.showEditModal = true;
-        }
-    }">
+    <div
+        class="space-y-6"
+        x-data="{
+            showCreateModal: false,
+            showEditModal: false,
+            editPart: {
+                id: null,
+                part_number: '',
+                name: '',
+                description: '',
+                manufacturer: '',
+                stock_quantity: 0,
+                unit_cost: 0,
+                issues_count: 0
+            },
+            openEdit(part) {
+                this.editPart = { ...part };
+                this.showEditModal = true;
+            },
+            handleSlashKey(e) {
+                if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+                    e.preventDefault();
+                    this.$refs.partSearchInput?.focus();
+                    this.$refs.partSearchInput?.select();
+                }
+            }
+        }"
+        @keydown.window="handleSlashKey($event)"
+    >
         <!-- Page Header -->
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-6">
             <div>
                 <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
-                    <span>Clinical Maintenance</span>
+                    <span>Biomedical Engineering</span>
                     <span>/</span>
-                    <span class="text-slate-700 dark:text-slate-300">Biomedical Components Catalog</span>
+                    <span class="text-slate-700 dark:text-slate-300">Replacement Components</span>
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ __('Spare Parts Inventory') }}</h1>
             </div>
@@ -39,8 +51,8 @@
             @endif
         </div>
 
-        <!-- Metric Cards -->
-        <div class="grid grid-cols-3 rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] divide-x divide-slate-200 dark:divide-[#1c1f26] shadow-xs">
+        <!-- Inventory Metrics Ledger Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-3 rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-[#1c1f26] shadow-xs">
             <div class="p-4 sm:p-5">
                 <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold block">Total Catalog Items</span>
                 <div class="mt-2 flex items-baseline gap-2">
@@ -48,15 +60,17 @@
                     <span class="font-mono text-[11px] text-slate-500 dark:text-slate-400">SKUs</span>
                 </div>
             </div>
+
             <div class="p-4 sm:p-5">
-                <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold block">Total Physical Units</span>
+                <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold block">Total In Stock</span>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">{{ $totalQuantity }}</span>
-                    <span class="font-mono text-[11px] text-slate-500 dark:text-slate-400">in stock</span>
+                    <span class="font-mono text-[11px] text-slate-500 dark:text-slate-400">units</span>
                 </div>
             </div>
-            <div class="p-4 sm:p-5">
-                <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold block">Low Stock Alert (&le;5)</span>
+
+            <div class="p-4 sm:p-5 col-span-2 lg:col-span-1 border-t lg:border-t-0 divide-slate-200 dark:divide-[#1c1f26]">
+                <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-semibold block">Critical Low Stock</span>
                 <div class="mt-2 flex items-baseline gap-2">
                     <span class="font-mono text-3xl font-bold tracking-tight {{ $lowStockCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400' }}">{{ $lowStockCount }}</span>
                     <span class="font-mono text-[11px] text-slate-500 dark:text-slate-400">SKUs</span>
@@ -67,15 +81,19 @@
         <!-- Filter & Search Bar -->
         <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-4 shadow-xs">
             <form method="GET" action="{{ route('spare-parts.index') }}" class="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <div class="relative flex-1 max-w-md w-full" x-data @keydown.window.prevent.slash="$refs.partSearchInput.focus()">
+                <div class="relative flex-1 max-w-md w-full">
+                    <x-ui.icon name="magnifying-glass" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
                     <input
                         x-ref="partSearchInput"
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search part name, SKU / part number, manufacturer... (Press '/')"
-                        class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
+                        placeholder="{{ __('Search part name, SKU, manufacturer... (Press \'/\')') }}"
+                        class="w-full pl-9 pr-12 rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                     />
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                        <kbd class="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-slate-100 dark:bg-[#1a1d26] border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 shadow-2xs">/</kbd>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -89,6 +107,17 @@
                         <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Low Stock (&le;5)</option>
                         <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Out of Stock (0)</option>
                     </select>
+
+                    @if (request()->hasAny(['search', 'stock_status']) && (request('search') || request('stock_status')))
+                        <a
+                            href="{{ route('spare-parts.index') }}"
+                            class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition font-mono shadow-2xs shrink-0"
+                            title="Reset all filters"
+                        >
+                            <x-ui.icon name="x-mark" class="size-3.5" />
+                            <span>{{ __('Reset') }}</span>
+                        </a>
+                    @endif
                 </div>
             </form>
         </div>
@@ -104,7 +133,7 @@
                             class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-mono text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition shadow-xs"
                         >
                             <x-ui.icon name="x-mark" class="size-3" />
-                            <span>Clear Filters</span>
+                            <span>Clear All Filters</span>
                         </a>
                     @endif
                 </div>
@@ -155,29 +184,37 @@
                                         <button
                                             type="button"
                                             @click="openEdit({{ json_encode($part) }})"
-                                            class="inline-flex items-center gap-1 p-1 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
+                                            class="inline-flex items-center gap-1 rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
                                             title="Edit Part"
                                         >
-                                            <x-ui.icon name="pencil" class="size-3.5" />
+                                            <x-ui.icon name="pencil" class="size-3" />
                                             <span>Edit</span>
                                         </button>
 
                                         @if (auth()->user()->isAdmin())
                                             @if ($part->issues_count === 0)
-                                                <form method="POST" action="{{ route('spare-parts.destroy', $part) }}" onsubmit="return confirm('Delete this spare part from catalog?');" class="inline">
+                                                <form method="POST" action="{{ route('spare-parts.destroy', $part) }}" onsubmit="return confirm('Permanently delete spare part \'{{ addslashes($part->name) }}\' [{{ $part->part_number }}]?');" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="p-1 rounded text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer" title="Delete Part">
-                                                        <x-ui.icon name="trash" class="size-3.5" />
+                                                    <button
+                                                        type="submit"
+                                                        class="inline-flex items-center gap-1 rounded-md border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 px-2 py-1 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition cursor-pointer"
+                                                        title="Delete Part"
+                                                    >
+                                                        <x-ui.icon name="trash" class="size-3" />
+                                                        <span>Delete</span>
                                                     </button>
                                                 </form>
                                             @else
-                                                <span
-                                                    class="p-1 text-slate-300 dark:text-slate-700 cursor-not-allowed"
-                                                    title="Cannot delete: Part is linked to {{ $part->issues_count }} historical repair ticket(s)."
+                                                <button
+                                                    type="button"
+                                                    @click="alert('Cannot delete part \'{{ addslashes($part->name) }}\': It is referenced in {{ $part->issues_count }} historical repair record(s).')"
+                                                    class="inline-flex items-center gap-1 rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2 py-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer"
+                                                    title="Part linked to repair tickets"
                                                 >
-                                                    <x-ui.icon name="trash" class="size-3.5 opacity-40" />
-                                                </span>
+                                                    <x-ui.icon name="trash" class="size-3 opacity-60" />
+                                                    <span>Delete</span>
+                                                </button>
                                             @endif
                                         @endif
                                     </div>
@@ -193,7 +230,7 @@
             @endif
         </div>
 
-        <!-- Modal: Register New Spare Part -->
+        <!-- Modal: Add Spare Part -->
         <div
             x-show="showCreateModal"
             x-cloak
@@ -306,9 +343,40 @@
                         <textarea name="description" x-model="editPart.description" rows="2" class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"></textarea>
                     </div>
 
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
-                        <button type="button" @click="showEditModal = false" class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer">Cancel</button>
-                        <button type="submit" class="rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition cursor-pointer">Update Part</button>
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
+                        @if (auth()->user()->isAdmin())
+                            <div>
+                                <template x-if="editPart.issues_count === 0">
+                                    <form method="POST" :action="'/spare-parts/' + editPart.id" onsubmit="return confirm('Permanently delete this spare part?');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center gap-1.5 rounded-lg border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition cursor-pointer font-mono shadow-2xs"
+                                        >
+                                            <x-ui.icon name="trash" class="size-3.5" />
+                                            <span>{{ __('Delete') }}</span>
+                                        </button>
+                                    </form>
+                                </template>
+                                <template x-if="editPart.issues_count > 0">
+                                    <button
+                                        type="button"
+                                        @click="alert('Cannot delete part \'' + editPart.name + '\': It is referenced in ' + editPart.issues_count + ' historical repair record(s).')"
+                                        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-slate-100 dark:bg-[#12141a] px-3 py-2 text-xs font-semibold text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer font-mono"
+                                        title="Part linked to repair tickets"
+                                    >
+                                        <x-ui.icon name="trash" class="size-3.5" />
+                                        <span>{{ __('Delete') }}</span>
+                                    </button>
+                                </template>
+                            </div>
+                        @endif
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="showEditModal = false" class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer">Cancel</button>
+                            <button type="submit" class="rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition cursor-pointer">Update Part</button>
+                        </div>
                     </div>
                 </form>
             </div>

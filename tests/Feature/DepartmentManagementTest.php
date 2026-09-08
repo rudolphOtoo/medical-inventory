@@ -104,4 +104,18 @@ class DepartmentManagementTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    public function test_admin_can_search_departments_with_fuzzy_matching(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Department::create(['name' => 'Cardiovascular Surgery Unit', 'code' => 'CVSU']);
+        Department::create(['name' => 'Pediatric Intensive Care', 'code' => 'PICU']);
+
+        $this->actingAs($admin);
+
+        $response = $this->get(route('departments.index', ['search' => 'cardio surg']));
+        $response->assertOk()
+            ->assertSee('Cardiovascular Surgery Unit')
+            ->assertDontSee('Pediatric Intensive Care');
+    }
 }

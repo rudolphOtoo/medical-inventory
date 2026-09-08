@@ -12,6 +12,7 @@ use App\Models\Equipment;
 use App\Models\IssueReport;
 use App\Models\SparePart;
 use App\Models\User;
+use App\Support\FuzzySearch;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,12 +44,15 @@ class IssueController extends Controller
                 $q->where('priority', $request->priority);
             })
             ->when($request->filled('search'), function ($q) use ($request) {
-                $search = $request->string('search');
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('title', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%")
-                        ->orWhereHas('equipment', fn ($eq) => $eq->where('name', 'like', "%{$search}%")->orWhere('asset_tag', 'like', "%{$search}%"));
-                });
+                FuzzySearch::apply($q, [
+                    'title',
+                    'description',
+                    'equipment.name',
+                    'equipment.asset_tag',
+                    'reporter.name',
+                    'assignee.name',
+                    'department.name',
+                ], $request->string('search'));
             })
             ->latest();
 

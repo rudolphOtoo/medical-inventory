@@ -1,7 +1,18 @@
 <x-layouts.app :title="__('Repair Queue')">
-    <div class="space-y-6" x-data="{
-        showReportModal: false,
-    }">
+    <div
+        class="space-y-6"
+        x-data="{
+            showReportModal: false,
+            handleSlashKey(e) {
+                if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+                    e.preventDefault();
+                    this.$refs.issueSearchInput?.focus();
+                    this.$refs.issueSearchInput?.select();
+                }
+            }
+        }"
+        @keydown.window="handleSlashKey($event)"
+    >
         <!-- Page Header -->
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-6">
             <div>
@@ -50,29 +61,47 @@
             <form method="GET" action="{{ route('issues.index') }}" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <input type="hidden" name="status" value="{{ request('status', 'all') }}" />
                 <div class="relative flex-1 max-w-md">
+                    <x-ui.icon name="magnifying-glass" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
                     <input
+                        x-ref="issueSearchInput"
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search ticket title, fault description, or asset tag..."
-                        class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] py-2 px-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 focus:outline-hidden"
+                        placeholder="{{ __('Search ticket, fault, device, tech... (Press \'/\')') }}"
+                        class="w-full pl-9 pr-12 rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-slate-500 focus:outline-hidden"
                     />
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                        <kbd class="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-slate-100 dark:bg-[#1a1d26] border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 shadow-2xs">/</kbd>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-1.5 font-mono text-[11px]">
-                    <span class="text-slate-500 uppercase">{{ __('Priority') }}:</span>
-                    <a
-                        href="{{ route('issues.index', array_merge(request()->except('priority'), ['priority' => 'all'])) }}"
-                        class="px-2 py-0.5 rounded transition {{ !request('priority') || request('priority') === 'all' ? 'bg-slate-100 dark:bg-[#181a22] text-slate-900 dark:text-white font-bold border border-slate-300 dark:border-transparent' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300' }}"
-                    >All</a>
-                    <a
-                        href="{{ route('issues.index', array_merge(request()->except('priority'), ['priority' => 'critical'])) }}"
-                        class="px-2 py-0.5 rounded transition {{ request('priority') === 'critical' ? 'bg-rose-100 border border-rose-300 text-rose-800 dark:bg-rose-950/60 dark:border-rose-800/60 dark:text-rose-300 font-bold' : 'text-rose-600 dark:text-rose-400/80 hover:text-rose-800 dark:hover:text-rose-300' }}"
-                    >Critical</a>
-                    <a
-                        href="{{ route('issues.index', array_merge(request()->except('priority'), ['priority' => 'high'])) }}"
-                        class="px-2 py-0.5 rounded transition {{ request('priority') === 'high' ? 'bg-amber-100 border border-amber-300 text-amber-800 dark:bg-amber-950/60 dark:border-amber-800/60 dark:text-amber-300 font-bold' : 'text-amber-600 dark:text-amber-400/80 hover:text-amber-800 dark:hover:text-amber-300' }}"
-                    >High</a>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex items-center gap-1.5 font-mono text-[11px]">
+                        <span class="text-slate-500 uppercase">{{ __('Priority') }}:</span>
+                        <a
+                            href="{{ route('issues.index', array_merge(request()->except('priority'), ['priority' => 'all'])) }}"
+                            class="px-2 py-0.5 rounded transition {{ !request('priority') || request('priority') === 'all' ? 'bg-slate-100 dark:bg-[#181a22] text-slate-900 dark:text-white font-bold border border-slate-300 dark:border-transparent' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300' }}"
+                        >All</a>
+                        <a
+                            href="{{ route('issues.index', array_merge(request()->except('priority'), ['priority' => 'critical'])) }}"
+                            class="px-2 py-0.5 rounded transition {{ request('priority') === 'critical' ? 'bg-rose-100 border border-rose-300 text-rose-800 dark:bg-rose-950/60 dark:border-rose-800/60 dark:text-rose-300 font-bold' : 'text-rose-600 dark:text-rose-400/80 hover:text-rose-800 dark:hover:text-rose-300' }}"
+                        >Critical</a>
+                        <a
+                            href="{{ route('issues.index', array_merge(request()->except('priority'), ['priority' => 'high'])) }}"
+                            class="px-2 py-0.5 rounded transition {{ request('priority') === 'high' ? 'bg-amber-100 border border-amber-300 text-amber-800 dark:bg-amber-950/60 dark:border-amber-800/60 dark:text-amber-300 font-bold' : 'text-amber-600 dark:text-amber-400/80 hover:text-amber-800 dark:hover:text-amber-300' }}"
+                        >High</a>
+                    </div>
+
+                    @if (request()->filled('search') || (request('priority') && request('priority') !== 'all') || (request('status') && request('status') !== 'all'))
+                        <a
+                            href="{{ route('issues.index') }}"
+                            class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition font-mono shadow-2xs shrink-0"
+                            title="Reset all filters"
+                        >
+                            <x-ui.icon name="x-mark" class="size-3.5" />
+                            <span>{{ __('Reset') }}</span>
+                        </a>
+                    @endif
                 </div>
             </form>
         </div>
@@ -80,8 +109,17 @@
         <!-- Issues Queue Ledger Table -->
         <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] shadow-xs">
             @if ($issues->isEmpty())
-                <div class="p-12 text-center">
-                    <p class="font-mono text-xs text-slate-500">{{ __('No fault tickets registered in this view.') }}</p>
+                <div class="p-12 text-center space-y-3">
+                    <p class="font-mono text-xs text-slate-500 dark:text-slate-400">{{ __('No fault tickets registered in this view.') }}</p>
+                    @if (request()->filled('search') || (request('priority') && request('priority') !== 'all') || (request('status') && request('status') !== 'all'))
+                        <a
+                            href="{{ route('issues.index') }}"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-mono text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition shadow-xs"
+                        >
+                            <x-ui.icon name="x-mark" class="size-3" />
+                            <span>Clear All Filters</span>
+                        </a>
+                    @endif
                 </div>
             @else
                 <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
@@ -92,7 +130,7 @@
                             <th scope="col" class="py-3 px-4">{{ __('Department') }}</th>
                             <th scope="col" class="py-3 px-4">{{ __('Lead Tech') }}</th>
                             <th scope="col" class="py-3 px-4">{{ __('Status') }}</th>
-                            <th scope="col" class="py-3 px-4 text-right">{{ __('Triage') }}</th>
+                            <th scope="col" class="py-3 px-4 text-right">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-[#1c1f26]">
@@ -152,12 +190,30 @@
 
                                 <!-- Actions -->
                                 <td class="py-3 px-4 text-right font-mono text-xs">
-                                    <a
-                                        href="{{ route('issues.show', $issue) }}"
-                                        class="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition font-medium"
-                                    >
-                                        Triage &rarr;
-                                    </a>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a
+                                            href="{{ route('issues.show', $issue) }}"
+                                            class="inline-flex items-center gap-1 rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition"
+                                        >
+                                            <span>Triage</span>
+                                            <span>&rarr;</span>
+                                        </a>
+
+                                        @if (auth()->user()->isAdmin())
+                                            <form method="POST" action="{{ route('issues.destroy', $issue) }}" onsubmit="return confirm('Permanently delete ticket #{{ $issue->id }}?');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    type="submit"
+                                                    class="inline-flex items-center gap-1 rounded-md border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 px-2 py-1 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition cursor-pointer"
+                                                    title="Delete Ticket"
+                                                >
+                                                    <x-ui.icon name="trash" class="size-3" />
+                                                    <span>Delete</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

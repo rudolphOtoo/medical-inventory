@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\SparePart;
+use App\Support\FuzzySearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -18,10 +19,12 @@ class SparePartController extends Controller
     {
         $spareParts = SparePart::withCount('issues')
             ->when($request->filled('search'), function ($q) use ($request) {
-                $search = $request->string('search');
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('part_number', 'like', "%{$search}%")
-                    ->orWhere('manufacturer', 'like', "%{$search}%");
+                FuzzySearch::apply($q, [
+                    'name',
+                    'part_number',
+                    'manufacturer',
+                    'description',
+                ], $request->string('search'));
             })
             ->when($request->filled('stock_status'), function ($q) use ($request) {
                 if ($request->stock_status === 'low') {

@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Department;
 use App\Models\Equipment;
 use App\Services\QrCodeService;
+use App\Support\FuzzySearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -29,14 +30,14 @@ class EquipmentController extends Controller
             ->forUser($user)
             ->active()
             ->when($request->filled('search'), function ($q) use ($request) {
-                $search = $request->string('search');
-                $q->where(function ($sub) use ($search) {
-                    $sub->where('name', 'like', "%{$search}%")
-                        ->orWhere('asset_tag', 'like', "%{$search}%")
-                        ->orWhere('serial_number', 'like', "%{$search}%")
-                        ->orWhere('manufacturer', 'like', "%{$search}%")
-                        ->orWhere('model_number', 'like', "%{$search}%");
-                });
+                FuzzySearch::apply($q, [
+                    'name',
+                    'asset_tag',
+                    'serial_number',
+                    'manufacturer',
+                    'model_number',
+                    'department.name',
+                ], $request->string('search'));
             })
             ->when($request->filled('status') && $request->status !== 'all', function ($q) use ($request) {
                 $q->where('status', $request->status);
