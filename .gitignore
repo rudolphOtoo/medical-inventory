@@ -22,9 +22,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# SQLite databases & local conscience
 /database/*.sqlite
-/database/*.sqlite-journal
 /database/*.sqlite-wal
 /database/*.sqlite-shm
-llm-conscience/
-llm-conscience
+/llm-conscience/
