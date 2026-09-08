@@ -332,6 +332,38 @@ class EquipmentController extends Controller
     }
 
     /**
+     * Update technical specifications and equipment details.
+     */
+    public function update(Request $request, Equipment $equipment): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'serial_number' => ['nullable', 'string', 'max:100'],
+            'manufacturer' => ['nullable', 'string', 'max:100'],
+            'model_number' => ['nullable', 'string', 'max:100'],
+            'location' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $equipment->update($validated);
+
+        ActivityLog::record(
+            $user,
+            'equipment.updated',
+            "Updated technical specifications for {$equipment->name} [{$equipment->asset_tag}]",
+            $equipment
+        );
+
+        return back()->with('success', "Equipment '{$equipment->name}' specifications updated successfully.");
+    }
+
+    /**
      * Export equipment inventory as CSV (Admin only).
      */
     public function exportCsv(Request $request): StreamedResponse

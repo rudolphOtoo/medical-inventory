@@ -17,6 +17,9 @@ class StarterShellRoutesTest extends TestCase
             'equipment.index',
             'departments.index',
             'issues.index',
+            'spare-parts.index',
+            'reports.weekly',
+            'reports.print',
             'activity.index',
             'health',
         ];
@@ -37,6 +40,9 @@ class StarterShellRoutesTest extends TestCase
             'equipment.index',
             'departments.index',
             'issues.index',
+            'spare-parts.index',
+            'reports.weekly',
+            'reports.print',
             'activity.index',
             'health',
         ];
@@ -56,6 +62,9 @@ class StarterShellRoutesTest extends TestCase
         $this->get(route('dashboard'))->assertOk();
         $this->get(route('equipment.index'))->assertOk();
         $this->get(route('issues.index'))->assertOk();
+        $this->get(route('spare-parts.index'))->assertOk();
+        $this->get(route('reports.weekly'))->assertOk();
+        $this->get(route('reports.print'))->assertOk();
 
         // Admin-only routes
         $this->get(route('departments.index'))->assertForbidden();

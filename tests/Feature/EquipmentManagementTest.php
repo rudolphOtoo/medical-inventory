@@ -99,6 +99,41 @@ class EquipmentManagementTest extends TestCase
         ]);
     }
 
+    public function test_user_can_update_equipment_technical_specs(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $dept = Department::create(['name' => 'ICU', 'code' => 'ICU']);
+
+        $equipment = Equipment::create([
+            'name' => 'Ventilator V1',
+            'asset_tag' => 'MED-ICU-999',
+            'manufacturer' => 'Drager',
+            'model_number' => 'Evita V500',
+            'serial_number' => 'SN-DRG-1',
+            'location' => 'Bay 1',
+            'department_id' => $dept->id,
+            'status' => EquipmentStatus::InUse,
+        ]);
+
+        $this->actingAs($admin);
+        $response = $this->put(route('equipment.update', $equipment), [
+            'name' => 'Ventilator V1 Pro Upgraded',
+            'manufacturer' => 'Drager Medical',
+            'model_number' => 'Evita V800',
+            'serial_number' => 'SN-DRG-1-REV',
+            'location' => 'Bay 4 (Isolation)',
+            'description' => 'Upgraded turbine and calibrated flow sensors.',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('equipment', [
+            'id' => $equipment->id,
+            'name' => 'Ventilator V1 Pro Upgraded',
+            'model_number' => 'Evita V800',
+            'location' => 'Bay 4 (Isolation)',
+        ]);
+    }
+
     public function test_status_update_and_archive_toggle(): void
     {
         $admin = User::factory()->admin()->create();

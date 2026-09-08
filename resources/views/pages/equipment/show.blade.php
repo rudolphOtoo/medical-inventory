@@ -4,6 +4,7 @@
         showCalModal: false,
         showTransferModal: false,
         showAttachModal: false,
+        showEditModal: false,
     }">
         <!-- Top Back Navigation & Action Bar -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#1c1f26] pb-4">
@@ -28,6 +29,17 @@
 
             <!-- Quick Action Bar -->
             <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+                <!-- Edit Specs Button -->
+                @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+                    <button
+                        type="button"
+                        @click="showEditModal = true"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-[#2c303d] bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
+                    >
+                        ✏️ <span>Edit Specs</span>
+                    </button>
+                @endif
+
                 <!-- Print Tag Button -->
                 <a
                     href="{{ route('equipment.tag', $equipment) }}"
@@ -46,6 +58,7 @@
                         🏢 <span>Transfer Ward</span>
                     </button>
                 @endif
+
 
                 <!-- Status Update Form (Authorized Users) -->
                 @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
@@ -616,5 +629,115 @@
                 </form>
             </div>
         </div>
+
+        <!-- 📌 Modal 5: Edit Technical Specs -->
+        @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
+            <div
+                x-show="showEditModal"
+                x-cloak
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+                @keydown.escape.window="showEditModal = false"
+            >
+                <div
+                    class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+                    @click.outside="showEditModal = false"
+                >
+                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-xs bg-amber-400"></span>
+                            <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Edit Technical Specs — ') }}{{ $equipment->asset_tag }}</h3>
+                        </div>
+                        <button
+                            type="button"
+                            @click="showEditModal = false"
+                            class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        >&times;</button>
+                    </div>
+
+                    <form method="POST" action="{{ route('equipment.update', $equipment) }}" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Device Nomenclature') }}</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value="{{ $equipment->name }}"
+                                required
+                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            />
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Manufacturer') }}</label>
+                                <input
+                                    type="text"
+                                    name="manufacturer"
+                                    value="{{ $equipment->manufacturer }}"
+                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                />
+                            </div>
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Model Number') }}</label>
+                                <input
+                                    type="text"
+                                    name="model_number"
+                                    value="{{ $equipment->model_number }}"
+                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Serial Identifier') }}</label>
+                                <input
+                                    type="text"
+                                    name="serial_number"
+                                    value="{{ $equipment->serial_number }}"
+                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden font-mono"
+                                />
+                            </div>
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Room / Bay Location') }}</label>
+                                <input
+                                    type="text"
+                                    name="location"
+                                    value="{{ $equipment->location }}"
+                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Clinical Notes / Descriptions') }}</label>
+                            <textarea
+                                name="description"
+                                rows="3"
+                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            >{{ $equipment->description }}</textarea>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                            <button
+                                type="button"
+                                @click="showEditModal = false"
+                                class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                            >
+                                {{ __('Cancel') }}
+                            </button>
+                            <button
+                                type="submit"
+                                class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
+                            >
+                                {{ __('Update Specs') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
     </div>
 </x-layouts.app>

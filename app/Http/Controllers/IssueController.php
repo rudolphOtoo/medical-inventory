@@ -261,4 +261,27 @@ class IssueController extends Controller
 
         return count($syncData);
     }
+
+    /**
+     * Delete an issue ticket (Admin only).
+     */
+    public function destroy(Request $request, IssueReport $issue): RedirectResponse
+    {
+        if (! $request->user()->isAdmin()) {
+            abort(403, 'Only administrators can delete problem tickets.');
+        }
+
+        $title = $issue->title;
+        $id = $issue->id;
+
+        ActivityLog::record(
+            $request->user(),
+            'issue.deleted',
+            "Deleted problem ticket #{$id}: '{$title}'"
+        );
+
+        $issue->delete();
+
+        return redirect()->route('issues.index')->with('success', "Ticket #{$id} deleted successfully.");
+    }
 }

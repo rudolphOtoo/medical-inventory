@@ -17,6 +17,75 @@ class SparePartTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_can_view_and_create_spare_part_in_catalog(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin);
+        $response = $this->post(route('spare-parts.store'), [
+            'name' => 'Oxygen Fuel Cell',
+            'part_number' => 'O2-CELL-99',
+            'manufacturer' => 'EnviteC',
+            'stock_quantity' => 15,
+            'unit_cost' => 125.00,
+            'description' => 'Medical O2 sensor cell.',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('spare_parts', [
+            'part_number' => 'O2-CELL-99',
+            'stock_quantity' => 15,
+        ]);
+
+        $indexResponse = $this->get(route('spare-parts.index'));
+        $indexResponse->assertOk()
+            ->assertSee('Oxygen Fuel Cell')
+            ->assertSee('O2-CELL-99');
+    }
+
+    public function test_admin_can_update_spare_part_stock_and_cost(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $part = SparePart::create([
+            'name' => 'Pressure Transducer',
+            'part_number' => 'PT-500',
+            'stock_quantity' => 5,
+            'unit_cost' => 80.00,
+        ]);
+
+        $this->actingAs($admin);
+        $response = $this->put(route('spare-parts.update', $part), [
+            'name' => 'Pressure Transducer Pro',
+            'part_number' => 'PT-500',
+            'stock_quantity' => 25,
+            'unit_cost' => 95.00,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('spare_parts', [
+            'id' => $part->id,
+            'name' => 'Pressure Transducer Pro',
+            'stock_quantity' => 25,
+            'unit_cost' => 95.00,
+        ]);
+    }
+
+    public function test_admin_can_delete_unused_spare_part(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $part = SparePart::create([
+            'name' => 'Obsolete Filter',
+            'part_number' => 'FLT-OBS-1',
+            'stock_quantity' => 0,
+        ]);
+
+        $this->actingAs($admin);
+        $response = $this->delete(route('spare-parts.destroy', $part));
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('spare_parts', ['id' => $part->id]);
+    }
+
     public function test_spare_parts_are_attached_to_issue_and_stock_decrements(): void
     {
         $admin = User::factory()->admin()->create();
@@ -101,8 +170,6 @@ class SparePartTest extends TestCase
             'spare_part_quantities' => [5],
         ]);
 
-        // Requested quantity cannot be fully supplied, so the part is neither
-        // attached nor stock reduced (never goes negative / partial).
         $this->assertEquals(1, $part->fresh()->stock_quantity);
         $this->assertDatabaseMissing('issue_spare_parts', [
             'issue_report_id' => $issue->id,
@@ -150,7 +217,6 @@ class SparePartTest extends TestCase
         $this->patch(route('issues.status', $issue), $payload)->assertRedirect();
         $this->patch(route('issues.status', $issue), $payload)->assertRedirect();
 
-        // Stock decremented only once (10 - 2 = 8), not twice (would be 6).
         $this->assertEquals(8, $part->fresh()->stock_quantity);
         $this->assertSame(1, $issue->spareParts()->count());
     }

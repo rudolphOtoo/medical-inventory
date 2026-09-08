@@ -8,6 +8,8 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\IssueCommentController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SparePartController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,12 +20,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // 📊 Operational Dashboard
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
-    // 🏥 Track A: Equipment & Department Domain
-    Route::get('equipment/export', [EquipmentController::class, 'exportCsv'])->name('equipment.export');
+    // 📈 Weekly Executive Reports & Data Portability Hub
+    Route::get('reports/weekly', [ReportController::class, 'weekly'])->name('reports.weekly');
+    Route::get('reports/print', [ReportController::class, 'printWeekly'])->name('reports.print');
+    Route::get('reports/download', [ReportController::class, 'download'])->name('reports.download');
+
+    // 🏥 Equipment Domain
+    Route::get('equipment/export', [ReportController::class, 'download'])->name('equipment.export')->defaults('type', 'equipment');
     Route::get('equipment', [EquipmentController::class, 'index'])->name('equipment.index');
     Route::post('equipment', [EquipmentController::class, 'store'])->name('equipment.store');
     Route::get('equipment/{equipment}/tag', [EquipmentController::class, 'printTag'])->name('equipment.tag');
     Route::get('equipment/{equipment}', [EquipmentController::class, 'show'])->name('equipment.show');
+    Route::put('equipment/{equipment}', [EquipmentController::class, 'update'])->name('equipment.update');
     Route::patch('equipment/{equipment}/status', [EquipmentController::class, 'updateStatus'])->name('equipment.status');
     Route::post('equipment/{equipment}/archive', [EquipmentController::class, 'toggleArchive'])->name('equipment.archive');
     Route::post('equipment/{equipment}/attachments', [EquipmentController::class, 'uploadAttachment'])->name('equipment.attachments.store');
@@ -31,14 +39,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('equipment/{equipment}/calibration', [EquipmentController::class, 'updateCalibration'])->name('equipment.calibration');
     Route::post('equipment/{equipment}/transfer', [EquipmentController::class, 'transferDepartment'])->name('equipment.transfer');
 
+    // 🏢 Department Domain (Full CRUD)
     Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
     Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');
+    Route::put('departments/{department}', [DepartmentController::class, 'update'])->name('departments.update');
+    Route::delete('departments/{department}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
-    // 🛠️ Track B: Issue Reporting, Triage & Finite-State Lifecycle
+    // 🛠️ Repair & Fault Tickets (Full CRUD)
     Route::get('issues', [IssueController::class, 'index'])->name('issues.index');
     Route::post('issues', [IssueController::class, 'store'])->name('issues.store');
     Route::get('issues/{issue}', [IssueController::class, 'show'])->name('issues.show');
     Route::patch('issues/{issue}/status', [IssueController::class, 'updateStatus'])->name('issues.status');
+    Route::delete('issues/{issue}', [IssueController::class, 'destroy'])->name('issues.destroy');
+
+    // ⚙️ Spare Parts Inventory Catalog (Full CRUD)
+    Route::get('spare-parts', [SparePartController::class, 'index'])->name('spare-parts.index');
+    Route::post('spare-parts', [SparePartController::class, 'store'])->name('spare-parts.store');
+    Route::put('spare-parts/{spare_part}', [SparePartController::class, 'update'])->name('spare-parts.update');
+    Route::delete('spare-parts/{spare_part}', [SparePartController::class, 'destroy'])->name('spare-parts.destroy');
 
     // 💬 Issue Comments / Repair Work Log
     Route::post('issues/{issue}/comments', [IssueCommentController::class, 'store'])->name('issues.comments.store');

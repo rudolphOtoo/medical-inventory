@@ -29,11 +29,20 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:: Detect host IPv4 address on LAN
+set "LAN_IP=localhost"
+for /f "tokens=4" %%a in ('route print ^| findstr 0.0.0.0 ^| findstr /v "0.0.0.0.*0.0.0.0"') do (
+    if not "%%a"=="" set "LAN_IP=%%a"
+)
+
 echo [3/3] MedTrack is active and serving hospital LAN traffic!
 echo.
 echo ========================================================
-echo  Local URL:   http://localhost:8000
-echo  Credentials: admin@medtrack.test (pwd: password)
+echo  Local Station:  http://localhost:8000
+echo  Ward Tablets:   http://!LAN_IP!:8000
+echo.
+echo  Default Access: admin@medtrack.test  (pwd: password)
+echo                  staff@medtrack.test  (pwd: password)
 echo ========================================================
 echo.
 
