@@ -7,23 +7,23 @@
         showEditModal: false,
     }">
         <!-- Top Back Navigation & Action Bar -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#1c1f26] pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-4">
             <div class="flex items-center gap-3">
                 <a
                     href="{{ route('equipment.index') }}"
-                    class="p-2 rounded-lg border border-[#2c303d] bg-[#12141a] text-slate-300 hover:bg-[#181a22] hover:text-white transition"
+                    class="p-2 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] hover:text-slate-900 dark:hover:text-white transition shadow-xs"
                     title="Back to Directory"
                 >
                     <x-ui.icon name="arrow-right" class="size-3.5 rotate-180" />
                 </a>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="font-mono text-xs font-bold text-white bg-[#161820] border border-[#2c303d] px-2 py-0.5 rounded">
+                        <span class="font-mono text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-[#161820] border border-slate-300 dark:border-[#2c303d] px-2 py-0.5 rounded">
                             {{ $equipment->asset_tag }}
                         </span>
-                        <h1 class="text-xl font-bold tracking-tight text-white">{{ $equipment->name }}</h1>
+                        <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{{ $equipment->name }}</h1>
                     </div>
-                    <p class="font-mono text-[11px] text-slate-400 mt-0.5">{{ $equipment->manufacturer }} &middot; {{ $equipment->model_number }}</p>
+                    <p class="font-mono text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{{ $equipment->manufacturer }} &middot; {{ $equipment->model_number }}</p>
                 </div>
             </div>
 
@@ -34,7 +34,7 @@
                     <button
                         type="button"
                         @click="showEditModal = true"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-[#2c303d] bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] hover:text-slate-900 dark:hover:text-white transition cursor-pointer shadow-xs"
                     >
                         ✏️ <span>Edit Specs</span>
                     </button>
@@ -43,7 +43,7 @@
                 <!-- Print Tag Button -->
                 <a
                     href="{{ route('equipment.tag', $equipment) }}"
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-[#2c303d] bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] hover:text-slate-900 dark:hover:text-white transition cursor-pointer shadow-xs"
                 >
                     🏷️ <span>Print Tag</span>
                 </a>
@@ -53,7 +53,7 @@
                     <button
                         type="button"
                         @click="showTransferModal = true"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-[#2c303d] bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] hover:text-slate-900 dark:hover:text-white transition cursor-pointer shadow-xs"
                     >
                         🏢 <span>Transfer Ward</span>
                     </button>
@@ -69,7 +69,7 @@
                             name="status"
                             id="status"
                             onchange="this.form.submit()"
-                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-2.5 py-1.5 text-xs font-semibold text-white focus:border-slate-400 focus:outline-hidden"
+                            class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden shadow-xs font-mono"
                         >
                             @foreach ($statuses as $st)
                                 <option value="{{ $st->value }}" {{ $equipment->status === $st ? 'selected' : '' }}>
@@ -85,7 +85,7 @@
                         @csrf
                         <button
                             type="submit"
-                            class="inline-flex items-center gap-1.5 rounded-lg border border-[#2c303d] bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-rose-950 hover:text-rose-300 hover:border-rose-800 transition cursor-pointer"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-950 hover:text-rose-600 dark:hover:text-rose-300 hover:border-rose-300 dark:hover:border-rose-800 transition cursor-pointer shadow-xs"
                         >
                             {{ $equipment->is_archived ? __('Restore') : __('Archive') }}
                         </button>
@@ -99,9 +99,9 @@
             <!-- Left Column: Device Passport, Media & Attached Notes (1 Column) -->
             <div class="space-y-6">
                 <!-- Passport Specs Card -->
-                <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
-                        <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Technical Passport') }}</span>
+                <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                        <span class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Technical Passport') }}</span>
                         @php
                             $statusVariants = [
                                 'in_use' => 'emerald',
@@ -119,7 +119,7 @@
 
                     <!-- Photo Specimen View -->
                     @if ($equipment->photo_path)
-                        <div class="relative group rounded-lg overflow-hidden border border-[#1c1f26] bg-[#08090a]">
+                        <div class="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-[#1c1f26] bg-slate-100 dark:bg-[#08090a]">
                             <img
                                 src="{{ $equipment->photo_url }}"
                                 alt="{{ $equipment->name }}"
@@ -146,52 +146,52 @@
                         </div>
                     @endif
 
-                    <div class="space-y-2.5 font-mono text-xs divide-y divide-[#1c1f26]">
+                    <div class="space-y-2.5 font-mono text-xs divide-y divide-slate-200 dark:divide-[#1c1f26]">
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">{{ __('Asset Tag') }}</span>
-                            <span class="font-bold text-white">{{ $equipment->asset_tag }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Asset Tag') }}</span>
+                            <span class="font-bold text-slate-900 dark:text-white">{{ $equipment->asset_tag }}</span>
                         </div>
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">{{ __('Serial') }}</span>
-                            <span class="text-slate-300">{{ $equipment->serial_number ?? __('N/A') }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Serial') }}</span>
+                            <span class="text-slate-700 dark:text-slate-300">{{ $equipment->serial_number ?? __('N/A') }}</span>
                         </div>
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">{{ __('Department') }}</span>
-                            <span class="text-white font-medium">{{ $equipment->department->name ?? __('Unassigned') }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Department') }}</span>
+                            <span class="text-slate-900 dark:text-white font-medium">{{ $equipment->department->name ?? __('Unassigned') }}</span>
                         </div>
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">{{ __('Location') }}</span>
-                            <span class="text-slate-300">{{ $equipment->location ?? __('General Ward') }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Location') }}</span>
+                            <span class="text-slate-700 dark:text-slate-300">{{ $equipment->location ?? __('General Ward') }}</span>
                         </div>
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">{{ __('Manufacturer') }}</span>
-                            <span class="text-slate-300">{{ $equipment->manufacturer ?? __('Unknown') }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Manufacturer') }}</span>
+                            <span class="text-slate-700 dark:text-slate-300">{{ $equipment->manufacturer ?? __('Unknown') }}</span>
                         </div>
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">{{ __('Model') }}</span>
-                            <span class="text-slate-300">{{ $equipment->model_number ?? __('Standard') }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Model') }}</span>
+                            <span class="text-slate-700 dark:text-slate-300">{{ $equipment->model_number ?? __('Standard') }}</span>
                         </div>
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">{{ __('Registered By') }}</span>
-                            <span class="text-slate-400">{{ $equipment->creator->name ?? __('System Initializer') }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Registered By') }}</span>
+                            <span class="text-slate-600 dark:text-slate-400">{{ $equipment->creator->name ?? __('System Initializer') }}</span>
                         </div>
                     </div>
 
                     @if ($equipment->description)
-                        <div class="mt-4 pt-4 border-t border-[#1c1f26]">
-                            <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 block mb-1">{{ __('Clinical Notes') }}</span>
-                            <p class="text-xs text-slate-300 leading-relaxed font-normal">{{ $equipment->description }}</p>
+                        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-[#1c1f26]">
+                            <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 block mb-1">{{ __('Clinical Notes') }}</span>
+                            <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-normal">{{ $equipment->description }}</p>
                         </div>
                     @endif
 
                     <!-- User Manual & Attachments Strip -->
-                    <div class="pt-4 border-t border-[#1c1f26] flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+                    <div class="pt-4 border-t border-slate-200 dark:border-[#1c1f26] flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
                         @if ($equipment->manual_path)
                             <div class="flex items-center gap-2">
                                 <a
                                     href="{{ $equipment->manual_url }}"
                                     target="_blank"
-                                    class="inline-flex items-center gap-1.5 text-sky-400 hover:underline font-semibold"
+                                    class="inline-flex items-center gap-1.5 text-sky-600 dark:text-sky-400 hover:underline font-semibold"
                                 >
                                     📄 <span>User Manual (PDF)</span>
                                 </a>
@@ -199,21 +199,21 @@
                                     <form method="POST" action="{{ route('equipment.attachments.destroy', [$equipment, 'manual']) }}" onsubmit="return confirm('Remove PDF manual?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-slate-500 hover:text-rose-400 cursor-pointer text-[10px]">
+                                        <button type="submit" class="text-slate-400 hover:text-rose-500 cursor-pointer text-[10px]">
                                             ✕
                                         </button>
                                     </form>
                                 @endif
                             </div>
                         @else
-                            <span class="text-slate-600 italic text-[11px]">No PDF manual attached</span>
+                            <span class="text-slate-400 dark:text-slate-600 italic text-[11px]">No PDF manual attached</span>
                         @endif
 
                         @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
                             <button
                                 type="button"
                                 @click="showAttachModal = true"
-                                class="text-slate-400 hover:text-white transition cursor-pointer text-[11px]"
+                                class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer text-[11px]"
                             >
                                 + Attach Media
                             </button>
@@ -222,27 +222,27 @@
                 </div>
 
                 <!-- Calibration Passport Block -->
-                <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
+                <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
                     @php
                         $cal = $equipment->calibrationStatus();
                     @endphp
-                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                         <div>
-                            <span class="font-mono text-xs font-bold text-white uppercase tracking-wider block">{{ __('Preventive Calibration') }}</span>
+                            <span class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block">{{ __('Preventive Calibration') }}</span>
                         </div>
                         <x-ui.badge :variant="$cal['variant']">
                             {{ $cal['label'] }}
                         </x-ui.badge>
                     </div>
 
-                    <div class="space-y-2 font-mono text-xs divide-y divide-[#1c1f26]">
+                    <div class="space-y-2 font-mono text-xs divide-y divide-slate-200 dark:divide-[#1c1f26]">
                         <div class="flex items-center justify-between pt-1">
-                            <span class="text-slate-500">Last Calibrated:</span>
-                            <span class="text-slate-200">{{ $equipment->last_calibrated_at?->format('Y-m-d') ?? 'N/A' }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">Last Calibrated:</span>
+                            <span class="text-slate-800 dark:text-slate-200">{{ $equipment->last_calibrated_at?->format('Y-m-d') ?? 'N/A' }}</span>
                         </div>
                         <div class="flex items-center justify-between pt-2">
-                            <span class="text-slate-500">Next Due Date:</span>
-                            <span class="font-bold {{ $equipment->isCalibrationOverdue() ? 'text-rose-400' : 'text-white' }}">
+                            <span class="text-slate-500 dark:text-slate-400">Next Due Date:</span>
+                            <span class="font-bold {{ $equipment->isCalibrationOverdue() ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }}">
                                 {{ $equipment->next_calibration_due?->format('Y-m-d') ?? 'Not scheduled' }}
                             </span>
                         </div>
@@ -252,7 +252,7 @@
                         <button
                             type="button"
                             @click="showCalModal = true"
-                            class="w-full text-center rounded-lg border border-[#2c303d] bg-[#12141a] py-2 font-mono text-xs font-semibold text-slate-300 hover:bg-[#181a22] hover:text-white transition cursor-pointer"
+                            class="w-full text-center rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] py-2 font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] hover:text-slate-900 dark:hover:text-white transition cursor-pointer shadow-xs"
                         >
                             🧪 Record Calibration Certificate
                         </button>
@@ -260,14 +260,14 @@
                 </div>
 
                 <!-- Pinned Clinical Memos -->
-                <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
-                        <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Attached Memos') }}</span>
+                <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                        <span class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Attached Memos') }}</span>
                         @if (auth()->user()->isAdmin() || auth()->user()->department_id === $equipment->department_id)
                             <button
                                 type="button"
                                 @click="showNoteModal = true"
-                                class="font-mono text-[11px] text-amber-400 hover:underline cursor-pointer"
+                                class="font-mono text-[11px] text-amber-600 dark:text-amber-400 hover:underline cursor-pointer font-semibold"
                             >
                                 + Pin Memo
                             </button>
@@ -275,7 +275,7 @@
                     </div>
 
                     @if ($equipment->clinicalNotes->isEmpty())
-                        <p class="font-mono text-xs text-slate-500 italic py-2">{{ __('No memos pinned to this specific device.') }}</p>
+                        <p class="font-mono text-xs text-slate-500 dark:text-slate-400 italic py-2">{{ __('No memos pinned to this specific device.') }}</p>
                     @else
                         <div class="space-y-3">
                             @foreach ($equipment->clinicalNotes as $note)
@@ -300,16 +300,16 @@
             <!-- Right Column: Maintenance History (2 Columns) -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Issues Card -->
-                <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
-                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-4">
+                <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-4">
                         <div>
-                            <span class="font-mono text-xs font-bold text-white uppercase tracking-wider block">{{ __('Maintenance & Problem Log') }}</span>
-                            <p class="text-xs text-slate-400 mt-0.5">{{ __('All service requests and diagnostic tickets recorded for this unit.') }}</p>
+                            <span class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block">{{ __('Maintenance & Problem Log') }}</span>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{{ __('All service requests and diagnostic tickets recorded for this unit.') }}</p>
                         </div>
 
                         <a
                             href="{{ route('issues.index') }}"
-                            class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold text-black hover:bg-slate-200 transition"
+                            class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-1.5 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition shadow-xs"
                         >
                             <x-ui.icon name="plus" class="size-3" />
                             {{ __('Log Problem') }}
@@ -317,13 +317,13 @@
                     </div>
 
                     @if ($equipment->issues->isEmpty())
-                        <div class="p-8 text-center rounded-lg border border-dashed border-[#1c1f26] bg-[#08090a]">
-                            <p class="font-mono text-xs text-slate-500">{{ __('Zero maintenance faults logged on this device passport.') }}</p>
+                        <div class="p-8 text-center rounded-lg border border-dashed border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#08090a]">
+                            <p class="font-mono text-xs text-slate-500 dark:text-slate-400">{{ __('Zero maintenance faults logged on this device passport.') }}</p>
                         </div>
                     @else
-                        <div class="divide-y divide-[#1c1f26]">
+                        <div class="divide-y divide-slate-200 dark:divide-[#1c1f26]">
                             @foreach ($equipment->issues as $issue)
-                                <div class="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 first:pt-0 last:pb-0 hover:bg-[#12141a]/60 px-2 rounded-lg transition">
+                                <div class="py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 first:pt-0 last:pb-0 hover:bg-slate-50 dark:hover:bg-[#12141a]/60 px-2 rounded-lg transition">
                                     <div class="space-y-1">
                                         <div class="flex items-center gap-2">
                                             @php
@@ -337,12 +337,12 @@
                                             <x-ui.badge :variant="$priorityColors[$issue->priority->value] ?? 'slate'">
                                                 {{ $issue->priority->label() }}
                                             </x-ui.badge>
-                                            <a href="{{ route('issues.show', $issue) }}" class="text-xs font-bold text-white hover:underline">
+                                            <a href="{{ route('issues.show', $issue) }}" class="text-xs font-bold text-slate-900 dark:text-white hover:underline">
                                                 {{ $issue->title }}
                                             </a>
                                         </div>
-                                        <p class="text-xs text-slate-400 line-clamp-1 font-normal">{{ $issue->description }}</p>
-                                        <div class="font-mono text-[10px] text-slate-500 flex items-center gap-2 pt-0.5">
+                                        <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-1 font-normal">{{ $issue->description }}</p>
+                                        <div class="font-mono text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-2 pt-0.5">
                                             <span>Reported by: {{ $issue->reporter->name ?? 'Staff' }}</span>
                                             <span>&middot;</span>
                                             <span>{{ $issue->created_at->diffForHumans() }}</span>
@@ -355,7 +355,7 @@
                                         </x-ui.badge>
                                         <a
                                             href="{{ route('issues.show', $issue) }}"
-                                            class="p-1 rounded text-slate-400 hover:text-white transition font-mono text-xs"
+                                            class="p-1 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition font-mono text-xs"
                                         >
                                             &rarr;
                                         </a>
@@ -372,51 +372,51 @@
         <div
             x-show="showCalModal"
             x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs"
             @keydown.escape.window="showCalModal = false"
         >
             <div
-                class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
+                class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
                 @click.outside="showCalModal = false"
             >
-                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
-                    <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">Record Calibration Certificate</h3>
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                    <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Record Calibration Certificate</h3>
                     <button
                         type="button"
                         @click="showCalModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
 
                 <form method="POST" action="{{ route('equipment.calibration', $equipment) }}" class="space-y-4">
                     @csrf
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">Calibration Performed On</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">Calibration Performed On</label>
                         <input
                             type="date"
                             name="last_calibrated_at"
                             value="{{ $equipment->last_calibrated_at?->format('Y-m-d') ?? now()->format('Y-m-d') }}"
                             required
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                         />
                     </div>
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">Next Recalibration Due Date</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">Next Recalibration Due Date</label>
                         <input
                             type="date"
                             name="next_calibration_due"
                             value="{{ $equipment->next_calibration_due?->format('Y-m-d') ?? now()->addMonths(12)->format('Y-m-d') }}"
                             required
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                         />
                     </div>
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
                         <button
                             type="button"
                             @click="showCalModal = false"
-                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                            class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
                         >Cancel</button>
-                        <button type="submit" class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer">
+                        <button type="submit" class="rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition cursor-pointer">
                             Certify Calibration
                         </button>
                     </div>
@@ -429,30 +429,30 @@
             <div
                 x-show="showTransferModal"
                 x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs"
                 @keydown.escape.window="showTransferModal = false"
             >
                 <div
-                    class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
+                    class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
                     @click.outside="showTransferModal = false"
                 >
-                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
-                        <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">Transfer Ward Allocation</h3>
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                        <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Transfer Ward Allocation</h3>
                         <button
                             type="button"
                             @click="showTransferModal = false"
-                            class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
                         >&times;</button>
                     </div>
 
                     <form method="POST" action="{{ route('equipment.transfer', $equipment) }}" class="space-y-4">
                         @csrf
                         <div>
-                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">Target Department</label>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">Target Department</label>
                             <select
                                 name="department_id"
                                 required
-                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                                class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                             >
                                 @foreach ($departments as $dept)
                                     <option value="{{ $dept->id }}" {{ $equipment->department_id == $dept->id ? 'selected' : '' }}>
@@ -462,22 +462,22 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">New Room / Bay Location</label>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">New Room / Bay Location</label>
                             <input
                                 type="text"
                                 name="location"
                                 value="{{ $equipment->location }}"
                                 placeholder="e.g. Bay 2 / Procedure Room A"
-                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                                class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                             />
                         </div>
-                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
                             <button
                                 type="button"
                                 @click="showTransferModal = false"
-                                class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                                class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
                             >Cancel</button>
-                            <button type="submit" class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer">
+                            <button type="submit" class="rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition cursor-pointer">
                                 Execute Transfer
                             </button>
                         </div>
@@ -490,49 +490,49 @@
         <div
             x-show="showAttachModal"
             x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs"
             @keydown.escape.window="showAttachModal = false"
         >
             <div
-                class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
+                class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
                 @click.outside="showAttachModal = false"
             >
-                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
-                    <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">Upload Device Attachments</h3>
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                    <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Upload Device Attachments</h3>
                     <button
                         type="button"
                         @click="showAttachModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
 
                 <form method="POST" action="{{ route('equipment.attachments.store', $equipment) }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">Device Photograph (JPEG, PNG, WEBP)</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">Device Photograph (JPEG, PNG, WEBP)</label>
                         <input
                             type="file"
                             name="photo"
                             accept="image/jpeg,image/png,image/webp"
-                            class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-[#1c1f26] file:text-slate-300 hover:file:bg-[#252932] cursor-pointer"
+                            class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-100 dark:file:bg-[#1c1f26] file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-200 dark:hover:file:bg-[#252932] cursor-pointer"
                         />
                     </div>
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">User Manual (PDF, max 10MB)</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">User Manual (PDF, max 10MB)</label>
                         <input
                             type="file"
                             name="manual"
                             accept="application/pdf"
-                            class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-[#1c1f26] file:text-slate-300 hover:file:bg-[#252932] cursor-pointer"
+                            class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-100 dark:file:bg-[#1c1f26] file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-200 dark:hover:file:bg-[#252932] cursor-pointer"
                         />
                     </div>
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
                         <button
                             type="button"
                             @click="showAttachModal = false"
-                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                            class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
                         >Cancel</button>
-                        <button type="submit" class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer">
+                        <button type="submit" class="rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition cursor-pointer">
                             Upload Files
                         </button>
                     </div>
@@ -544,19 +544,19 @@
         <div
             x-show="showNoteModal"
             x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs"
             @keydown.escape.window="showNoteModal = false"
         >
             <div
-                class="w-full max-w-md rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4"
+                class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
                 @click.outside="showNoteModal = false"
             >
-                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
-                    <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Pin Memo on ') }}{{ $equipment->asset_tag }}</h3>
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                    <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Pin Memo on ') }}{{ $equipment->asset_tag }}</h3>
                     <button
                         type="button"
                         @click="showNoteModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
 
@@ -566,32 +566,32 @@
                     <input type="hidden" name="department_id" value="{{ $equipment->department_id }}" />
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Subject') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Subject') }}</label>
                         <input
                             type="text"
                             name="title"
                             required
                             placeholder="e.g. Battery swapped / Cleaned filter"
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                         />
                     </div>
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Directives') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Directives') }}</label>
                         <textarea
                             name="body"
                             rows="3"
                             required
                             placeholder="Note details for the engineering or clinical team..."
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                         ></textarea>
                     </div>
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Color') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Color') }}</label>
                         <select
                             name="color"
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3 py-2 text-xs text-white focus:border-slate-400 focus:outline-hidden font-mono"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                         >
                             <option value="canary">Canary Yellow</option>
                             <option value="mint">Mint Green</option>
@@ -602,26 +602,26 @@
                     </div>
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Tags') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Tags') }}</label>
                         <input
                             type="text"
                             name="tags"
                             placeholder="urgent, calibration, maintenance"
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden font-mono"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                         />
                     </div>
 
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
                         <button
                             type="button"
                             @click="showNoteModal = false"
-                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                            class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
                         >
                             {{ __('Cancel') }}
                         </button>
                         <button
                             type="submit"
-                            class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
+                            class="rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition cursor-pointer"
                         >
                             {{ __('Pin Memo') }}
                         </button>
@@ -635,22 +635,22 @@
             <div
                 x-show="showEditModal"
                 x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs"
                 @keydown.escape.window="showEditModal = false"
             >
                 <div
-                    class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+                    class="w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
                     @click.outside="showEditModal = false"
                 >
-                    <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                         <div class="flex items-center gap-2">
-                            <span class="h-2 w-2 rounded-xs bg-amber-400"></span>
-                            <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Edit Technical Specs — ') }}{{ $equipment->asset_tag }}</h3>
+                            <span class="h-2 w-2 rounded-xs bg-amber-500"></span>
+                            <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Edit Technical Specs — ') }}{{ $equipment->asset_tag }}</h3>
                         </div>
                         <button
                             type="button"
                             @click="showEditModal = false"
-                            class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
                         >&times;</button>
                     </div>
 
@@ -659,78 +659,78 @@
                         @method('PUT')
 
                         <div>
-                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Device Nomenclature') }}</label>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Device Nomenclature') }}</label>
                             <input
                                 type="text"
                                 name="name"
                                 value="{{ $equipment->name }}"
                                 required
-                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                             />
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Manufacturer') }}</label>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Manufacturer') }}</label>
                                 <input
                                     type="text"
                                     name="manufacturer"
                                     value="{{ $equipment->manufacturer }}"
-                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                                 />
                             </div>
                             <div>
-                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Model Number') }}</label>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Model Number') }}</label>
                                 <input
                                     type="text"
                                     name="model_number"
                                     value="{{ $equipment->model_number }}"
-                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                                 />
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Serial Identifier') }}</label>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Serial Identifier') }}</label>
                                 <input
                                     type="text"
                                     name="serial_number"
                                     value="{{ $equipment->serial_number }}"
-                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden font-mono"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                                 />
                             </div>
                             <div>
-                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Room / Bay Location') }}</label>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Room / Bay Location') }}</label>
                                 <input
                                     type="text"
                                     name="location"
                                     value="{{ $equipment->location }}"
-                                    class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Clinical Notes / Descriptions') }}</label>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Clinical Notes / Descriptions') }}</label>
                             <textarea
                                 name="description"
                                 rows="3"
-                                class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                                class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                             >{{ $equipment->description }}</textarea>
                         </div>
 
-                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
                             <button
                                 type="button"
                                 @click="showEditModal = false"
-                                class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                                class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
                             >
                                 {{ __('Cancel') }}
                             </button>
                             <button
                                 type="submit"
-                                class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
+                                class="rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition cursor-pointer"
                             >
                                 {{ __('Update Specs') }}
                             </button>

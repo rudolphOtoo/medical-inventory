@@ -28,46 +28,46 @@
     "
     >
         <!-- Page Editorial Title Bar -->
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-[#1c1f26] pb-6">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-6">
             <div>
                 <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1">
                     <span>Clinical Asset Operations</span>
                     <span>/</span>
                     @if (auth()->user()->isAdmin())
-                        <span class="text-slate-300">All Hospital Wards</span>
+                        <span class="text-slate-700 dark:text-slate-300">All Hospital Wards</span>
                     @else
-                        <span class="text-slate-300">{{ auth()->user()->department->name ?? 'Assigned Ward' }}</span>
+                        <span class="text-slate-700 dark:text-slate-300">{{ auth()->user()->department->name ?? 'Assigned Ward' }}</span>
                     @endif
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight text-white">{{ __('Operations Console') }}</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ __('Operations Console') }}</h1>
             </div>
 
             <div class="flex items-center gap-2.5">
                 <button
                     type="button"
                     @click="showNoteModal = true"
-                    class="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer shadow-sm"
+                    class="inline-flex items-center gap-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 px-3.5 py-2 text-xs font-bold transition cursor-pointer shadow-sm"
                 >
                     <x-ui.icon name="pin" class="size-3.5" />
                     <span>{{ __('Pin Shift Memo') }}</span>
                 </button>
                 <a
                     href="{{ route('equipment.index') }}"
-                    class="inline-flex items-center gap-2 rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-200 hover:bg-[#181a22] transition"
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#181a22] transition shadow-xs"
                 >
-                    <x-ui.icon name="shield" class="size-3.5 text-slate-400" />
+                    <x-ui.icon name="shield" class="size-3.5 text-slate-500 dark:text-slate-400" />
                     <span>{{ __('Directory') }}</span>
                 </a>
             </div>
         </div>
 
         <!-- 📊 Asymmetrical Editorial Metric Ledger -->
-        <div class="grid grid-cols-2 lg:grid-cols-7 rounded-xl border border-[#1c1f26] bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-[#1c1f26]">
+        <div class="grid grid-cols-2 lg:grid-cols-7 rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-[#1c1f26] shadow-xs">
             <!-- Stat 1: Total Registered -->
             <div class="p-4 sm:p-5">
                 <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Total Fleet</span>
                 <div class="mt-2 flex items-baseline gap-2">
-                    <span class="font-mono text-3xl font-bold tracking-tight text-white">{{ $totalEquipment }}</span>
+                    <span class="font-mono text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{{ $totalEquipment }}</span>
                     <span class="font-mono text-[11px] text-slate-500">units</span>
                 </div>
             </div>
@@ -76,10 +76,10 @@
             <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Active</span>
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
-                    <span class="font-mono text-3xl font-bold tracking-tight text-emerald-400">{{ $inUseCount }}</span>
+                    <span class="font-mono text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">{{ $inUseCount }}</span>
                     <span class="font-mono text-[11px] text-slate-500">ward</span>
                 </div>
             </div>
@@ -88,10 +88,10 @@
             <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Triage</span>
-                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
-                    <span class="font-mono text-3xl font-bold tracking-tight text-amber-400">{{ $underReviewCount }}</span>
+                    <span class="font-mono text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400">{{ $underReviewCount }}</span>
                     <span class="font-mono text-[11px] text-slate-500">repair</span>
                 </div>
             </div>
@@ -100,10 +100,10 @@
             <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Offline</span>
-                    <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-rose-500 dark:bg-rose-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
-                    <span class="font-mono text-3xl font-bold tracking-tight text-rose-400">{{ $outOfServiceCount }}</span>
+                    <span class="font-mono text-3xl font-bold tracking-tight text-rose-600 dark:text-rose-400">{{ $outOfServiceCount }}</span>
                     <span class="font-mono text-[11px] text-slate-500">fault</span>
                 </div>
             </div>
@@ -112,13 +112,13 @@
             <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Calibration</span>
-                    <span class="h-1.5 w-1.5 rounded-full {{ $overdueCalibrationCount > 0 ? 'bg-rose-400 animate-pulse' : ($dueSoonCalibrationCount > 0 ? 'bg-amber-400' : 'bg-emerald-400') }}"></span>
+                    <span class="h-1.5 w-1.5 rounded-full {{ $overdueCalibrationCount > 0 ? 'bg-rose-500 dark:bg-rose-400 animate-pulse' : ($dueSoonCalibrationCount > 0 ? 'bg-amber-500 dark:bg-amber-400' : 'bg-emerald-500 dark:bg-emerald-400') }}"></span>
                 </div>
                 <div class="mt-2 flex items-center gap-2">
                     @if ($overdueCalibrationCount > 0)
                         <a
                             href="{{ route('equipment.index', ['calibration_status' => 'overdue']) }}"
-                            class="font-mono text-lg font-bold text-rose-400 hover:underline flex items-baseline gap-1"
+                            class="font-mono text-lg font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-baseline gap-1"
                             title="View Overdue Devices"
                         >
                             {{ $overdueCalibrationCount }} <span class="text-[10px] uppercase text-rose-500 font-normal">Overdue</span>
@@ -127,15 +127,15 @@
                     @if ($dueSoonCalibrationCount > 0)
                         <a
                             href="{{ route('equipment.index', ['calibration_status' => 'due_soon']) }}"
-                            class="font-mono text-lg font-bold text-amber-400 hover:underline flex items-baseline gap-1"
+                            class="font-mono text-lg font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-baseline gap-1"
                             title="View Due Soon Devices"
                         >
                             {{ $dueSoonCalibrationCount }} <span class="text-[10px] uppercase text-amber-500 font-normal">Soon</span>
                         </a>
                     @endif
                     @if ($overdueCalibrationCount === 0 && $dueSoonCalibrationCount === 0)
-                        <span class="font-mono text-xl font-bold text-emerald-400">100%</span>
-                        <span class="font-mono text-[10px] text-emerald-500">Certified</span>
+                        <span class="font-mono text-xl font-bold text-emerald-600 dark:text-emerald-400">100%</span>
+                        <span class="font-mono text-[10px] text-emerald-600 dark:text-emerald-500">Certified</span>
                     @endif
                 </div>
             </div>
@@ -144,10 +144,10 @@
             <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Avg MTTR</span>
-                    <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-sky-500 dark:bg-sky-400"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
-                    <span class="font-mono text-3xl font-bold tracking-tight text-sky-400">{{ $mttrMinutes }}</span>
+                    <span class="font-mono text-3xl font-bold tracking-tight text-sky-600 dark:text-sky-400">{{ $mttrMinutes }}</span>
                     <span class="font-mono text-[11px] text-slate-500">min</span>
                 </div>
             </div>
@@ -156,24 +156,24 @@
             <div class="p-4 sm:p-5">
                 <div class="flex items-center justify-between">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">Overdue (&gt;24h)</span>
-                    <span class="h-1.5 w-1.5 rounded-full {{ $overdueIssues > 0 ? 'bg-rose-400' : 'bg-emerald-400' }}"></span>
+                    <span class="h-1.5 w-1.5 rounded-full {{ $overdueIssues > 0 ? 'bg-rose-500 dark:bg-rose-400' : 'bg-emerald-500 dark:bg-emerald-400' }}"></span>
                 </div>
                 <div class="mt-2 flex items-baseline gap-2">
-                    <span class="font-mono text-3xl font-bold tracking-tight {{ $overdueIssues > 0 ? 'text-rose-400' : 'text-emerald-400' }}">{{ $overdueIssues }}</span>
+                    <span class="font-mono text-3xl font-bold tracking-tight {{ $overdueIssues > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }}">{{ $overdueIssues }}</span>
                     <span class="font-mono text-[11px] text-slate-500">tickets</span>
                 </div>
             </div>
         </div>
 
         <!-- 📌 Clinical Shift Dispatch & Handoff Board -->
-        <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#1c1f26] pb-4">
+        <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-6 shadow-xs">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-4">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="h-2 w-2 rounded-xs bg-amber-400"></span>
-                        <h2 class="text-sm font-bold tracking-tight text-white uppercase">{{ __('Clinical Handoff & Dispatch Board') }}</h2>
+                        <h2 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase">{{ __('Clinical Handoff & Dispatch Board') }}</h2>
                     </div>
-                    <p class="text-xs text-slate-400 mt-0.5">{{ __('Shift briefings, equipment advisory warnings, and biomedical maintenance memos.') }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ __('Shift briefings, equipment advisory warnings, and biomedical maintenance memos.') }}</p>
                 </div>
 
                 <!-- Minimal Monospace Tag Filters -->
@@ -181,31 +181,31 @@
                     <button
                         type="button"
                         @click="activeTag = 'all'"
-                        :class="activeTag === 'all' ? 'bg-[#222634] text-white font-bold border-[#3d4358]' : 'bg-[#12141a] text-slate-400 hover:text-white border-[#1c1f26]'"
+                        :class="activeTag === 'all' ? 'bg-slate-900 text-white dark:bg-[#222634] dark:text-white font-bold border-slate-900 dark:border-[#3d4358]' : 'bg-slate-100 text-slate-600 dark:bg-[#12141a] dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-slate-200 dark:border-[#1c1f26]'"
                         class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
                     >All</button>
                     <button
                         type="button"
                         @click="activeTag = 'urgent'"
-                        :class="activeTag === 'urgent' ? 'bg-rose-950/60 text-rose-300 font-bold border-rose-700/60' : 'bg-[#12141a] text-slate-400 hover:text-rose-400 border-[#1c1f26]'"
+                        :class="activeTag === 'urgent' ? 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 font-bold dark:border-rose-700/60' : 'bg-slate-100 text-slate-600 dark:bg-[#12141a] dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 border-slate-200 dark:border-[#1c1f26]'"
                         class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
                     >Urgent</button>
                     <button
                         type="button"
                         @click="activeTag = 'shift-handoff'"
-                        :class="activeTag === 'shift-handoff' ? 'bg-sky-950/60 text-sky-300 font-bold border-sky-700/60' : 'bg-[#12141a] text-slate-400 hover:text-sky-400 border-[#1c1f26]'"
+                        :class="activeTag === 'shift-handoff' ? 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 font-bold dark:border-sky-700/60' : 'bg-slate-100 text-slate-600 dark:bg-[#12141a] dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 border-slate-200 dark:border-[#1c1f26]'"
                         class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
                     >Handoff</button>
                     <button
                         type="button"
                         @click="activeTag = 'calibration'"
-                        :class="activeTag === 'calibration' ? 'bg-amber-950/60 text-amber-300 font-bold border-amber-700/60' : 'bg-[#12141a] text-slate-400 hover:text-amber-400 border-[#1c1f26]'"
+                        :class="activeTag === 'calibration' ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 font-bold dark:border-amber-700/60' : 'bg-slate-100 text-slate-600 dark:bg-[#12141a] dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 border-slate-200 dark:border-[#1c1f26]'"
                         class="rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition cursor-pointer"
                     >Calibration</button>
                     <button
                         type="button"
                         @click="showNoteModal = true"
-                        class="p-1.5 rounded-md bg-[#12141a] hover:bg-[#181a22] text-slate-300 border border-[#1c1f26] transition cursor-pointer"
+                        class="p-1.5 rounded-md bg-slate-100 dark:bg-[#12141a] hover:bg-slate-200 dark:hover:bg-[#181a22] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#1c1f26] transition cursor-pointer"
                         title="New Memo"
                     >
                         <x-ui.icon name="plus" class="size-3" />
@@ -215,7 +215,7 @@
 
             <!-- Dispatch Cards Grid -->
             @if ($notes->isEmpty())
-                <div class="p-8 text-center rounded-lg border border-dashed border-[#1c1f26] bg-[#08090a]">
+                <div class="p-8 text-center rounded-lg border border-dashed border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#08090a]">
                     <p class="font-mono text-xs text-slate-500">{{ __('No active dispatch memos on this station.') }}</p>
                 </div>
             @else
@@ -246,13 +246,13 @@
         <!-- 🛠️ Recent Defect Log & Station Ledger -->
         <div class="grid gap-6 lg:grid-cols-3">
             <!-- Recent Problem Reports (2 Cols) -->
-            <div class="lg:col-span-2 rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
-                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+            <div class="lg:col-span-2 rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
-                        <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Active Problem Tickets') }}</span>
+                        <span class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Active Problem Tickets') }}</span>
                         <span class="font-mono text-[10px] text-slate-500">({{ $openIssuesCount }} pending)</span>
                     </div>
-                    <a href="{{ route('issues.index') }}" class="font-mono text-[11px] text-slate-400 hover:text-white transition">
+                    <a href="{{ route('issues.index') }}" class="font-mono text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                         View Queue &rarr;
                     </a>
                 </div>
@@ -260,9 +260,9 @@
                 @if ($recentIssues->isEmpty())
                     <p class="font-mono text-xs text-slate-500 py-6 text-center">{{ __('No open repair tickets registered.') }}</p>
                 @else
-                    <div class="divide-y divide-[#1c1f26]">
+                    <div class="divide-y divide-slate-200 dark:divide-[#1c1f26]">
                         @foreach ($recentIssues as $issue)
-                            <div class="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0 hover:bg-[#12141a]/60 px-2 rounded-lg transition">
+                            <div class="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0 hover:bg-slate-50 dark:hover:bg-[#12141a]/60 px-2 rounded-lg transition">
                                 <div class="space-y-1 min-w-0">
                                     <div class="flex items-center gap-2">
                                         @php
@@ -276,11 +276,11 @@
                                         <x-ui.badge :variant="$priVariants[$issue->priority->value] ?? 'slate'">
                                             {{ $issue->priority->label() }}
                                         </x-ui.badge>
-                                        <a href="{{ route('issues.show', $issue) }}" class="text-xs font-bold text-white hover:underline truncate">
+                                        <a href="{{ route('issues.show', $issue) }}" class="text-xs font-bold text-slate-900 dark:text-white hover:underline truncate">
                                             {{ $issue->title }}
                                         </a>
                                     </div>
-                                    <p class="font-mono text-[10px] text-slate-400">
+                                    <p class="font-mono text-[10px] text-slate-500 dark:text-slate-400">
                                         [{{ $issue->equipment->asset_tag }}] {{ $issue->equipment->name }} &middot; {{ $issue->created_at->diffForHumans() }}
                                     </p>
                                 </div>
@@ -291,7 +291,7 @@
                                     </x-ui.badge>
                                     <a
                                         href="{{ route('issues.show', $issue) }}"
-                                        class="p-1 rounded text-slate-400 hover:text-white transition font-mono text-xs"
+                                        class="p-1 rounded text-slate-400 hover:text-slate-900 dark:hover:text-white transition font-mono text-xs"
                                     >
                                         &rarr;
                                     </a>
@@ -303,28 +303,28 @@
             </div>
 
             <!-- Station Diagnostics Block -->
-            <div class="rounded-xl border border-[#1c1f26] bg-[#0c0d10] p-6 space-y-4">
-                <div class="border-b border-[#1c1f26] pb-3">
-                    <span class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Station Node Ledger') }}</span>
+            <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
+                <div class="border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                    <span class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Station Node Ledger') }}</span>
                 </div>
-                <div class="space-y-3 font-mono text-xs divide-y divide-[#1c1f26]/60">
+                <div class="space-y-3 font-mono text-xs divide-y divide-slate-200 dark:divide-[#1c1f26]/60">
                     <div class="flex items-center justify-between pt-2">
                         <span class="text-slate-500">Database Engine</span>
-                        <span class="text-emerald-400 font-semibold">SQLite WAL (Healthy)</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 font-semibold">SQLite WAL (Healthy)</span>
                     </div>
                     <div class="flex items-center justify-between pt-2">
                         <span class="text-slate-500">Local Subnet</span>
-                        <span class="text-slate-300">127.0.0.1 / LAN</span>
+                        <span class="text-slate-700 dark:text-slate-300">127.0.0.1 / LAN</span>
                     </div>
                     <div class="flex items-center justify-between pt-2">
                         <span class="text-slate-500">Station Identity</span>
-                        <span class="text-slate-300">{{ gethostname() ?: 'Server' }}</span>
+                        <span class="text-slate-700 dark:text-slate-300">{{ gethostname() ?: 'Server' }}</span>
                     </div>
                 </div>
                 @if (auth()->user()->isAdmin())
                     <a
                         href="{{ route('health') }}"
-                        class="block w-full text-center rounded-lg border border-[#2c303d] bg-[#12141a] py-2 font-mono text-xs font-medium text-slate-300 hover:bg-[#181a22] hover:text-white transition"
+                        class="block w-full text-center rounded-lg border border-slate-300 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] py-2 font-mono text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition"
                     >
                         Run Diagnostics &rarr;
                     </a>
@@ -340,22 +340,22 @@
         <div
             x-show="showNoteModal"
             x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs"
             @keydown.escape.window="showNoteModal = false"
         >
             <div
-                class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-5"
+                class="w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-5"
                 @click.outside="showNoteModal = false"
             >
-                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
                         <span class="h-2 w-2 rounded-xs bg-amber-400"></span>
-                        <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Compose Clinical Memo') }}</h3>
+                        <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Compose Clinical Memo') }}</h3>
                     </div>
                     <button
                         type="button"
                         @click="showNoteModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
 
@@ -363,30 +363,30 @@
                     @csrf
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Memo Subject') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Memo Subject') }}</label>
                         <input
                             type="text"
                             name="title"
                             required
                             placeholder="e.g. Defibrillator calibration due / Shift Handoff"
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 focus:outline-hidden"
                         />
                     </div>
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Content / Directives') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Content / Directives') }}</label>
                         <textarea
                             name="body"
                             rows="3"
                             required
                             placeholder="Enter detailed message or instructions..."
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 focus:outline-hidden"
                         ></textarea>
                     </div>
 
                     <!-- Color Selector -->
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1.5">{{ __('Color Palette') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1.5">{{ __('Color Palette') }}</label>
                         <div class="flex items-center gap-2">
                             <label class="cursor-pointer">
                                 <input type="radio" name="color" value="canary" x-model="noteColor" class="sr-only" />
@@ -413,41 +413,41 @@
 
                     <!-- Tags -->
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Tags (comma separated)') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Tags (comma separated)') }}</label>
                         <input
                             type="text"
                             name="tags"
                             x-model="noteTags"
                             placeholder="urgent, shift-handoff, calibration"
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 focus:outline-hidden"
                         />
                         <div class="mt-2 flex flex-wrap items-center gap-1 text-[10px] font-mono">
                             <span class="text-slate-500">Presets:</span>
-                            <button type="button" @click="addTag('urgent')" class="rounded border border-rose-800/40 bg-rose-950/30 px-1.5 py-0.5 text-rose-300 hover:bg-rose-900/40 transition cursor-pointer">urgent</button>
-                            <button type="button" @click="addTag('shift-handoff')" class="rounded border border-sky-800/40 bg-sky-950/30 px-1.5 py-0.5 text-sky-300 hover:bg-sky-900/40 transition cursor-pointer">shift-handoff</button>
-                            <button type="button" @click="addTag('calibration')" class="rounded border border-amber-800/40 bg-amber-950/30 px-1.5 py-0.5 text-amber-300 hover:bg-amber-900/40 transition cursor-pointer">calibration</button>
-                            <button type="button" @click="addTag('icu-priority')" class="rounded border border-emerald-800/40 bg-emerald-950/30 px-1.5 py-0.5 text-emerald-300 hover:bg-emerald-900/40 transition cursor-pointer">icu-priority</button>
+                            <button type="button" @click="addTag('urgent')" class="rounded border border-rose-300 dark:border-rose-800/40 bg-rose-50 dark:bg-rose-950/30 px-1.5 py-0.5 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition cursor-pointer">urgent</button>
+                            <button type="button" @click="addTag('shift-handoff')" class="rounded border border-sky-300 dark:border-sky-800/40 bg-sky-50 dark:bg-sky-950/30 px-1.5 py-0.5 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/40 transition cursor-pointer">shift-handoff</button>
+                            <button type="button" @click="addTag('calibration')" class="rounded border border-amber-300 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/30 px-1.5 py-0.5 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition cursor-pointer">calibration</button>
+                            <button type="button" @click="addTag('icu-priority')" class="rounded border border-emerald-300 dark:border-emerald-800/40 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition cursor-pointer">icu-priority</button>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2 pt-1">
-                        <input type="checkbox" id="is_pinned" name="is_pinned" value="1" class="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950 text-white focus:ring-0" />
-                        <label for="is_pinned" class="font-mono text-xs text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="is_pinned" name="is_pinned" value="1" class="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-0" />
+                        <label for="is_pinned" class="font-mono text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                             {{ __('Pin to Top of Noticeboard') }}
                         </label>
                     </div>
 
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
                         <button
                             type="button"
                             @click="showNoteModal = false"
-                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                            class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#181a22] transition cursor-pointer"
                         >
                             {{ __('Cancel') }}
                         </button>
                         <button
                             type="submit"
-                            class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
+                            class="rounded-lg bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 px-4 py-2 text-xs font-bold transition cursor-pointer"
                         >
                             {{ __('Pin Memo') }}
                         </button>
@@ -460,22 +460,22 @@
         <div
             x-show="showEditNoteModal"
             x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs"
             @keydown.escape.window="showEditNoteModal = false"
         >
             <div
-                class="w-full max-w-lg rounded-xl border border-[#2c303d] bg-[#0e1015] p-6 shadow-2xl space-y-5"
+                class="w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-5"
                 @click.outside="showEditNoteModal = false"
             >
-                <div class="flex items-center justify-between border-b border-[#1c1f26] pb-3">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
                         <span class="h-2 w-2 rounded-xs bg-sky-400"></span>
-                        <h3 class="font-mono text-xs font-bold text-white uppercase tracking-wider">{{ __('Edit Clinical Memo') }}</h3>
+                        <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Edit Clinical Memo') }}</h3>
                     </div>
                     <button
                         type="button"
                         @click="showEditNoteModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
                     >&times;</button>
                 </div>
 
@@ -484,30 +484,30 @@
                     @method('PUT')
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Memo Subject') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Memo Subject') }}</label>
                         <input
                             type="text"
                             name="title"
                             x-model="editNote.title"
                             required
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 focus:outline-hidden"
                         />
                     </div>
 
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Content / Directives') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Content / Directives') }}</label>
                         <textarea
                             name="body"
                             rows="3"
                             x-model="editNote.body"
                             required
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 focus:outline-hidden"
                         ></textarea>
                     </div>
 
                     <!-- Color Selector -->
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1.5">{{ __('Color Palette') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1.5">{{ __('Color Palette') }}</label>
                         <div class="flex items-center gap-2">
                             <label class="cursor-pointer">
                                 <input type="radio" name="color" value="canary" x-model="editNote.color" class="sr-only" />
@@ -534,33 +534,33 @@
 
                     <!-- Tags -->
                     <div>
-                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-1">{{ __('Tags (comma separated)') }}</label>
+                        <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Tags (comma separated)') }}</label>
                         <input
                             type="text"
                             name="tags"
                             x-model="editNote.tags"
-                            class="w-full rounded-lg border border-[#22262f] bg-[#08090a] px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:border-slate-400 focus:outline-hidden"
+                            class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 focus:outline-hidden"
                         />
                     </div>
 
                     <div class="flex items-center gap-2 pt-1">
-                        <input type="checkbox" id="edit_is_pinned" name="is_pinned" value="1" x-model="editNote.isPinned" class="h-3.5 w-3.5 rounded border-slate-700 bg-slate-950 text-white focus:ring-0" />
-                        <label for="edit_is_pinned" class="font-mono text-xs text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="edit_is_pinned" name="is_pinned" value="1" x-model="editNote.isPinned" class="h-3.5 w-3.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-0" />
+                        <label for="edit_is_pinned" class="font-mono text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                             {{ __('Pin to Top of Noticeboard') }}
                         </label>
                     </div>
 
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#1c1f26]">
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
                         <button
                             type="button"
                             @click="showEditNoteModal = false"
-                            class="rounded-lg border border-[#2c303d] bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-300 hover:bg-[#181a22] transition cursor-pointer"
+                            class="rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#181a22] transition cursor-pointer"
                         >
                             {{ __('Cancel') }}
                         </button>
                         <button
                             type="submit"
-                            class="rounded-lg bg-white px-4 py-2 text-xs font-bold text-black hover:bg-slate-200 transition cursor-pointer"
+                            class="rounded-lg bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 px-4 py-2 text-xs font-bold transition cursor-pointer"
                         >
                             {{ __('Update Memo') }}
                         </button>
