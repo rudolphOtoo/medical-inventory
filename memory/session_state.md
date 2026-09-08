@@ -1,10 +1,10 @@
 # Session State Memory Snapshot
 
-**Timestamp:** 2026-09-03 11:11 UTC  
+**Timestamp:** 2026-09-08 08:34 UTC  
 **Session ID:** `83b0078b-d414-44df-af65-9f8e87a40d3c`  
 **Git Branch:** `main`  
-**Latest Remote Commit:** `de5cd6a`  
-**Status:** Unified Integration & Full Feature Delivery Complete (86/86 Passing Tests)
+**Latest Remote Commit:** `f565984`  
+**Status:** Unified Integration, RBAC UI/Backend Alignment & Modal Reactivity Complete (88/88 Passing Tests)
 
 ---
 
@@ -26,6 +26,11 @@
 - **Executive Calibration Alerts Card**: 7th column on `/dashboard` with pulsating badge and 1-click links to expiring equipment.
 - **100% Full CRUD for Sticky Notes**: `POST /notes` (create), `PUT /notes/{note}` (update modal), `PATCH /notes/{note}/pin` (1-click star toggle), `DELETE /notes/{note}` (delete).
 
+### 🛡️ RBAC UI/Backend Alignment & Modal Reactivity Recovery
+- **Defense-in-Depth UI Gating**: Non-admin department staff never see administrative links or actions (`/departments`, `/activity`, `/health`, `Export CSV`, `Transfer Ward`, `Archive/Restore`).
+- **Ward Isolation**: Department staff only view and report tickets against equipment registered to their own ward.
+- **Modal Reactivity Recovery**: Purged conflicting inline `style="display: none;"` and redundant `onclick` event overrides across all views (`equipment/index`, `equipment/show`, `issues/index`, `departments/index`, `dashboard`). Alpine.js `x-show` state toggling functions cleanly with `@keydown.escape.window` and `@click.outside`.
+
 ### 🐳 Turnkey Docker & Windows Server Infrastructure
 - Multi-stage FrankenPHP `Dockerfile`, `Caddyfile`, `entrypoint.sh`, root `compose.yaml`.
 - 4 Turnkey Windows batch scripts in `windows/`:
@@ -38,9 +43,10 @@
 
 ## 2. Test Verification Matrix
 
-- Total Automated Tests: **86 / 86 passing** (272 assertions).
+- Total Automated Tests: **88 / 88 passing** (279 assertions).
 - Style Standards: **0 Pint errors** (`vendor/bin/pint --dirty --format agent`).
-- Assets: **82.56 kB CSS / 54.19 kB JS** built with Vite.
+- Assets: **82.62 kB CSS / 54.19 kB JS** built with Vite.
+- Git Remote: Synced with `origin/main` ([`f565984`](https://github.com/rudolphOtoo/medical-inventory/commit/f565984)).
 
 ---
 
