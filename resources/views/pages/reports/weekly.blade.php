@@ -20,14 +20,16 @@
                     target="_blank"
                     class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#181a22] transition font-mono shadow-xs"
                 >
-                    <span>🖨️ Printable PDF</span>
+                    <x-ui.icon name="download" class="size-3.5" />
+                    <span>Printable PDF</span>
                 </a>
 
                 <a
                     href="{{ route('reports.download', ['type' => 'weekly']) }}"
                     class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 px-4 py-2 text-xs font-bold text-white dark:text-black transition cursor-pointer shadow-sm font-mono"
                 >
-                    <span>📊 Export Excel (.xlsx)</span>
+                    <x-ui.icon name="document" class="size-3.5" />
+                    <span>Export Excel (.xlsx)</span>
                 </a>
             </div>
         </div>
@@ -160,8 +162,9 @@
                                         [{{ $ticket->equipment->asset_tag ?? 'N/A' }}] {{ $ticket->department->name ?? 'Ward' }} &middot; Resolved by {{ $ticket->assignee->name ?? 'Biomed Tech' }}
                                     </span>
                                 </div>
-                                <div class="font-mono text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold shrink-0">
-                                    ✓ Closed
+                                <div class="inline-flex items-center gap-1 font-mono text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold shrink-0">
+                                    <x-ui.icon name="check" class="size-3" />
+                                    <span>Closed</span>
                                 </div>
                             </div>
                         @endforeach

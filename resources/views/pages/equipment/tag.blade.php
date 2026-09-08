@@ -38,11 +38,12 @@
             onclick="window.print()"
             class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-1.5 font-bold text-black hover:bg-slate-200 transition cursor-pointer shadow-sm"
         >
-            🖨️ Print Clinical Label
+            <x-ui.icon name="download" class="size-3.5" />
+            <span>Print Clinical Label</span>
         </button>
     </div>
 
-    <!-- 🏷️ Printable Clinical Asset Tag Container (Thermal / Adhesive Label Standard) -->
+    <!-- Printable Clinical Asset Tag Container (Thermal / Adhesive Label Standard) -->
     <div class="tag-card w-full max-w-md rounded-xl border-2 border-slate-700 bg-white text-black p-6 shadow-2xl space-y-4">
         <!-- Top Institutional Header -->
         <div class="flex items-center justify-between border-b-2 border-black pb-3">

@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('equipment/{equipment}/tag', [EquipmentController::class, 'printTag'])->name('equipment.tag');
     Route::get('equipment/{equipment}', [EquipmentController::class, 'show'])->name('equipment.show');
     Route::put('equipment/{equipment}', [EquipmentController::class, 'update'])->name('equipment.update');
+    Route::delete('equipment/{equipment}', [EquipmentController::class, 'destroy'])->name('equipment.destroy');
     Route::patch('equipment/{equipment}/status', [EquipmentController::class, 'updateStatus'])->name('equipment.status');
     Route::post('equipment/{equipment}/archive', [EquipmentController::class, 'toggleArchive'])->name('equipment.archive');
     Route::post('equipment/{equipment}/attachments', [EquipmentController::class, 'uploadAttachment'])->name('equipment.attachments.store');

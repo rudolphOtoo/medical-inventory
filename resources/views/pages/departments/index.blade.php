@@ -41,6 +41,11 @@
         <!-- Departments Grid -->
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($departments as $dept)
+                @php
+                    $eqCount = $dept->equipment_count ?? $dept->equipment()->count();
+                    $staffCount = $dept->staff_count ?? $dept->staff()->count();
+                    $canDelete = $eqCount === 0 && $staffCount === 0;
+                @endphp
                 <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-700 transition shadow-xs">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
@@ -54,9 +59,9 @@
                                         type="button"
                                         @click="openEdit({{ json_encode($dept) }})"
                                         class="p-1 rounded text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
-                                        title="Edit Ward"
+                                        title="Edit Department"
                                     >
-                                        ✏️
+                                        <x-ui.icon name="pencil" class="size-3.5" />
                                     </button>
                                 @endif
                             </div>
@@ -79,7 +84,7 @@
                     <div class="pt-4 border-t border-slate-200 dark:border-[#1c1f26] flex items-center justify-between font-mono text-xs">
                         <div class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
                             <div>
-                                <span class="font-bold text-slate-900 dark:text-white">{{ $dept->equipment_count ?? $dept->equipment()->count() }}</span>
+                                <span class="font-bold text-slate-900 dark:text-white">{{ $eqCount }}</span>
                                 <span class="text-[10px] text-slate-500">units</span>
                             </div>
                             <span class="text-slate-300 dark:text-slate-700">&middot;</span>
@@ -97,14 +102,23 @@
                                 View &rarr;
                             </a>
 
-                            @if (auth()->user()->isAdmin() && ($dept->equipment_count ?? 0) === 0 && ($dept->staff_count ?? 0) === 0)
-                                <form method="POST" action="{{ route('departments.destroy', $dept) }}" onsubmit="return confirm('Permanently delete department {{ $dept->name }}?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer" title="Delete Ward">
-                                        ✕
-                                    </button>
-                                </form>
+                            @if (auth()->user()->isAdmin())
+                                @if ($canDelete)
+                                    <form method="POST" action="{{ route('departments.destroy', $dept) }}" onsubmit="return confirm('Permanently delete department {{ $dept->name }}?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1 rounded text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer" title="Delete Department">
+                                            <x-ui.icon name="trash" class="size-3.5" />
+                                        </button>
+                                    </form>
+                                @else
+                                    <span
+                                        class="p-1 text-slate-300 dark:text-slate-700 cursor-not-allowed"
+                                        title="Cannot delete: department has {{ $eqCount }} units and {{ $staffCount }} staff members assigned."
+                                    >
+                                        <x-ui.icon name="trash" class="size-3.5 opacity-40" />
+                                    </span>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -112,7 +126,7 @@
             @endforeach
         </div>
 
-        <!-- 📌 Modal: Add Department (Admin Only) -->
+        <!-- Modal: Add Department (Admin Only) -->
         @if (auth()->user()->isAdmin())
             <div
                 x-show="showCreateModal"
@@ -133,7 +147,9 @@
                             type="button"
                             @click="showCreateModal = false"
                             class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
-                        >&times;</button>
+                        >
+                            <x-ui.icon name="x-mark" class="size-4" />
+                        </button>
                     </div>
 
                     <form method="POST" action="{{ route('departments.store') }}" class="space-y-4">
@@ -211,7 +227,7 @@
                 </div>
             </div>
 
-            <!-- 📌 Modal: Edit Department (Admin Only) -->
+            <!-- Modal: Edit Department (Admin Only) -->
             <div
                 x-show="showEditModal"
                 x-cloak
@@ -231,7 +247,9 @@
                             type="button"
                             @click="showEditModal = false"
                             class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
-                        >&times;</button>
+                        >
+                            <x-ui.icon name="x-mark" class="size-4" />
+                        </button>
                     </div>
 
                     <form method="POST" :action="'/departments/' + editDept.id" class="space-y-4">

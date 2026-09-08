@@ -167,15 +167,15 @@
 
     <!-- Footer Controls: Theme Toggle & Staff Account Profile -->
     <div class="p-3 border-t border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#090a0d] space-y-2">
-        <!-- 🌓 Contrast-Locked Light / Dark Switcher -->
+        <!-- Contrast-Locked Light / Dark Switcher -->
         <button
             type="button"
             @click="toggleTheme()"
             class="w-full flex items-center justify-between rounded-lg border border-slate-200 dark:border-[#1e212b] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-mono text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
         >
             <div class="flex items-center gap-2">
-                <span x-show="isDark">☀️</span>
-                <span x-show="!isDark">🌙</span>
+                <span x-show="isDark"><x-ui.icon name="sun" class="size-3.5 text-amber-500" /></span>
+                <span x-show="!isDark"><x-ui.icon name="moon" class="size-3.5 text-sky-500" /></span>
                 <span x-text="isDark ? 'Light Theme' : 'Dark Theme'"></span>
             </div>
             <span class="text-[10px] text-slate-400 uppercase" x-text="isDark ? 'Dark' : 'Light'"></span>

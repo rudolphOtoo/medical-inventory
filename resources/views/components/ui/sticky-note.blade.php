@@ -77,9 +77,9 @@
                             class="p-0.5 rounded text-slate-400 hover:text-amber-500 transition cursor-pointer"
                         >
                             @if ($isPinned)
-                                <span class="text-amber-500 dark:text-amber-400 font-bold text-xs">★</span>
+                                <x-ui.icon name="star" class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 fill-current" />
                             @else
-                                <span class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 text-xs">☆</span>
+                                <x-ui.icon name="star" class="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300" />
                             @endif
                         </button>
                     </form>
@@ -99,7 +99,7 @@
                             title="Edit Memo"
                             class="p-0.5 rounded text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-white transition cursor-pointer text-xs"
                         >
-                            ✎
+                            <x-ui.icon name="pencil" class="w-3 h-3" />
                         </button>
                     @endif
 
@@ -111,9 +111,9 @@
                             <button
                                 type="submit"
                                 title="Delete Memo"
-                                class="p-0.5 rounded text-slate-400 hover:text-rose-600 dark:text-slate-600 dark:hover:text-rose-400 transition cursor-pointer text-xs"
+                                class="p-0.5 rounded text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer text-xs"
                             >
-                                ✕
+                                <x-ui.icon name="trash" class="w-3 h-3" />
                             </button>
                         </form>
                     @endif

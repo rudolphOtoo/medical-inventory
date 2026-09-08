@@ -170,7 +170,7 @@
             @endif
         </div>
 
-        <!-- 📌 Modal: Report New Issue -->
+        <!-- Modal: Report New Issue -->
         <div
             x-show="showReportModal"
             x-cloak

@@ -58,8 +58,8 @@
                     class="flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer shadow-xs"
                     title="Toggle Theme"
                 >
-                    <span class="dark:hidden">🌙 Dark</span>
-                    <span class="hidden dark:inline">☀️ Light</span>
+                    <span class="dark:hidden flex items-center gap-1.5"><x-ui.icon name="moon" class="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" /> Dark</span>
+                    <span class="hidden dark:inline-flex items-center gap-1.5"><x-ui.icon name="sun" class="w-3.5 h-3.5 text-amber-500" /> Light</span>
                 </button>
 
                 <span class="text-slate-500 hidden sm:inline">LOCAL LAN WORKSTATION</span>
@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <!-- 🏛️ Editorial Architecture Spec Grid -->
+            <!-- Editorial Architecture Spec Grid -->
             <div class="grid gap-6 sm:grid-cols-3 border-t border-slate-200 dark:border-[#1c1f26] pt-12">
                 <div class="space-y-2 pr-4">
                     <span class="font-mono text-[10px] uppercase tracking-widest text-slate-500 font-semibold block">01 / Equipment Registry</span>

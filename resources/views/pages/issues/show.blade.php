@@ -46,7 +46,8 @@
                             type="submit"
                             class="inline-flex items-center gap-1.5 rounded-lg border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition cursor-pointer font-mono shadow-xs"
                         >
-                            ✕ <span>Delete Ticket</span>
+                            <x-ui.icon name="trash" class="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                            <span>Delete Ticket</span>
                         </button>
                     </form>
                 @endif

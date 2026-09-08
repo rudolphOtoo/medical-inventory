@@ -43,7 +43,7 @@
             </x-ui.card>
         </div>
 
-        <!-- 🗄️ LAN Backup & Archive Recovery -->
+        <!-- LAN Backup & Archive Recovery -->
         <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-4">
                 <div class="flex items-center gap-2">

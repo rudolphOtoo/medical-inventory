@@ -67,12 +67,13 @@
         <!-- Filter & Search Bar -->
         <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-4 shadow-xs">
             <form method="GET" action="{{ route('spare-parts.index') }}" class="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <div class="relative flex-1 max-w-md w-full">
+                <div class="relative flex-1 max-w-md w-full" x-data @keydown.window.prevent.slash="$refs.partSearchInput.focus()">
                     <input
+                        x-ref="partSearchInput"
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search part name, SKU / part number, manufacturer..."
+                        placeholder="Search part name, SKU / part number, manufacturer... (Press '/')"
                         class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                     />
                 </div>
@@ -95,8 +96,17 @@
         <!-- Spare Parts Ledger Table -->
         <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] shadow-xs">
             @if ($spareParts->isEmpty())
-                <div class="p-12 text-center">
+                <div class="p-12 text-center space-y-3">
                     <p class="font-mono text-xs text-slate-500 dark:text-slate-400">{{ __('No spare parts found matching the query.') }}</p>
+                    @if (request()->hasAny(['search', 'stock_status']))
+                        <a
+                            href="{{ route('spare-parts.index') }}"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-mono text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition shadow-xs"
+                        >
+                            <x-ui.icon name="x-mark" class="size-3" />
+                            <span>Clear Filters</span>
+                        </a>
+                    @endif
                 </div>
             @else
                 <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
@@ -145,20 +155,30 @@
                                         <button
                                             type="button"
                                             @click="openEdit({{ json_encode($part) }})"
-                                            class="p-1 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
+                                            class="inline-flex items-center gap-1 p-1 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
                                             title="Edit Part"
                                         >
-                                            ✏️ Edit
+                                            <x-ui.icon name="pencil" class="size-3.5" />
+                                            <span>Edit</span>
                                         </button>
 
-                                        @if (auth()->user()->isAdmin() && $part->issues_count === 0)
-                                            <form method="POST" action="{{ route('spare-parts.destroy', $part) }}" onsubmit="return confirm('Delete this spare part from catalog?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="p-1 rounded text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer" title="Delete Part">
-                                                    ✕
-                                                </button>
-                                            </form>
+                                        @if (auth()->user()->isAdmin())
+                                            @if ($part->issues_count === 0)
+                                                <form method="POST" action="{{ route('spare-parts.destroy', $part) }}" onsubmit="return confirm('Delete this spare part from catalog?');" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="p-1 rounded text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer" title="Delete Part">
+                                                        <x-ui.icon name="trash" class="size-3.5" />
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span
+                                                    class="p-1 text-slate-300 dark:text-slate-700 cursor-not-allowed"
+                                                    title="Cannot delete: Part is linked to {{ $part->issues_count }} historical repair ticket(s)."
+                                                >
+                                                    <x-ui.icon name="trash" class="size-3.5 opacity-40" />
+                                                </span>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -173,7 +193,7 @@
             @endif
         </div>
 
-        <!-- 📌 Modal: Register New Spare Part -->
+        <!-- Modal: Register New Spare Part -->
         <div
             x-show="showCreateModal"
             x-cloak
@@ -186,7 +206,9 @@
             >
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Register Spare Part SKU') }}</h3>
-                    <button type="button" @click="showCreateModal = false" class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer">&times;</button>
+                    <button type="button" @click="showCreateModal = false" class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer">
+                        <x-ui.icon name="x-mark" class="size-4" />
+                    </button>
                 </div>
 
                 <form method="POST" action="{{ route('spare-parts.store') }}" class="space-y-4">
@@ -231,7 +253,7 @@
             </div>
         </div>
 
-        <!-- 📌 Modal: Edit Spare Part -->
+        <!-- Modal: Edit Spare Part -->
         <div
             x-show="showEditModal"
             x-cloak
@@ -244,7 +266,9 @@
             >
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Update Spare Part & Stock') }}</h3>
-                    <button type="button" @click="showEditModal = false" class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer">&times;</button>
+                    <button type="button" @click="showEditModal = false" class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer">
+                        <x-ui.icon name="x-mark" class="size-4" />
+                    </button>
                 </div>
 
                 <form method="POST" :action="'/spare-parts/' + editPart.id" class="space-y-4">

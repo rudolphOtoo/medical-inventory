@@ -61,7 +61,7 @@
             </div>
         </div>
 
-        <!-- 📊 Asymmetrical Editorial Metric Ledger -->
+        <!-- Asymmetrical Editorial Metric Ledger -->
         <div class="grid grid-cols-2 lg:grid-cols-7 rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-[#1c1f26] shadow-xs">
             <!-- Stat 1: Total Registered -->
             <div class="p-4 sm:p-5">
@@ -165,7 +165,7 @@
             </div>
         </div>
 
-        <!-- 📌 Clinical Shift Dispatch & Handoff Board -->
+        <!-- Clinical Shift Dispatch & Handoff Board -->
         <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-6 shadow-xs">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-4">
                 <div>
@@ -243,7 +243,7 @@
             @endif
         </div>
 
-        <!-- 🛠️ Recent Defect Log & Station Ledger -->
+        <!-- Recent Defect Log & Station Ledger -->
         <div class="grid gap-6 lg:grid-cols-3">
             <!-- Recent Problem Reports (2 Cols) -->
             <div class="lg:col-span-2 rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
@@ -336,7 +336,7 @@
             </div>
         </div>
 
-        <!-- 📌 Modal 1: Create New Memo -->
+        <!-- Modal 1: Create New Memo -->
         <div
             x-show="showNoteModal"
             x-cloak
@@ -456,7 +456,7 @@
             </div>
         </div>
 
-        <!-- 📌 Modal 2: Edit Memo Modal -->
+        <!-- Modal 2: Edit Memo Modal -->
         <div
             x-show="showEditNoteModal"
             x-cloak

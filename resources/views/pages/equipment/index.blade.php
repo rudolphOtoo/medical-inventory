@@ -23,6 +23,7 @@
                         href="{{ route('equipment.export') }}"
                         class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] hover:text-slate-900 dark:hover:text-white transition font-mono shadow-xs"
                     >
+                        <x-ui.icon name="document" class="size-3.5" />
                         <span>Export CSV</span>
                     </a>
                 @endif
@@ -41,13 +42,14 @@
         <!-- Filter & Search Bar -->
         <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-4 shadow-xs">
             <form method="GET" action="{{ route('equipment.index') }}" class="grid gap-3 sm:grid-cols-2 {{ auth()->user()->isAdmin() ? 'lg:grid-cols-5' : 'lg:grid-cols-4' }}">
-                <!-- Search Input -->
-                <div class="lg:col-span-2">
+                <!-- Search Input with Keyboard Shortcut -->
+                <div class="lg:col-span-2 relative" x-data @keydown.window.prevent.slash="$refs.searchInput.focus()">
                     <input
+                        x-ref="searchInput"
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search name, asset tag, serial, model..."
+                        placeholder="Search name, asset tag, serial, model... (Press '/' to focus)"
                         class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
                     />
                 </div>
@@ -94,10 +96,10 @@
                         class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
                     >
                         <option value="all">{{ __('All Calibrations') }}</option>
-                        <option value="overdue" {{ request('calibration_status') === 'overdue' ? 'selected' : '' }}>⚠️ Overdue</option>
-                        <option value="due_soon" {{ request('calibration_status') === 'due_soon' ? 'selected' : '' }}>⏳ Due Soon (&le; 30d)</option>
-                        <option value="certified" {{ request('calibration_status') === 'certified' ? 'selected' : '' }}>✓ Certified</option>
-                        <option value="uncalibrated" {{ request('calibration_status') === 'uncalibrated' ? 'selected' : '' }}>- Unscheduled</option>
+                        <option value="overdue" {{ request('calibration_status') === 'overdue' ? 'selected' : '' }}>Overdue</option>
+                        <option value="due_soon" {{ request('calibration_status') === 'due_soon' ? 'selected' : '' }}>Due Soon (&le; 30d)</option>
+                        <option value="certified" {{ request('calibration_status') === 'certified' ? 'selected' : '' }}>Certified</option>
+                        <option value="uncalibrated" {{ request('calibration_status') === 'uncalibrated' ? 'selected' : '' }}>Unscheduled</option>
                     </select>
                 </div>
             </form>
@@ -106,8 +108,17 @@
         <!-- Equipment Ledger Table -->
         <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] shadow-xs">
             @if ($equipmentList->isEmpty())
-                <div class="p-12 text-center">
+                <div class="p-12 text-center space-y-3">
                     <p class="font-mono text-xs text-slate-500 dark:text-slate-400">{{ __('No medical equipment found matching the current query.') }}</p>
+                    @if (request()->hasAny(['search', 'department_id', 'status', 'calibration_status']))
+                        <a
+                            href="{{ route('equipment.index') }}"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3 py-1.5 text-xs font-mono text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition shadow-xs"
+                        >
+                            <x-ui.icon name="x-mark" class="size-3" />
+                            <span>Clear All Filters</span>
+                        </a>
+                    @endif
                 </div>
             @else
                 <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
@@ -118,7 +129,7 @@
                             <th scope="col" class="py-3 px-4">{{ __('Department') }}</th>
                             <th scope="col" class="py-3 px-4">{{ __('Operational State') }}</th>
                             <th scope="col" class="py-3 px-4">{{ __('Calibration') }}</th>
-                            <th scope="col" class="py-3 px-4 text-right">{{ __('Passport & Tag') }}</th>
+                            <th scope="col" class="py-3 px-4 text-right">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-[#1c1f26]">
@@ -189,15 +200,16 @@
                                     </x-ui.badge>
                                 </td>
 
-                                <!-- Actions & Label -->
+                                <!-- Actions & Delete -->
                                 <td class="py-3 px-4 text-right font-mono text-xs">
                                     <div class="flex items-center justify-end gap-3">
                                         <a
                                             href="{{ route('equipment.tag', $item) }}"
-                                            class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
+                                            class="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
                                             title="Print Label"
                                         >
-                                            🏷️ Tag
+                                            <x-ui.icon name="tag" class="size-3" />
+                                            <span>Tag</span>
                                         </a>
                                         <a
                                             href="{{ route('equipment.show', $item) }}"
@@ -205,6 +217,19 @@
                                         >
                                             View &rarr;
                                         </a>
+                                        @if (auth()->user()->isAdmin())
+                                            <form method="POST" action="{{ route('equipment.destroy', $item) }}" onsubmit="return confirm('Permanently delete {{ $item->name }} [{{ $item->asset_tag }}]? This action cannot be undone.');" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    type="submit"
+                                                    class="p-1 rounded text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer"
+                                                    title="Permanently Delete Equipment"
+                                                >
+                                                    <x-ui.icon name="trash" class="size-3.5" />
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -218,7 +243,7 @@
             @endif
         </div>
 
-        <!-- 📌 Modal: Register New Equipment -->
+        <!-- Modal: Register New Equipment -->
         <div
             x-show="showRegisterModal"
             x-cloak
@@ -238,7 +263,9 @@
                         type="button"
                         @click="showRegisterModal = false"
                         class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
-                    >&times;</button>
+                    >
+                        <x-ui.icon name="x-mark" class="size-4" />
+                    </button>
                 </div>
 
                 <form method="POST" action="{{ route('equipment.store') }}" enctype="multipart/form-data" class="space-y-4">

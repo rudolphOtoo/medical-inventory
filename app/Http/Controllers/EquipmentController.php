@@ -364,6 +364,38 @@ class EquipmentController extends Controller
     }
 
     /**
+     * Remove the specified equipment from storage (Admin only).
+     */
+    public function destroy(Request $request, Equipment $equipment): RedirectResponse
+    {
+        if (! $request->user()->isAdmin()) {
+            abort(403, 'Only administrators can permanently delete equipment.');
+        }
+
+        $name = $equipment->name;
+        $tag = $equipment->asset_tag;
+
+        // Clean up media files
+        if ($equipment->photo_path && Storage::disk('public')->exists($equipment->photo_path)) {
+            Storage::disk('public')->delete($equipment->photo_path);
+        }
+        if ($equipment->manual_path && Storage::disk('public')->exists($equipment->manual_path)) {
+            Storage::disk('public')->delete($equipment->manual_path);
+        }
+
+        $equipment->delete();
+
+        ActivityLog::record(
+            $request->user(),
+            'equipment.deleted',
+            "Permanently deleted medical equipment: {$name} [{$tag}]",
+            null
+        );
+
+        return redirect()->route('equipment.index')->with('success', "Equipment '{$name}' [{$tag}] was permanently deleted.");
+    }
+
+    /**
      * Export equipment inventory as CSV (Admin only).
      */
     public function exportCsv(Request $request): StreamedResponse

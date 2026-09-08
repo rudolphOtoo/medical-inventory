@@ -126,8 +126,8 @@
 </head>
 <body>
     <div class="no-print" style="margin-bottom: 15px; text-align: right;">
-        <button onclick="window.print()" style="padding: 8px 16px; background: #0f172a; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
-            🖨️ Print / Save as PDF
+        <button onclick="window.print()" style="padding: 8px 16px; background: #0f172a; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: sans-serif; font-size: 12px;">
+            Print / Save as PDF
         </button>
     </div>
 
