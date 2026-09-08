@@ -63,8 +63,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('issues/{issue}/comments', [IssueCommentController::class, 'store'])->name('issues.comments.store');
     Route::delete('issues/comments/{comment}', [IssueCommentController::class, 'destroy'])->name('issues.comments.destroy');
 
-    // 📜 Activity & Audit Trail
+    // 📜 Activity & Audit Trail (Export & Prune)
     Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
+    Route::get('activity/export', [ActivityController::class, 'export'])->name('activity.export');
+    Route::post('activity/prune', [ActivityController::class, 'prune'])->name('activity.prune');
 
     // 📌 Clinical Sticky Notes Subsystem (Full CRUD)
     Route::post('notes', [NoteController::class, 'store'])->name('notes.store');
@@ -74,6 +76,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 🩺 Operations & Health Diagnostics
     Route::get('health', HealthController::class)->name('health');
+    Route::post('health/backup', [HealthController::class, 'create'])->name('health.backup.create');
     Route::get('health/backup', [HealthController::class, 'download'])->name('health.backup.download');
 });
 

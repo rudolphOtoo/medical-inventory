@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EquipmentController extends Controller
 {
@@ -394,43 +393,5 @@ class EquipmentController extends Controller
         );
 
         return redirect()->route('equipment.index')->with('success', "Equipment '{$name}' [{$tag}] was permanently deleted.");
-    }
-
-    /**
-     * Export equipment inventory as CSV (Admin only).
-     */
-    public function exportCsv(Request $request): StreamedResponse
-    {
-        if (! $request->user()->isAdmin()) {
-            abort(403, 'Unauthorized.');
-        }
-
-        $filename = 'medtrack-inventory-'.now()->format('Y-m-d-His').'.csv';
-
-        return response()->streamDownload(function () {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Asset Tag', 'Name', 'Manufacturer', 'Model', 'Serial Number', 'Department', 'Location', 'Status', 'Last Calibrated', 'Calibration Due', 'Registered At']);
-
-            Equipment::with('department')->chunk(100, function ($items) use ($handle) {
-                foreach ($items as $item) {
-                    fputcsv($handle, [
-                        $item->id,
-                        $item->asset_tag,
-                        $item->name,
-                        $item->manufacturer,
-                        $item->model_number,
-                        $item->serial_number,
-                        $item->department->name ?? 'N/A',
-                        $item->location,
-                        $item->status->label(),
-                        $item->last_calibrated_at?->format('Y-m-d') ?? 'N/A',
-                        $item->next_calibration_due?->format('Y-m-d') ?? 'N/A',
-                        $item->created_at->format('Y-m-d H:i'),
-                    ]);
-                }
-            });
-
-            fclose($handle);
-        }, $filename, ['Content-Type' => 'text/csv']);
     }
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
@@ -81,22 +83,44 @@ class HealthController extends Controller
     }
 
     /**
-     * Stream the latest LAN backup archive to the browser.
+     * Generate a new LAN backup snapshot immediately (Admin only).
+     */
+    public function create(Request $request): RedirectResponse
+    {
+        Gate::authorize('manage-backups');
+
+        Artisan::call('medtrack:backup');
+
+        $latestBackupFile = cache('latest_backup_file');
+
+        ActivityLog::record(
+            $request->user(),
+            'backup.created',
+            "Generated fresh LAN backup archive '{$latestBackupFile}'"
+        );
+
+        return back()->with('success', 'Fresh LAN backup snapshot generated successfully.');
+    }
+
+    /**
+     * Stream the latest LAN backup archive to the browser (auto-generates if none exists).
      */
     public function download(Request $request): StreamedResponse
     {
         Gate::authorize('manage-backups');
 
         $latestBackupFile = cache('latest_backup_file');
+        $path = $latestBackupFile ? storage_path('backups/'.$latestBackupFile) : null;
 
-        if (! $latestBackupFile) {
-            abort(404, 'No backup archive exists yet. Run `php artisan medtrack:backup` first.');
+        // If no backup exists on disk, generate one dynamically
+        if (! $path || ! File::exists($path)) {
+            Artisan::call('medtrack:backup');
+            $latestBackupFile = cache('latest_backup_file');
+            $path = storage_path('backups/'.$latestBackupFile);
         }
 
-        $path = storage_path('backups/'.$latestBackupFile);
-
         if (! File::exists($path)) {
-            abort(404, 'Backup archive no longer exists on disk.');
+            abort(500, 'Unable to generate backup archive on the server.');
         }
 
         ActivityLog::record(

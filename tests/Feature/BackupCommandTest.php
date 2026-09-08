@@ -105,14 +105,27 @@ class BackupCommandTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_download_returns_404_when_no_backup_exists(): void
+    public function test_download_auto_generates_backup_when_none_exists(): void
     {
         Cache::forget('latest_backup_file');
+        File::deleteDirectory(storage_path('backups'));
 
         $user = User::factory()->admin()->create();
 
         $this->actingAs($user);
-        $this->get(route('health.backup.download'))
-            ->assertNotFound();
+        $response = $this->get(route('health.backup.download'));
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/zip');
+    }
+
+    public function test_admin_can_generate_backup_snapshot(): void
+    {
+        $user = User::factory()->admin()->create();
+
+        $this->actingAs($user);
+        $response = $this->post(route('health.backup.create'));
+
+        $response->assertRedirect();
+        $this->assertNotNull(cache('latest_backup_file'));
     }
 }

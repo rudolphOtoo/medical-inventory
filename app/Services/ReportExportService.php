@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Department;
 use App\Models\Equipment;
 use App\Models\IssueReport;
@@ -207,6 +208,83 @@ class ReportExportService
         }
 
         $filename = 'MedTrack_Weekly_Report_'.now()->format('Ymd').'.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    /**
+     * Export the hospital activity & audit log ledger as a styled Excel (.xlsx) file.
+     */
+    public function exportActivityExcel(): StreamedResponse
+    {
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Audit Ledger');
+
+        // Hospital Header Banner
+        $sheet->mergeCells('A1:E1');
+        $sheet->setCellValue('A1', 'MEDTRACK CLINICAL ASSET MANAGEMENT — AUDIT LEDGER');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14)->getColor()->setRGB('FFFFFF');
+        $sheet->getStyle('A1')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('0F172A');
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getRowDimension(1)->setRowHeight(32);
+
+        // Metadata Subtitle
+        $sheet->mergeCells('A2:E2');
+        $sheet->setCellValue('A2', 'Exported on '.now()->format('F j, Y, g:i A').' UTC | Full System Activity Trail');
+        $sheet->getStyle('A2')->getFont()->setItalic(true)->setSize(10)->getColor()->setRGB('475569');
+        $sheet->getStyle('A2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F1F5F9');
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getRowDimension(2)->setRowHeight(20);
+
+        // Headers
+        $headers = [
+            'A3' => 'Timestamp (UTC)',
+            'B3' => 'Event Type',
+            'C3' => 'Initiator / Staff',
+            'D3' => 'Activity Description',
+            'E3' => 'Target Model / ID',
+        ];
+
+        foreach ($headers as $cell => $value) {
+            $sheet->setCellValue($cell, $value);
+        }
+
+        $headerRange = 'A3:E3';
+        $sheet->getStyle($headerRange)->getFont()->setBold(true)->setSize(11)->getColor()->setRGB('FFFFFF');
+        $sheet->getStyle($headerRange)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1E293B');
+        $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getRowDimension(3)->setRowHeight(24);
+
+        $activities = ActivityLog::with('causer')->latest('id')->get();
+        $row = 4;
+
+        foreach ($activities as $act) {
+            $target = $act->subject_type ? class_basename($act->subject_type).' #'.$act->subject_id : 'System';
+
+            $sheet->setCellValue("A{$row}", $act->created_at->format('Y-m-d H:i:s'));
+            $sheet->setCellValue("B{$row}", $act->event_type);
+            $sheet->setCellValue("C{$row}", $act->causer->name ?? 'System');
+            $sheet->setCellValue("D{$row}", $act->description);
+            $sheet->setCellValue("E{$row}", $target);
+
+            $row++;
+        }
+
+        $lastRow = max(4, $row - 1);
+        $sheet->getStyle("A3:E{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('CBD5E1');
+
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'MedTrack_Audit_Ledger_'.now()->format('Ymd_His').'.xlsx';
 
         return response()->streamDownload(function () use ($spreadsheet) {
             $writer = new Xlsx($spreadsheet);

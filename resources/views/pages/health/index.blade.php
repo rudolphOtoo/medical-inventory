@@ -50,18 +50,31 @@
                     <x-ui.icon name="shield" class="size-4 text-emerald-600 dark:text-emerald-400" />
                     <div>
                         <h2 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase">{{ __('LAN Backup Archive') }}</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{{ __('One-click timestamped copy of the SQLite database and attachments.') }}</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{{ __('One-click snapshot of the SQLite database, transaction logs, and medical equipment attachments.') }}</p>
                     </div>
                 </div>
 
                 @can('manage-backups')
-                    <a
-                        href="{{ route('health.backup.download') }}"
-                        class="inline-flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition shadow-sm"
-                    >
-                        <x-ui.icon name="download" class="size-3.5" />
-                        {{ $data['backup'] ?? null ? __('Download LAN Backup') : __('Download LAN Backup') }}
-                    </a>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <form method="POST" action="{{ route('health.backup.create') }}" class="inline">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-[#2c303d] bg-white dark:bg-[#12141a] px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition shadow-xs cursor-pointer font-mono"
+                            >
+                                <x-ui.icon name="plus" class="size-3.5" />
+                                <span>{{ __('Generate Snapshot') }}</span>
+                            </button>
+                        </form>
+
+                        <a
+                            href="{{ route('health.backup.download') }}"
+                            class="inline-flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-white px-4 py-2 text-xs font-bold text-white dark:text-black hover:bg-slate-800 dark:hover:bg-slate-200 transition shadow-sm font-mono"
+                        >
+                            <x-ui.icon name="download" class="size-3.5" />
+                            <span>{{ __('Download Backup (.zip)') }}</span>
+                        </a>
+                    </div>
                 @endcan
             </div>
 
@@ -76,11 +89,13 @@
                         <span class="text-slate-700 dark:text-slate-300">{{ number_format($data['backup']['size'] / 1024, 1) }} KB</span>
                     </div>
                     <div class="flex items-center justify-between pt-2">
-                        <span class="text-slate-500 dark:text-slate-400">Created</span>
-                        <span class="text-slate-700 dark:text-slate-300">{{ \Carbon\Carbon::createFromTimestamp($data['backup']['created_at'])->format('Y-m-d H:i') }} UTC</span>
+                        <span class="text-slate-500 dark:text-slate-400">Last Generated</span>
+                        <span class="text-slate-700 dark:text-slate-300">{{ \Carbon\Carbon::createFromTimestamp($data['backup']['created_at'])->format('Y-m-d H:i:s') }} UTC ({{ \Carbon\Carbon::createFromTimestamp($data['backup']['created_at'])->diffForHumans() }})</span>
                     </div>
                 @else
-                    <p class="py-2 text-slate-500 dark:text-slate-400">No backup archive exists yet. Run <span class="text-slate-700 dark:text-slate-300 font-bold">php artisan medtrack:backup</span> to create the first snapshot.</p>
+                    <div class="py-3 px-4 rounded-lg bg-slate-50 dark:bg-[#12141a] border border-slate-200 dark:border-[#1c1f26] text-slate-600 dark:text-slate-400">
+                        {{ __('No backup snapshot created yet on this station. Click "Generate Snapshot" or "Download Backup" above to create an immediate backup archive.') }}
+                    </div>
                 @endif
             </div>
         </div>
