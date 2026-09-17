@@ -34,6 +34,30 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
     }
 
+    public function test_failed_login_displays_generic_error_without_leaking_user_existence(): void
+    {
+        $user = User::factory()->create();
+        $genericError = __('auth.failed');
+
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee($genericError);
+
+        $this->post(route('login.store'), [
+            'email' => 'nonexistent@medtrack.test',
+            'password' => 'wrong-password',
+        ]);
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee($genericError);
+    }
+
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();
@@ -44,6 +68,24 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrorsIn('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_login_attempts_are_rate_limited_after_too_many_failures(): void
+    {
+        $user = User::factory()->create();
+
+        for ($attempt = 0; $attempt < 6; $attempt++) {
+            $response = $this->post(route('login.store'), [
+                'email' => $user->email,
+                'password' => 'wrong-password',
+            ]);
+        }
+
+        $response
+            ->assertStatus(429)
+            ->assertSee(__('Sign-In Access Temporarily Locked'));
 
         $this->assertGuest();
     }

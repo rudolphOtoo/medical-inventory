@@ -97,5 +97,7 @@
         <footer class="border-t border-slate-200 dark:border-[#1c1f26] py-3.5 px-6 text-center font-mono text-[10px] text-slate-500 dark:text-slate-600 bg-white dark:bg-[#08090a]">
             <span>MedTrack Hospital Operations &middot; Node: {{ gethostname() ?: 'Primary' }}</span>
         </footer>
+
+        @stack('scripts')
     </body>
 </html>

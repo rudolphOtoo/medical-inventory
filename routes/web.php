@@ -10,6 +10,7 @@ use App\Http\Controllers\IssueController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SparePartController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,7 +45,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
     Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');
     Route::put('departments/{department}', [DepartmentController::class, 'update'])->name('departments.update');
+    Route::patch('departments/{department}/status', [DepartmentController::class, 'toggleStatus'])->name('departments.status');
     Route::delete('departments/{department}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
+
+    // 👥 User Management & Credential Control (Admin only)
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::post('users', [UserController::class, 'store'])->name('users.store');
+    Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::post('users/{user}/status', [UserController::class, 'toggleStatus'])->name('users.status');
+    Route::post('users/{user}/password/reset', [UserController::class, 'resetPassword'])->name('users.password.reset');
+    Route::post('users/{user}/password/generate', [UserController::class, 'generateTemporaryPassword'])->name('users.password.generate');
 
     // 🛠️ Repair & Fault Tickets (Full CRUD)
     Route::get('issues', [IssueController::class, 'index'])->name('issues.index');
