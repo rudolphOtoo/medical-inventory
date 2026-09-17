@@ -8,6 +8,8 @@
                 id: null,
                 name: '',
                 code: '',
+                description: '',
+                status: 'active',
                 floor: '',
                 contact_number: '',
                 head_of_department: '',
@@ -107,9 +109,22 @@
                     <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-700 transition shadow-xs">
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="rounded font-mono text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-[#161820] border border-slate-300 dark:border-[#2c303d] px-2 py-0.5">
-                                    {{ $dept->code }}
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="rounded font-mono text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-[#161820] border border-slate-300 dark:border-[#2c303d] px-2 py-0.5">
+                                        {{ $dept->code }}
+                                    </span>
+                                    @if ($dept->isActive())
+                                        <span class="inline-flex items-center gap-1 rounded font-mono text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/30 px-1.5 py-0.5">
+                                            <span class="h-1 w-1 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
+                                            {{ __('Active') }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 rounded font-mono text-[10px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/30 px-1.5 py-0.5">
+                                            <span class="h-1 w-1 rounded-full bg-rose-500 dark:bg-rose-400"></span>
+                                            {{ __('Inactive') }}
+                                        </span>
+                                    @endif
+                                </div>
                                 <div class="flex items-center gap-2">
                                     <span class="font-mono text-[10px] text-slate-500 dark:text-slate-400 uppercase">{{ $dept->floor ?? 'Main Wing' }}</span>
                                     @if (auth()->user()->isAdmin())
@@ -127,6 +142,9 @@
 
                             <div>
                                 <h3 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">{{ $dept->name }}</h3>
+                                @if ($dept->description)
+                                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">{{ $dept->description }}</p>
+                                @endif
                                 <p class="font-mono text-xs text-slate-600 dark:text-slate-400 mt-1">
                                     Dir: {{ $dept->head_of_department ?? 'Clinical Lead' }}
                                 </p>
@@ -172,6 +190,19 @@
                                         <span>Edit</span>
                                     </button>
 
+                                    <form method="POST" action="{{ route('departments.status', $dept) }}" onsubmit="return confirm('{{ $dept->isActive() ? 'Deactivate' : 'Reactivate' }} department \'{{ addslashes($dept->name) }}\'?');" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center gap-1 rounded-md border {{ $dept->isActive() ? 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60' : 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60' }} px-2 py-1 text-xs font-medium transition cursor-pointer"
+                                            title="{{ $dept->isActive() ? 'Deactivate Department' : 'Reactivate Department' }}"
+                                        >
+                                            <x-ui.icon :name="$dept->isActive() ? 'x-mark' : 'check'" class="size-3" />
+                                            <span>{{ $dept->isActive() ? 'Deactivate' : 'Activate' }}</span>
+                                        </button>
+                                    </form>
+
                                     @if ($canDelete)
                                         <form method="POST" action="{{ route('departments.destroy', $dept) }}" onsubmit="return confirm('Permanently delete department \'{{ addslashes($dept->name) }}\'?');" class="inline">
                                             @csrf
@@ -201,6 +232,10 @@
                         </div>
                     </div>
                 @endforeach
+
+                <div class="sm:col-span-full pt-2">
+                    {{ $departments->links() }}
+                </div>
             </div>
         @endif
 
@@ -244,6 +279,16 @@
                             />
                         </div>
 
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Description') }}</label>
+                            <textarea
+                                name="description"
+                                rows="2"
+                                placeholder="e.g. 24/7 emergency services with resuscitation bays and trauma rooms"
+                                class="w-full resize-y rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
+                            ></textarea>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Ward Code') }}</label>
@@ -276,14 +321,26 @@
                             />
                         </div>
 
-                        <div>
-                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Clinical Director / Head') }}</label>
-                            <input
-                                type="text"
-                                name="head_of_department"
-                                placeholder="Dr. Elizabeth Warren"
-                                class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
-                            />
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Clinical Director / Head') }}</label>
+                                <input
+                                    type="text"
+                                    name="head_of_department"
+                                    placeholder="Dr. Elizabeth Warren"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
+                                />
+                            </div>
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Status') }}</label>
+                                <select
+                                    name="status"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
+                                >
+                                    <option value="active">{{ __('Active') }}</option>
+                                    <option value="inactive">{{ __('Inactive') }}</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">
@@ -345,6 +402,16 @@
                             />
                         </div>
 
+                        <div>
+                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Description') }}</label>
+                            <textarea
+                                name="description"
+                                rows="2"
+                                x-model="editDept.description"
+                                class="w-full resize-y rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
+                            ></textarea>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Ward Code') }}</label>
@@ -377,14 +444,27 @@
                             />
                         </div>
 
-                        <div>
-                            <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Clinical Director / Head') }}</label>
-                            <input
-                                type="text"
-                                name="head_of_department"
-                                x-model="editDept.head_of_department"
-                                class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
-                            />
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Clinical Director / Head') }}</label>
+                                <input
+                                    type="text"
+                                    name="head_of_department"
+                                    x-model="editDept.head_of_department"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden"
+                                />
+                            </div>
+                            <div>
+                                <label class="block font-mono text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-1">{{ __('Status') }}</label>
+                                <select
+                                    name="status"
+                                    x-model="editDept.status"
+                                    class="w-full rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-mono"
+                                >
+                                    <option value="active">{{ __('Active') }}</option>
+                                    <option value="inactive">{{ __('Inactive') }}</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200 dark:border-[#1c1f26]">

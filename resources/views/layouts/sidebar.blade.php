@@ -137,6 +137,19 @@
                 </div>
 
                 <a
+                    href="{{ route('users.index') }}"
+                    class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('users.*') ? 'bg-slate-100 dark:bg-[#181a22] text-slate-900 dark:text-white font-semibold border border-slate-200 dark:border-[#2c303d]' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#12141a] hover:text-slate-900 dark:hover:text-slate-200 border border-transparent' }}"
+                >
+                    <div class="flex items-center gap-2.5">
+                        <x-ui.icon name="shield" class="size-4 opacity-70 group-hover:opacity-100" />
+                        <span>{{ __('Staff & Users') }}</span>
+                    </div>
+                    @if (request()->routeIs('users.*'))
+                        <span class="h-1.5 w-1.5 rounded-full bg-slate-900 dark:bg-white"></span>
+                    @endif
+                </a>
+
+                <a
                     href="{{ route('activity.index') }}"
                     class="group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition {{ request()->routeIs('activity.*') ? 'bg-slate-100 dark:bg-[#181a22] text-slate-900 dark:text-white font-semibold border border-slate-200 dark:border-[#2c303d]' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#12141a] hover:text-slate-900 dark:hover:text-slate-200 border border-transparent' }}"
                 >

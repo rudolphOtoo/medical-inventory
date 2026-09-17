@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\UserRole;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
@@ -24,10 +25,11 @@ class UserRbacTest extends TestCase
 
     public function test_user_can_have_department_staff_role_and_helpers(): void
     {
-        $staff = User::factory()->departmentStaff(1)->create();
+        $department = Department::factory()->create();
+        $staff = User::factory()->departmentStaff($department->id)->create();
 
         $this->assertEquals(UserRole::DepartmentUser, $staff->role);
-        $this->assertEquals(1, $staff->department_id);
+        $this->assertEquals($department->id, $staff->department_id);
         $this->assertFalse($staff->isAdmin());
         $this->assertTrue($staff->isDepartmentUser());
         $this->assertFalse(Gate::forUser($staff)->allows('admin'));
