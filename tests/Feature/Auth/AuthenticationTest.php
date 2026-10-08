@@ -76,12 +76,16 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $response = null;
+
         for ($attempt = 0; $attempt < 6; $attempt++) {
             $response = $this->post(route('login.store'), [
                 'email' => $user->email,
                 'password' => 'wrong-password',
             ]);
         }
+
+        $this->assertNotNull($response);
 
         $response
             ->assertStatus(429)
