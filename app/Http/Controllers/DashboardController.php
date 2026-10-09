@@ -10,6 +10,7 @@ use App\Models\Equipment;
 use App\Models\IssueReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -32,10 +33,15 @@ class DashboardController extends Controller
             ->whereNotIn('progress_status', [IssueProgress::Resolved, IssueProgress::Closed])
             ->count();
 
-        // 2b. MTTR — average minutes from report to resolution (aggregated in SQL)
+        // 2b. MTTR — average minutes from report to resolution (aggregated in SQL).
+        // julianday() is SQLite-only; PostgreSQL uses EXTRACT(EPOCH ...).
+        $mttrExpression = match (DB::connection()->getDriverName()) {
+            'pgsql' => 'AVG(EXTRACT(EPOCH FROM (resolved_at - created_at)) / 60)',
+            default => 'AVG((julianday(resolved_at) - julianday(created_at)) * 24 * 60)',
+        };
         $mttrMinutes = round((float) IssueReport::forUser($user)
             ->whereNotNull('resolved_at')
-            ->selectRaw('AVG((julianday(resolved_at) - julianday(created_at)) * 24 * 60) AS avg_mttr_minutes')
+            ->selectRaw($mttrExpression.' AS avg_mttr_minutes')
             ->value('avg_mttr_minutes') ?? 0);
 
         // 2c. Overdue high/critical issues open > 24 hours
