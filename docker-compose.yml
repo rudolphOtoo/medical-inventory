@@ -1,0 +1,102 @@
+name: medical-inventory
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: medical-inventory-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medical_inventory
+      POSTGRES_USER: medtrack_user
+      POSTGRES_PASSWORD: medtrack_secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medtrack_user -d medical_inventory"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - medinventory
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: app
+    image: medical-inventory-app
+    container_name: medical-inventory-app
+    restart: unless-stopped
+    environment:
+      ENV_TEMPLATE: .env.example
+      APP_NAME: "Medical Inventory"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost:${APP_PORT:-8080}
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: medical_inventory
+      DB_USERNAME: medtrack_user
+      DB_PASSWORD: medtrack_secret
+      SESSION_DRIVER: database
+      SESSION_LIFETIME: "120"
+      SESSION_ENCRYPT: "false"
+      SESSION_SECURE_COOKIE: "false"
+      SESSION_PATH: /
+      SESSION_DOMAIN: ""
+      CACHE_STORE: database
+      FILESYSTEM_DISK: public
+      QUEUE_CONNECTION: sync
+      LOG_CHANNEL: daily
+      LOG_LEVEL: info
+    volumes:
+      - app_env:/app/.env-store
+      - ./database:/app/database
+      - ./storage/app/public:/app/storage/app/public
+      - ./storage/logs:/app/storage/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'php-fpm: master' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    networks:
+      - medinventory
+
+  webserver:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: webserver
+    image: medical-inventory-webserver
+    container_name: medical-inventory-webserver
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      # Serves user uploads: /app/public/storage in the image is a relative
+      # symlink into this directory (created by `php artisan storage:link`).
+      - ./storage/app/public:/app/storage/app/public
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/login || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - medinventory
+
+volumes:
+  app_env:
+  postgres_data:
+
+networks:
+  medinventory:
+    driver: bridge
