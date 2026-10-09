@@ -55,6 +55,8 @@ class SparePartController extends Controller
      */
     public function store(StoreSparePartRequest $request): RedirectResponse
     {
+        $this->authorize('create', SparePart::class);
+
         $validated = $request->validated();
 
         $part = DB::transaction(function () use ($request, $validated): SparePart {
@@ -78,17 +80,17 @@ class SparePartController extends Controller
      */
     public function update(UpdateSparePartRequest $request, SparePart $sparePart): RedirectResponse
     {
-        $user = $request->user();
+        $this->authorize('update', $sparePart);
 
         $validated = $request->validated();
 
         $oldStock = $sparePart->stock_quantity;
 
-        DB::transaction(function () use ($user, $sparePart, $validated, $oldStock): void {
+        DB::transaction(function () use ($request, $sparePart, $validated, $oldStock): void {
             $sparePart->update($validated);
 
             ActivityLog::record(
-                $user,
+                $request->user(),
                 'spare_part.updated',
                 "Updated spare part: {$sparePart->name} [{$sparePart->part_number}] (Stock: {$oldStock} -> {$sparePart->stock_quantity})",
                 $sparePart
@@ -103,9 +105,7 @@ class SparePartController extends Controller
      */
     public function destroy(Request $request, SparePart $sparePart): RedirectResponse
     {
-        if (! $request->user()->isAdmin()) {
-            abort(403, 'Only administrators can delete spare parts.');
-        }
+        $this->authorize('delete', $sparePart);
 
         $usedCount = $sparePart->issues()->count();
         if ($usedCount > 0) {

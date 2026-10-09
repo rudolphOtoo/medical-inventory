@@ -17,7 +17,7 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : view('welcome');
 })->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'active'])->group(function () {
     // 📊 Operational Dashboard
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 

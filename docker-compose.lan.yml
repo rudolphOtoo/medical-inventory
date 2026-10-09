@@ -54,6 +54,10 @@ services:
       QUEUE_CONNECTION: sync
       LOG_CHANNEL: daily
       LOG_LEVEL: info
+      # Initial administrator (created on first boot when both are set).
+      MEDTRACK_ADMIN_NAME: ${MEDTRACK_ADMIN_NAME:-Administrator}
+      MEDTRACK_ADMIN_EMAIL: ${MEDTRACK_ADMIN_EMAIL:-}
+      MEDTRACK_ADMIN_PASSWORD: ${MEDTRACK_ADMIN_PASSWORD:-}
     volumes:
       - app_env:/app/.env-store
       - ./database:/app/database

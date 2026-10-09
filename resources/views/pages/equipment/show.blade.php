@@ -95,7 +95,7 @@
                     </form>
 
                     <!-- Permanent Delete Button -->
-                    <form method="POST" action="{{ route('equipment.destroy', $equipment) }}" onsubmit="return confirm('Permanently delete {{ $equipment->name }} [{{ $equipment->asset_tag }}]? All maintenance history and attachments will be deleted.');" class="inline">
+                    <form method="POST" action="{{ route('equipment.destroy', $equipment) }}" onsubmit="return confirm('Permanently delete {{ addslashes($equipment->name) }} [{{ addslashes($equipment->asset_tag) }}]? All maintenance history and attachments will be deleted.');" class="inline">
                         @csrf
                         @method('DELETE')
                         <button

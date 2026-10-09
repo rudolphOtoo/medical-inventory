@@ -16,6 +16,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property string $part_number
+ * @property string|null $manufacturer
+ * @property string|null $description
  * @property int $stock_quantity
  * @property string $unit_cost
  * @property Carbon|null $created_at
@@ -23,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, IssueReport> $issues
  * @property-read int|null $issues_count
  */
-#[Fillable(['name', 'part_number', 'stock_quantity', 'unit_cost'])]
+#[Fillable(['name', 'part_number', 'manufacturer', 'description', 'stock_quantity', 'unit_cost'])]
 class SparePart extends Model
 {
     /** @use HasFactory<SparePartFactory> */

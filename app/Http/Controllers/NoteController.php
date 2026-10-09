@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClinicalNoteRequest;
 use App\Http\Requests\UpdateClinicalNoteRequest;
 use App\Models\ClinicalNote;
+use App\Models\Equipment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -17,11 +18,30 @@ class NoteController extends Controller
      */
     public function store(StoreClinicalNoteRequest $request): RedirectResponse
     {
+        $this->authorize('create', ClinicalNote::class);
+
+        $user = $request->user();
+
         $validated = $request->validated();
 
         $tagsArray = [];
         if (! empty($validated['tags'])) {
             $tagsArray = array_values(array_filter(array_map('trim', explode(',', $validated['tags']))));
+        }
+
+        $departmentId = $user->department_id;
+        if ($user->isAdmin() && ! empty($validated['department_id'])) {
+            $departmentId = (int) $validated['department_id'];
+        }
+
+        $equipmentId = null;
+        if (! empty($validated['equipment_id'])) {
+            $equipment = Equipment::query()
+                ->whereKey((int) $validated['equipment_id'])
+                ->when(! $user->isAdmin(), fn ($query) => $query->where('department_id', $departmentId))
+                ->first();
+
+            $equipmentId = $equipment?->id;
         }
 
         ClinicalNote::create([
@@ -30,9 +50,9 @@ class NoteController extends Controller
             'color' => $validated['color'],
             'tags' => $tagsArray,
             'is_pinned' => $request->boolean('is_pinned'),
-            'author_id' => $request->user()->id,
-            'department_id' => $validated['department_id'] ?? $request->user()->department_id,
-            'equipment_id' => $validated['equipment_id'] ?? null,
+            'author_id' => $user->id,
+            'department_id' => $departmentId,
+            'equipment_id' => $equipmentId,
         ]);
 
         return back()->with('success', 'Clinical memo pinned successfully.');
@@ -43,12 +63,7 @@ class NoteController extends Controller
      */
     public function update(UpdateClinicalNoteRequest $request, ClinicalNote $note): RedirectResponse
     {
-        $user = $request->user();
-
-        // Admin or Author can edit note
-        if (! $user->isAdmin() && $note->author_id !== $user->id) {
-            abort(403, 'Unauthorized to edit this note.');
-        }
+        $this->authorize('update', $note);
 
         $validated = $request->validated();
 
@@ -73,12 +88,7 @@ class NoteController extends Controller
      */
     public function togglePin(Request $request, ClinicalNote $note): RedirectResponse
     {
-        $user = $request->user();
-
-        // Admin or Author can toggle pin
-        if (! $user->isAdmin() && $note->author_id !== $user->id) {
-            abort(403, 'Unauthorized to pin this note.');
-        }
+        $this->authorize('update', $note);
 
         $note->update([
             'is_pinned' => ! $note->is_pinned,
@@ -94,10 +104,7 @@ class NoteController extends Controller
      */
     public function destroy(Request $request, ClinicalNote $note): RedirectResponse
     {
-        // Admin or Author can delete note
-        if (! $request->user()->isAdmin() && $note->author_id !== $request->user()->id) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('delete', $note);
 
         $note->delete();
 

@@ -18,11 +18,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class HealthController extends Controller
 {
     /**
-     * Report application readiness and system health for LAN operations (Admin only for UI view).
+     * Report application readiness and system health for LAN operations (Admin only).
      */
     public function __invoke(Request $request): View|JsonResponse
     {
-        if (! $request->wantsJson() && ! $request->user()->isAdmin()) {
+        if (! $request->user()->isAdmin()) {
             abort(403, 'Restricted to hospital administrators.');
         }
 

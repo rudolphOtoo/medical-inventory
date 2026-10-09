@@ -248,7 +248,7 @@
                                             View &rarr;
                                         </a>
                                         @if (auth()->user()->isAdmin())
-                                            <form method="POST" action="{{ route('equipment.destroy', $item) }}" onsubmit="return confirm('Permanently delete {{ $item->name }} [{{ $item->asset_tag }}]? This action cannot be undone.');" class="inline">
+                                            <form method="POST" action="{{ route('equipment.destroy', $item) }}" onsubmit="return confirm('Permanently delete {{ addslashes($item->name) }} [{{ addslashes($item->asset_tag) }}]? This action cannot be undone.');" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button

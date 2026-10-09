@@ -89,11 +89,11 @@
                         <button
                             type="button"
                             @click="$dispatch('open-edit-note', {
-                                id: {{ $id }},
-                                title: '{{ addslashes($title) }}',
-                                body: '{{ addslashes(preg_replace('/\r?\n/', ' ', $body)) }}',
-                                color: '{{ $color }}',
-                                tags: '{{ implode(', ', (array) $tags) }}',
+                                id: @js($id),
+                                title: @js($title),
+                                body: @js(preg_replace('/\r?\n/', ' ', $body)),
+                                color: @js($color),
+                                tags: @js(implode(', ', (array) $tags)),
                                 isPinned: {{ $isPinned ? 'true' : 'false' }}
                             })"
                             title="Edit Memo"

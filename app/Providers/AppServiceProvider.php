@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\ClinicalNote;
+use App\Models\SparePart;
 use App\Models\User;
+use App\Policies\ClinicalNotePolicy;
+use App\Policies\SparePartPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Date;
@@ -37,6 +41,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-departments', fn (User $user): bool => $user->isAdmin());
 
         Gate::define('manage-users', fn (User $user): bool => $user->isAdmin());
+
+        Gate::define('view-reports', fn (User $user): bool => $user->isAdmin());
+
+        Gate::policy(ClinicalNote::class, ClinicalNotePolicy::class);
+        Gate::policy(SparePart::class, SparePartPolicy::class);
 
         Blade::anonymousComponentPath(resource_path('views/layouts'), 'layouts');
     }

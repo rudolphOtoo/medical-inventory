@@ -21,6 +21,8 @@ class ReportController extends Controller
      */
     public function weekly(Request $request): View
     {
+        $this->authorize('view-reports');
+
         $report = $this->exportService->getWeeklyMetrics();
 
         return view('pages.reports.weekly', compact('report'));
@@ -31,6 +33,8 @@ class ReportController extends Controller
      */
     public function printWeekly(Request $request): View
     {
+        $this->authorize('view-reports');
+
         $report = $this->exportService->getWeeklyMetrics();
 
         return view('pages.reports.pdf', compact('report'));
@@ -41,6 +45,8 @@ class ReportController extends Controller
      */
     public function download(Request $request): StreamedResponse
     {
+        $this->authorize('view-reports');
+
         $type = $request->input('type', $request->route('type', 'weekly'));
 
         if ($type === 'equipment') {

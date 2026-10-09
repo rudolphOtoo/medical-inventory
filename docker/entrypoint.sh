@@ -83,6 +83,15 @@ find storage bootstrap/cache -name .gitignore -exec chmod 644 {} + 2>/dev/null |
 #    accepts traffic, so nginx's healthcheck only passes once the schema is up).
 php artisan migrate --force
 
+# 5b. Provision the initial administrator when credentials are supplied.
+#     Idempotent: creates the account only when it is missing and never
+#     resets an existing password (rotate explicitly with `--force`). Runs
+#     only when both MEDTRACK_ADMIN_EMAIL and MEDTRACK_ADMIN_PASSWORD are set,
+#     so demo seed data is never shipped to production.
+if [ -n "${MEDTRACK_ADMIN_EMAIL:-}" ] && [ -n "${MEDTRACK_ADMIN_PASSWORD:-}" ]; then
+    php artisan medtrack:provision-admin --no-interaction
+fi
+
 # 6. Public disk symlink + stale cache cleanup.
 php artisan storage:link || true
 php artisan config:clear

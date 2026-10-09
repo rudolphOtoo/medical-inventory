@@ -19,6 +19,8 @@ class SparePartFactory extends Factory
         return [
             'name' => fake()->words(2, true),
             'part_number' => 'SP-'.strtoupper(fake()->unique()->bothify('??-####')),
+            'manufacturer' => fake()->optional(0.7)->company(),
+            'description' => fake()->optional(0.6)->sentence(),
             'stock_quantity' => fake()->numberBetween(0, 50),
             'unit_cost' => fake()->randomFloat(2, 1, 500),
         ];

@@ -143,31 +143,33 @@
                 </div>
             </div>
 
-            <!-- Quick Demo Credentials Box (Discreet Editorial Strip) -->
-            <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
-                <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
-                    <span class="font-mono text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Default Station Credentials</span>
-                    <span class="font-mono text-[11px] text-slate-500">Master Password: password</span>
+            @if (! app()->isProduction() || config('medtrack.seed_demo_users'))
+                <!-- Quick Demo Credentials Box (Discreet Editorial Strip) -->
+                <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 shadow-xs">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
+                        <span class="font-mono text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Default Station Credentials</span>
+                        <span class="font-mono text-[11px] text-slate-500">Master Password: password</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+                        <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
+                            <span class="block text-[10px] text-amber-600 dark:text-amber-400 font-bold">Admin</span>
+                            <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">admin@medtrack.test</span>
+                        </div>
+                        <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
+                            <span class="block text-[10px] text-rose-600 dark:text-rose-400 font-bold">Emergency Lead</span>
+                            <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">emergency@medtrack.test</span>
+                        </div>
+                        <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
+                            <span class="block text-[10px] text-sky-600 dark:text-sky-400 font-bold">ICU Lead</span>
+                            <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">icu@medtrack.test</span>
+                        </div>
+                        <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
+                            <span class="block text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Biomed Tech</span>
+                            <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">biomed@medtrack.test</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-                    <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
-                        <span class="block text-[10px] text-amber-600 dark:text-amber-400 font-bold">Admin</span>
-                        <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">admin@medtrack.test</span>
-                    </div>
-                    <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
-                        <span class="block text-[10px] text-rose-600 dark:text-rose-400 font-bold">Emergency Lead</span>
-                        <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">emergency@medtrack.test</span>
-                    </div>
-                    <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
-                        <span class="block text-[10px] text-sky-600 dark:text-sky-400 font-bold">ICU Lead</span>
-                        <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">icu@medtrack.test</span>
-                    </div>
-                    <div class="rounded border border-slate-200 dark:border-[#1c1f26] bg-slate-50 dark:bg-[#12141a] p-2.5">
-                        <span class="block text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Biomed Tech</span>
-                        <span class="text-slate-700 dark:text-slate-300 text-[11px] truncate block">biomed@medtrack.test</span>
-                    </div>
-                </div>
-            </div>
+            @endif
         </main>
 
         <!-- Minimalist Footer -->

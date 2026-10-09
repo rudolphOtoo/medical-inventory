@@ -63,18 +63,18 @@ class StarterShellRoutesTest extends TestCase
         $this->get(route('equipment.index'))->assertOk();
         $this->get(route('issues.index'))->assertOk();
         $this->get(route('spare-parts.index'))->assertOk();
-        $this->get(route('reports.weekly'))->assertOk();
-        $this->get(route('reports.print'))->assertOk();
 
-        // Admin-only routes
+        // Admin-only routes (reports expose facility-wide data)
+        $this->get(route('reports.weekly'))->assertForbidden();
+        $this->get(route('reports.print'))->assertForbidden();
         $this->get(route('departments.index'))->assertForbidden();
         $this->get(route('activity.index'))->assertForbidden();
         $this->get(route('health'))->assertForbidden();
     }
 
-    public function test_health_check_endpoint_returns_json_when_requested(): void
+    public function test_health_check_endpoint_returns_json_for_admins_when_requested(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $this->actingAs($user);
 
         $response = $this->getJson(route('health'));
@@ -94,5 +94,13 @@ class StarterShellRoutesTest extends TestCase
                     'laravel_version',
                 ],
             ]);
+    }
+
+    public function test_non_admin_cannot_read_health_json_payload(): void
+    {
+        $user = User::factory()->departmentStaff()->create();
+        $this->actingAs($user);
+
+        $this->getJson(route('health'))->assertForbidden();
     }
 }
