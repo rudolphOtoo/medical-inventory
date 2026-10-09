@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreClinicalNoteRequest;
+use App\Http\Requests\UpdateClinicalNoteRequest;
 use App\Models\ClinicalNote;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,17 +15,9 @@ class NoteController extends Controller
     /**
      * Store a newly created clinical sticky note.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreClinicalNoteRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:100'],
-            'body' => ['required', 'string', 'max:1000'],
-            'color' => ['required', 'string', 'in:canary,mint,azure,coral,lavender'],
-            'tags' => ['nullable', 'string'],
-            'is_pinned' => ['nullable', 'boolean'],
-            'department_id' => ['nullable', 'integer'],
-            'equipment_id' => ['nullable', 'integer'],
-        ]);
+        $validated = $request->validated();
 
         $tagsArray = [];
         if (! empty($validated['tags'])) {
@@ -45,7 +41,7 @@ class NoteController extends Controller
     /**
      * Update an existing clinical sticky note.
      */
-    public function update(Request $request, ClinicalNote $note): RedirectResponse
+    public function update(UpdateClinicalNoteRequest $request, ClinicalNote $note): RedirectResponse
     {
         $user = $request->user();
 
@@ -54,13 +50,7 @@ class NoteController extends Controller
             abort(403, 'Unauthorized to edit this note.');
         }
 
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:100'],
-            'body' => ['required', 'string', 'max:1000'],
-            'color' => ['required', 'string', 'in:canary,mint,azure,coral,lavender'],
-            'tags' => ['nullable', 'string'],
-            'is_pinned' => ['nullable', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         $tagsArray = [];
         if (! empty($validated['tags'])) {

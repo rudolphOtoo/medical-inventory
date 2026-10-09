@@ -110,7 +110,7 @@
             >
                 <div
                     class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-5"
-                    @click.outside="showPruneModal = false"
+                    @click.outside="showPruneModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Audit Ledger Maintenance') }}"
                 >
                     <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                         <div class="flex items-center gap-2">
@@ -120,7 +120,7 @@
                         <button
                             type="button"
                             @click="showPruneModal = false"
-                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                         >
                             <x-ui.icon name="x-mark" class="size-4" />
                         </button>

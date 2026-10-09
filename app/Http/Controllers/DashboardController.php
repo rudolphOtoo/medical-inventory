@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\EquipmentStatus;
@@ -33,10 +35,10 @@ class DashboardController extends Controller
             ->count();
 
         // 2b. MTTR — average minutes from report to resolution (aggregated in SQL)
-        $mttrMinutes = round((float) IssueReport::forUser($user)
+        $mttrMinutes = round((float) (IssueReport::forUser($user)
             ->whereNotNull('resolved_at')
             ->selectRaw('AVG((julianday(resolved_at) - julianday(created_at)) * 24 * 60) AS avg_mttr_minutes')
-            ->value('avg_mttr_minutes') ?? 0);
+            ->value('avg_mttr_minutes') ?? 0));
 
         // 2c. Overdue high/critical issues open > 24 hours
         $overdueIssues = IssueReport::forUser($user)
@@ -68,7 +70,7 @@ class DashboardController extends Controller
             ->count();
 
         // 3. Clinical Sticky Notes (User Scoped)
-        $notes = ClinicalNote::with('author')
+        $notes = ClinicalNote::with(['author', 'department'])
             ->when(! $user->isAdmin(), function ($query) use ($user) {
                 $query->where(function ($q) use ($user) {
                     $q->whereNull('department_id')

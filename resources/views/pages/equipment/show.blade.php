@@ -216,7 +216,7 @@
                                     <form method="POST" action="{{ route('equipment.attachments.destroy', [$equipment, 'manual']) }}" onsubmit="return confirm('Remove PDF manual?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-slate-400 hover:text-rose-500 cursor-pointer p-0.5">
+                                        <button type="submit" class="text-slate-400 hover:text-rose-500 cursor-pointer p-0.5" aria-label="{{ __('Remove PDF manual') }}">
                                             <x-ui.icon name="x-mark" class="size-3" />
                                         </button>
                                     </form>
@@ -395,14 +395,14 @@
         >
             <div
                 class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
-                @click.outside="showCalModal = false"
+                @click.outside="showCalModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Record Calibration Certificate') }}"
             >
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Record Calibration Certificate</h3>
                     <button
                         type="button"
                         @click="showCalModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                     >
                         <x-ui.icon name="x-mark" class="size-4" />
                     </button>
@@ -454,14 +454,14 @@
             >
                 <div
                     class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
-                    @click.outside="showTransferModal = false"
+                    @click.outside="showTransferModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Transfer Ward Allocation') }}"
                 >
                     <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                         <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Transfer Ward Allocation</h3>
                         <button
                             type="button"
                             @click="showTransferModal = false"
-                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                         >
                             <x-ui.icon name="x-mark" class="size-4" />
                         </button>
@@ -518,13 +518,16 @@
             <div
                 class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
                 @click.outside="showAttachModal = false"
+                role="dialog"
+                aria-modal="true"
+                aria-label="{{ __('Upload Device Attachments') }}"
             >
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Upload Device Attachments</h3>
                     <button
                         type="button"
                         @click="showAttachModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                     >
                         <x-ui.icon name="x-mark" class="size-4" />
                     </button>
@@ -573,14 +576,14 @@
         >
             <div
                 class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4"
-                @click.outside="showNoteModal = false"
+                @click.outside="showNoteModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Pin Memo on ') }}{{ $equipment->asset_tag }}"
             >
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <h3 class="font-mono text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Pin Memo on ') }}{{ $equipment->asset_tag }}</h3>
                     <button
                         type="button"
                         @click="showNoteModal = false"
-                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                        class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                     >
                         <x-ui.icon name="x-mark" class="size-4" />
                     </button>
@@ -666,7 +669,7 @@
             >
                 <div
                     class="w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-                    @click.outside="showEditModal = false"
+                    @click.outside="showEditModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Edit Technical Specs for ') }}{{ $equipment->asset_tag }}"
                 >
                     <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                         <div class="flex items-center gap-2">
@@ -676,7 +679,7 @@
                         <button
                             type="button"
                             @click="showEditModal = false"
-                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                         >
                             <x-ui.icon name="x-mark" class="size-4" />
                         </button>

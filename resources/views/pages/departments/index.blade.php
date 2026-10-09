@@ -62,6 +62,7 @@
                         x-ref="searchInput"
                         type="text"
                         name="search"
+                        aria-label="{{ __('Search departments') }}"
                         value="{{ request('search') }}"
                         placeholder="{{ __('Search department name, code, clinical director, floor... (Press \'/\')') }}"
                         class="w-full pl-9 pr-12 rounded-lg border border-slate-300 dark:border-[#22262f] bg-white dark:bg-[#08090a] py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-slate-500 dark:focus:border-slate-400 focus:outline-hidden font-sans"
@@ -249,7 +250,7 @@
             >
                 <div
                     class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-5"
-                    @click.outside="showCreateModal = false"
+                    @click.outside="showCreateModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Create Ward Department') }}"
                 >
                     <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                         <div class="flex items-center gap-2">
@@ -259,7 +260,7 @@
                         <button
                             type="button"
                             @click="showCreateModal = false"
-                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                         >
                             <x-ui.icon name="x-mark" class="size-4" />
                         </button>
@@ -371,7 +372,7 @@
             >
                 <div
                     class="w-full max-w-md rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-5"
-                    @click.outside="showEditModal = false"
+                    @click.outside="showEditModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Edit Ward Department') }}"
                 >
                     <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                         <div class="flex items-center gap-2">
@@ -381,7 +382,7 @@
                         <button
                             type="button"
                             @click="showEditModal = false"
-                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                            class="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer" aria-label="{{ __('Close dialog') }}"
                         >
                             <x-ui.icon name="x-mark" class="size-4" />
                         </button>

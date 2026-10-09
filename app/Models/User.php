@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -59,6 +61,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * The department the user is assigned to (if any).
+     *
+     * @return BelongsTo<Department, $this>
      */
     public function department(): BelongsTo
     {

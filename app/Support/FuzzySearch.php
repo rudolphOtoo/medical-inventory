@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Support;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -9,7 +11,11 @@ class FuzzySearch
     /**
      * Apply multi-token fuzzy wildcard search across specified Eloquent columns.
      *
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<TModel>  $query
      * @param  array<int, string>  $columns
+     * @return Builder<TModel>
      */
     public static function apply(Builder $query, array $columns, ?string $search): Builder
     {

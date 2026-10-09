@@ -345,7 +345,7 @@
         >
             <div
                 class="w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-5"
-                @click.outside="showNoteModal = false"
+                @click.outside="showNoteModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Compose Clinical Memo') }}"
             >
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
@@ -465,7 +465,7 @@
         >
             <div
                 class="w-full max-w-lg rounded-xl border border-slate-200 dark:border-[#2c303d] bg-white dark:bg-[#0e1015] p-6 shadow-2xl space-y-5"
-                @click.outside="showEditNoteModal = false"
+                                @click.outside="showEditNoteModal = false" role="dialog" aria-modal="true" aria-label="{{ __('Edit Clinical Memo') }}"
             >
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-[#1c1f26] pb-3">
                     <div class="flex items-center gap-2">
