@@ -16,7 +16,7 @@ class DepartmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->words(2, true).' Ward',
+            'name' => fake()->unique()->word().' Ward',
             'code' => fake()->unique()->bothify('??#'),
             'description' => fake()->sentence(10),
             'status' => DepartmentStatus::Active,

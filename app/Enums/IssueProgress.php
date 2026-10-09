@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum IssueProgress: string
@@ -44,5 +46,31 @@ enum IssueProgress: string
     public function isActive(): bool
     {
         return ! in_array($this, [self::Resolved, self::Closed], true);
+    }
+
+    /**
+     * Backing values for every unresolved (open) progress state.
+     *
+     * @return array<int, string>
+     */
+    public static function openValues(): array
+    {
+        return array_values(array_map(
+            static fn (self $status): string => $status->value,
+            array_filter(self::cases(), static fn (self $status): bool => $status->isActive()),
+        ));
+    }
+
+    /**
+     * Backing values for every resolved (terminal) progress state.
+     *
+     * @return array<int, string>
+     */
+    public static function closedValues(): array
+    {
+        return array_values(array_map(
+            static fn (self $status): string => $status->value,
+            array_filter(self::cases(), static fn (self $status): bool => ! $status->isActive()),
+        ));
     }
 }

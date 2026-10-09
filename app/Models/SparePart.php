@@ -1,15 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Database\Factories\SparePartFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $part_number
+ * @property int $stock_quantity
+ * @property string $unit_cost
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, IssueReport> $issues
+ * @property-read int|null $issues_count
+ */
 #[Fillable(['name', 'part_number', 'stock_quantity', 'unit_cost'])]
 class SparePart extends Model
 {
+    /** @use HasFactory<SparePartFactory> */
     use HasFactory;
 
     /**
@@ -27,6 +44,8 @@ class SparePart extends Model
 
     /**
      * Issues that used this spare part.
+     *
+     * @return BelongsToMany<IssueReport, $this>
      */
     public function issues(): BelongsToMany
     {

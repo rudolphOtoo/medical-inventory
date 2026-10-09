@@ -1,21 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\EquipmentStatus;
-use App\Models\ActivityLog;
+use App\Http\Requests\StoreEquipmentRequest;
+use App\Http\Requests\TransferEquipmentRequest;
+use App\Http\Requests\UpdateEquipmentCalibrationRequest;
+use App\Http\Requests\UpdateEquipmentRequest;
+use App\Http\Requests\UpdateEquipmentStatusRequest;
+use App\Http\Requests\UploadEquipmentAttachmentRequest;
 use App\Models\Department;
 use App\Models\Equipment;
+use App\Services\EquipmentService;
 use App\Services\QrCodeService;
 use App\Support\FuzzySearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\UploadedFile;
 use Illuminate\View\View;
 
 class EquipmentController extends Controller
 {
+    public function __construct(private readonly EquipmentService $equipmentService) {}
+
     /**
      * Display a listing of medical equipment.
      */
@@ -36,7 +45,7 @@ class EquipmentController extends Controller
                     'manufacturer',
                     'model_number',
                     'department.name',
-                ], $request->string('search'));
+                ], (string) $request->string('search'));
             })
             ->when($request->filled('status') && $request->status !== 'all', function ($q) use ($request) {
                 $q->where('status', $request->status);
@@ -57,50 +66,22 @@ class EquipmentController extends Controller
     /**
      * Store a newly created equipment in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreEquipmentRequest $request): RedirectResponse
     {
         $user = $request->user();
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'model_number' => ['nullable', 'string', 'max:100'],
-            'manufacturer' => ['nullable', 'string', 'max:100'],
-            'asset_tag' => ['required', 'string', 'max:50', 'unique:equipment,asset_tag'],
-            'serial_number' => ['nullable', 'string', 'max:100', 'unique:equipment,serial_number'],
-            'department_id' => ['required', 'exists:departments,id'],
-            'location' => ['nullable', 'string', 'max:100'],
-            'status' => ['required', Rule::enum(EquipmentStatus::class)],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'last_calibrated_at' => ['nullable', 'date'],
-            'next_calibration_due' => ['nullable', 'date', 'after_or_equal:last_calibrated_at'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,webp,jpg', 'max:5120'],
-            'manual' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
-        ]);
+        $validated = $request->validated();
 
         // If not admin, restrict to own department
         if (! $user->isAdmin()) {
             $validated['department_id'] = $user->department_id;
         }
 
-        $validated['created_by'] = $user->id;
-
-        if ($request->hasFile('photo')) {
-            $validated['photo_path'] = $request->file('photo')->store('equipment/photos', 'public');
-        }
-
-        if ($request->hasFile('manual')) {
-            $validated['manual_path'] = $request->file('manual')->store('equipment/manuals', 'public');
-        }
-
-        unset($validated['photo'], $validated['manual']);
-
-        $equipment = Equipment::create($validated);
-
-        ActivityLog::record(
+        $equipment = $this->equipmentService->register(
+            $validated,
             $user,
-            'equipment.created',
-            "Registered medical device: {$equipment->name} [{$equipment->asset_tag}]",
-            $equipment
+            $this->uploadedFile($request, 'photo'),
+            $this->uploadedFile($request, 'manual'),
         );
 
         return redirect()->route('equipment.show', $equipment)->with('success', "Equipment '{$equipment->name}' registered successfully.");
@@ -111,10 +92,7 @@ class EquipmentController extends Controller
      */
     public function show(Request $request, Equipment $equipment): View
     {
-        $user = $request->user();
-
-        // Check department scope
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized device access.');
         }
 
@@ -128,45 +106,18 @@ class EquipmentController extends Controller
     /**
      * Upload photo or user manual attachments.
      */
-    public function uploadAttachment(Request $request, Equipment $equipment): RedirectResponse
+    public function uploadAttachment(UploadEquipmentAttachmentRequest $request, Equipment $equipment): RedirectResponse
     {
-        $user = $request->user();
-
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized.');
         }
 
-        $validated = $request->validate([
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,webp,jpg', 'max:5120'],
-            'manual' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
-        ]);
-
-        $updates = [];
-
-        if ($request->hasFile('photo')) {
-            if ($equipment->photo_path && Storage::disk('public')->exists($equipment->photo_path)) {
-                Storage::disk('public')->delete($equipment->photo_path);
-            }
-            $updates['photo_path'] = $request->file('photo')->store('equipment/photos', 'public');
-        }
-
-        if ($request->hasFile('manual')) {
-            if ($equipment->manual_path && Storage::disk('public')->exists($equipment->manual_path)) {
-                Storage::disk('public')->delete($equipment->manual_path);
-            }
-            $updates['manual_path'] = $request->file('manual')->store('equipment/manuals', 'public');
-        }
-
-        if (! empty($updates)) {
-            $equipment->update($updates);
-
-            ActivityLog::record(
-                $user,
-                'equipment.attachment_uploaded',
-                "Uploaded media attachments for device: {$equipment->name} [{$equipment->asset_tag}]",
-                $equipment
-            );
-        }
+        $this->equipmentService->uploadAttachments(
+            $equipment,
+            $request->user(),
+            $this->uploadedFile($request, 'photo'),
+            $this->uploadedFile($request, 'manual'),
+        );
 
         return back()->with('success', 'Attachments updated successfully.');
     }
@@ -176,25 +127,11 @@ class EquipmentController extends Controller
      */
     public function deleteAttachment(Request $request, Equipment $equipment, string $type): RedirectResponse
     {
-        $user = $request->user();
-
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized.');
         }
 
-        if ($type === 'photo' && $equipment->photo_path) {
-            if (Storage::disk('public')->exists($equipment->photo_path)) {
-                Storage::disk('public')->delete($equipment->photo_path);
-            }
-            $equipment->update(['photo_path' => null]);
-            ActivityLog::record($user, 'equipment.attachment_removed', "Removed photo from {$equipment->name}", $equipment);
-        } elseif ($type === 'manual' && $equipment->manual_path) {
-            if (Storage::disk('public')->exists($equipment->manual_path)) {
-                Storage::disk('public')->delete($equipment->manual_path);
-            }
-            $equipment->update(['manual_path' => null]);
-            ActivityLog::record($user, 'equipment.attachment_removed', "Removed PDF manual from {$equipment->name}", $equipment);
-        }
+        $this->equipmentService->removeAttachment($equipment, $request->user(), $type);
 
         return back()->with('success', ucfirst($type).' removed successfully.');
     }
@@ -202,27 +139,13 @@ class EquipmentController extends Controller
     /**
      * Update equipment calibration dates.
      */
-    public function updateCalibration(Request $request, Equipment $equipment): RedirectResponse
+    public function updateCalibration(UpdateEquipmentCalibrationRequest $request, Equipment $equipment): RedirectResponse
     {
-        $user = $request->user();
-
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized.');
         }
 
-        $validated = $request->validate([
-            'last_calibrated_at' => ['required', 'date'],
-            'next_calibration_due' => ['required', 'date', 'after:last_calibrated_at'],
-        ]);
-
-        $equipment->update($validated);
-
-        ActivityLog::record(
-            $user,
-            'equipment.calibrated',
-            "Recorded calibration certificate for {$equipment->name}. Next due: {$validated['next_calibration_due']}",
-            $equipment
-        );
+        $this->equipmentService->recordCalibration($equipment, $request->validated(), $request->user());
 
         return back()->with('success', 'Calibration certification saved successfully.');
     }
@@ -230,37 +153,22 @@ class EquipmentController extends Controller
     /**
      * Transfer equipment to a different department.
      */
-    public function transferDepartment(Request $request, Equipment $equipment): RedirectResponse
+    public function transferDepartment(TransferEquipmentRequest $request, Equipment $equipment): RedirectResponse
     {
-        $user = $request->user();
-
-        // Only Admin or Lead of current department can transfer
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized to transfer this equipment.');
         }
 
-        $validated = $request->validate([
-            'department_id' => ['required', 'exists:departments,id'],
-            'location' => ['nullable', 'string', 'max:100'],
-            'transfer_notes' => ['nullable', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
 
-        $oldDeptName = $equipment->department->name ?? 'Unassigned';
-        $newDept = Department::findOrFail($validated['department_id']);
-
-        $equipment->update([
-            'department_id' => $newDept->id,
-            'location' => $validated['location'] ?? $equipment->location,
-        ]);
-
-        ActivityLog::record(
-            $user,
-            'equipment.transferred',
-            "Transferred {$equipment->name} [{$equipment->asset_tag}] from '{$oldDeptName}' to '{$newDept->name}' (Location: {$equipment->location})",
-            $equipment
+        $newDepartment = $this->equipmentService->transfer(
+            $equipment,
+            $request->user(),
+            (int) $validated['department_id'],
+            $validated['location'] ?? null,
         );
 
-        return back()->with('success', "Equipment successfully transferred to {$newDept->name}.");
+        return back()->with('success', "Equipment successfully transferred to {$newDepartment->name}.");
     }
 
     /**
@@ -268,9 +176,7 @@ class EquipmentController extends Controller
      */
     public function printTag(Request $request, Equipment $equipment): View
     {
-        $user = $request->user();
-
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized.');
         }
 
@@ -283,30 +189,17 @@ class EquipmentController extends Controller
     /**
      * Update equipment operational status.
      */
-    public function updateStatus(Request $request, Equipment $equipment): RedirectResponse
+    public function updateStatus(UpdateEquipmentStatusRequest $request, Equipment $equipment): RedirectResponse
     {
-        $user = $request->user();
-
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized.');
         }
 
-        $validated = $request->validate([
-            'status' => ['required', Rule::enum(EquipmentStatus::class)],
-        ]);
+        $status = $this->resolveStatus($request->validated()['status']);
 
-        $oldStatus = $equipment->status->label();
-        $equipment->update(['status' => $validated['status']]);
-        $newStatus = $equipment->status->label();
+        $this->equipmentService->changeStatus($equipment, $status, $request->user());
 
-        ActivityLog::record(
-            $user,
-            'equipment.status_changed',
-            "Updated {$equipment->name} status from '{$oldStatus}' to '{$newStatus}'",
-            $equipment
-        );
-
-        return back()->with('success', "Equipment status updated to '{$newStatus}'.");
+        return back()->with('success', "Equipment status updated to '{$status->label()}'.");
     }
 
     /**
@@ -318,15 +211,8 @@ class EquipmentController extends Controller
             abort(403, 'Only administrators can archive equipment.');
         }
 
-        $equipment->update(['is_archived' => ! $equipment->is_archived]);
-
-        $state = $equipment->is_archived ? 'Archived' : 'Restored';
-        ActivityLog::record(
-            $request->user(),
-            'equipment.archived',
-            "{$state} equipment: {$equipment->name} [{$equipment->asset_tag}]",
-            $equipment
-        );
+        $archived = $this->equipmentService->toggleArchive($equipment, $request->user());
+        $state = $archived ? 'Archived' : 'Restored';
 
         return redirect()->route('equipment.index')->with('success', "Equipment '{$equipment->name}' {$state}.");
     }
@@ -334,31 +220,13 @@ class EquipmentController extends Controller
     /**
      * Update technical specifications and equipment details.
      */
-    public function update(Request $request, Equipment $equipment): RedirectResponse
+    public function update(UpdateEquipmentRequest $request, Equipment $equipment): RedirectResponse
     {
-        $user = $request->user();
-
-        if (! $user->isAdmin() && $equipment->department_id !== $user->department_id) {
+        if (! $this->canAccess($request, $equipment)) {
             abort(403, 'Unauthorized.');
         }
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'serial_number' => ['nullable', 'string', 'max:100'],
-            'manufacturer' => ['nullable', 'string', 'max:100'],
-            'model_number' => ['nullable', 'string', 'max:100'],
-            'location' => ['nullable', 'string', 'max:100'],
-            'description' => ['nullable', 'string', 'max:2000'],
-        ]);
-
-        $equipment->update($validated);
-
-        ActivityLog::record(
-            $user,
-            'equipment.updated',
-            "Updated technical specifications for {$equipment->name} [{$equipment->asset_tag}]",
-            $equipment
-        );
+        $this->equipmentService->updateDetails($equipment, $request->validated(), $request->user());
 
         return back()->with('success', "Equipment '{$equipment->name}' specifications updated successfully.");
     }
@@ -375,23 +243,38 @@ class EquipmentController extends Controller
         $name = $equipment->name;
         $tag = $equipment->asset_tag;
 
-        // Clean up media files
-        if ($equipment->photo_path && Storage::disk('public')->exists($equipment->photo_path)) {
-            Storage::disk('public')->delete($equipment->photo_path);
-        }
-        if ($equipment->manual_path && Storage::disk('public')->exists($equipment->manual_path)) {
-            Storage::disk('public')->delete($equipment->manual_path);
-        }
-
-        $equipment->delete();
-
-        ActivityLog::record(
-            $request->user(),
-            'equipment.deleted',
-            "Permanently deleted medical equipment: {$name} [{$tag}]",
-            null
-        );
+        $this->equipmentService->delete($equipment, $request->user());
 
         return redirect()->route('equipment.index')->with('success', "Equipment '{$name}' [{$tag}] was permanently deleted.");
+    }
+
+    /**
+     * Determine whether the current user may act on the given device.
+     */
+    private function canAccess(Request $request, Equipment $equipment): bool
+    {
+        $user = $request->user();
+
+        return $user->isAdmin() || $equipment->department_id === $user->department_id;
+    }
+
+    /**
+     * Resolve the submitted status value into a typed enum.
+     */
+    private function resolveStatus(mixed $status): EquipmentStatus
+    {
+        return $status instanceof EquipmentStatus
+            ? $status
+            : EquipmentStatus::from((string) $status);
+    }
+
+    /**
+     * Extract a single uploaded file from the request, ignoring arrays.
+     */
+    private function uploadedFile(Request $request, string $key): ?UploadedFile
+    {
+        $file = $request->file($key);
+
+        return $file instanceof UploadedFile ? $file : null;
     }
 }

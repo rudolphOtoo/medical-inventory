@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -50,10 +52,8 @@ class BackupDatabase extends Command
             return self::FAILURE;
         }
 
-        $ok = true;
-
         // Add the SQLite database (with WAL/SHM flushed notation in filename)
-        $ok = $ok && $zip->addFile($dbPath, 'database/database.sqlite');
+        $ok = $zip->addFile($dbPath, 'database/database.sqlite');
 
         // Add any SQLite sidecar files (WAL/SHM) to preserve transaction integrity
         foreach (['-wal', '-shm'] as $suffix) {

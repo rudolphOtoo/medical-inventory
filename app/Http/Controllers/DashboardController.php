@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\EquipmentStatus;
@@ -39,10 +41,10 @@ class DashboardController extends Controller
             'pgsql' => 'AVG(EXTRACT(EPOCH FROM (resolved_at - created_at)) / 60)',
             default => 'AVG((julianday(resolved_at) - julianday(created_at)) * 24 * 60)',
         };
-        $mttrMinutes = round((float) IssueReport::forUser($user)
+        $mttrMinutes = round((float) (IssueReport::forUser($user)
             ->whereNotNull('resolved_at')
             ->selectRaw($mttrExpression.' AS avg_mttr_minutes')
-            ->value('avg_mttr_minutes') ?? 0);
+            ->value('avg_mttr_minutes') ?? 0));
 
         // 2c. Overdue high/critical issues open > 24 hours
         $overdueIssues = IssueReport::forUser($user)
@@ -74,7 +76,7 @@ class DashboardController extends Controller
             ->count();
 
         // 3. Clinical Sticky Notes (User Scoped)
-        $notes = ClinicalNote::with('author')
+        $notes = ClinicalNote::with(['author', 'department'])
             ->when(! $user->isAdmin(), function ($query) use ($user) {
                 $query->where(function ($q) use ($user) {
                     $q->whereNull('department_id')

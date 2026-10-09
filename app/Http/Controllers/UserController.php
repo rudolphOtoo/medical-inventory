@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Http\Requests\ResetUserPasswordRequest;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\ActivityLog;
 use App\Models\Department;
 use App\Models\User;
 use App\Support\FuzzySearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -34,7 +38,7 @@ class UserController extends Controller
                     'email',
                     'department.name',
                     'department.code',
-                ], $request->string('search'));
+                ], (string) $request->string('search'));
             })
             ->when($request->filled('department_id') && $request->department_id !== 'all', function ($q) use ($request) {
                 $q->where('department_id', $request->department_id);
@@ -55,35 +59,31 @@ class UserController extends Controller
     /**
      * Create a new staff account (Admin only).
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        $this->authorize('manage-users');
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'role' => ['required', Rule::enum(UserRole::class)],
-            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
-            'password' => ['required', 'string', Password::defaults()],
-        ]);
+        $validated = $request->validated();
 
         $this->requireDepartmentForStaff($validated['role'], $validated['department_id'] ?? null);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'role' => $validated['role'],
-            'department_id' => $validated['department_id'] ?? null,
-            'password' => $validated['password'],
-            'email_verified_at' => now(),
-        ]);
+        $user = DB::transaction(function () use ($request, $validated): User {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $validated['role'],
+                'department_id' => $validated['department_id'] ?? null,
+                'password' => $validated['password'],
+                'email_verified_at' => now(),
+            ]);
 
-        ActivityLog::record(
-            $request->user(),
-            'user.created',
-            "Created {$user->role->label()} account for {$user->name} ({$user->email})",
-            $user
-        );
+            ActivityLog::record(
+                $request->user(),
+                'user.created',
+                "Created {$user->role->label()} account for {$user->name} ({$user->email})",
+                $user
+            );
+
+            return $user;
+        });
 
         return redirect()->route('users.index')->with('success', "User '{$user->name}' created successfully.");
     }
@@ -91,17 +91,9 @@ class UserController extends Controller
     /**
      * Update an existing staff account (Admin only).
      */
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $this->authorize('manage-users');
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'role' => ['required', Rule::enum(UserRole::class)],
-            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         $this->requireDepartmentForStaff($validated['role'], $validated['department_id'] ?? $user->department_id);
 
@@ -109,14 +101,16 @@ class UserController extends Controller
             $validated['department_id'] ??= null;
         }
 
-        $user->update($validated);
+        DB::transaction(function () use ($request, $user, $validated): void {
+            $user->update($validated);
 
-        ActivityLog::record(
-            $request->user(),
-            'user.updated',
-            "Updated account for {$user->name} ({$user->email})",
-            $user
-        );
+            ActivityLog::record(
+                $request->user(),
+                'user.updated',
+                "Updated account for {$user->name} ({$user->email})",
+                $user
+            );
+        });
 
         return back()->with('success', "User '{$user->name}' updated successfully.");
     }
@@ -133,17 +127,20 @@ class UserController extends Controller
         }
 
         $user->is_active = ! $user->is_active;
-        $user->save();
 
         $state = $user->is_active ? 'activated' : 'deactivated';
         $stateLabel = $user->is_active ? 'active' : 'inactive';
 
-        ActivityLog::record(
-            $request->user(),
-            "user.{$state}",
-            "{$state} account for {$user->name} ({$user->email})",
-            $user
-        );
+        DB::transaction(function () use ($request, $user, $state): void {
+            $user->save();
+
+            ActivityLog::record(
+                $request->user(),
+                "user.{$state}",
+                "{$state} account for {$user->name} ({$user->email})",
+                $user
+            );
+        });
 
         return back()->with('success', "User '{$user->name}' has been {$stateLabel}.");
     }
@@ -151,22 +148,20 @@ class UserController extends Controller
     /**
      * Force reset a user's password to an admin-provided value (Admin only).
      */
-    public function resetPassword(Request $request, User $user): RedirectResponse
+    public function resetPassword(ResetUserPasswordRequest $request, User $user): RedirectResponse
     {
-        $this->authorize('manage-users');
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'password' => ['required', 'string', Password::defaults()],
-        ]);
+        DB::transaction(function () use ($request, $user, $validated): void {
+            $user->update(['password' => $validated['password']]);
 
-        $user->update(['password' => $validated['password']]);
-
-        ActivityLog::record(
-            $request->user(),
-            'user.password_reset',
-            "Reset password for {$user->name} ({$user->email})",
-            $user
-        );
+            ActivityLog::record(
+                $request->user(),
+                'user.password_reset',
+                "Reset password for {$user->name} ({$user->email})",
+                $user
+            );
+        });
 
         return back()->with('success', "Password for '{$user->name}' has been reset successfully.");
     }
@@ -180,14 +175,16 @@ class UserController extends Controller
 
         $temporary = Str::password(16);
 
-        $user->update(['password' => $temporary]);
+        DB::transaction(function () use ($request, $user, $temporary): void {
+            $user->update(['password' => $temporary]);
 
-        ActivityLog::record(
-            $request->user(),
-            'user.temporary_password_generated',
-            "Generated a temporary password for {$user->name} ({$user->email})",
-            $user
-        );
+            ActivityLog::record(
+                $request->user(),
+                'user.temporary_password_generated',
+                "Generated a temporary password for {$user->name} ({$user->email})",
+                $user
+            );
+        });
 
         return back()->with('success', "Temporary password for '{$user->name}' was generated. Share it securely: {$temporary}");
     }

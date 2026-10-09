@@ -1,15 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\EquipmentStatus;
+use Database\Factories\EquipmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string|null $model_number
+ * @property string|null $manufacturer
+ * @property string $asset_tag
+ * @property string|null $serial_number
+ * @property int $department_id
+ * @property string|null $location
+ * @property EquipmentStatus $status
+ * @property string|null $description
+ * @property string|null $notes
+ * @property string|null $photo_path
+ * @property string|null $manual_path
+ * @property Carbon|null $last_calibrated_at
+ * @property Carbon|null $next_calibration_due
+ * @property bool $is_archived
+ * @property int|null $created_by
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Department|null $department
+ * @property-read User|null $creator
+ * @property-read string|null $photo_url
+ * @property-read string|null $manual_url
+ */
 #[Fillable([
     'name',
     'model_number',
@@ -30,6 +60,7 @@ use Illuminate\Support\Facades\Storage;
 ])]
 class Equipment extends Model
 {
+    /** @use HasFactory<EquipmentFactory> */
     use HasFactory;
 
     /**
@@ -55,6 +86,8 @@ class Equipment extends Model
 
     /**
      * Department owning this equipment.
+     *
+     * @return BelongsTo<Department, $this>
      */
     public function department(): BelongsTo
     {
@@ -63,6 +96,8 @@ class Equipment extends Model
 
     /**
      * User who registered the equipment.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
@@ -71,6 +106,8 @@ class Equipment extends Model
 
     /**
      * Issue tickets logged for this equipment.
+     *
+     * @return HasMany<IssueReport, $this>
      */
     public function issues(): HasMany
     {
@@ -79,6 +116,8 @@ class Equipment extends Model
 
     /**
      * Sticky notes / clinical memos attached to this equipment.
+     *
+     * @return HasMany<ClinicalNote, $this>
      */
     public function clinicalNotes(): HasMany
     {
@@ -158,16 +197,22 @@ class Equipment extends Model
 
     /**
      * Scope for active (unarchived) equipment.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_archived', false);
     }
 
     /**
      * Scope for department scoping.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
-    public function scopeForUser($query, User $user)
+    public function scopeForUser(Builder $query, User $user): Builder
     {
         if ($user->isAdmin()) {
             return $query;
@@ -178,8 +223,11 @@ class Equipment extends Model
 
     /**
      * Scope for calibration status filtering.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
-    public function scopeCalibrationStatus($query, ?string $status)
+    public function scopeCalibrationStatus(Builder $query, ?string $status): Builder
     {
         if (! $status || $status === 'all') {
             return $query;

@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Enums\EquipmentStatus;
+use App\Enums\IssueProgress;
 use App\Models\ActivityLog;
 use App\Models\Department;
 use App\Models\Equipment;
 use App\Models\IssueReport;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -112,6 +119,8 @@ class ReportExportService
 
     /**
      * Export the Weekly Operational Digest as a structured Excel (.xlsx) workbook.
+     *
+     * @param  array<string, mixed>  $reportData
      */
     public function exportWeeklyReportExcel(array $reportData): StreamedResponse
     {
@@ -297,49 +306,67 @@ class ReportExportService
 
     /**
      * Gather the operational data metrics for the Weekly Digest.
+     *
+     * Aggregations are pushed into SQL so no full model collections are
+     * hydrated just to be counted or averaged in PHP.
+     *
+     * @return array{
+     *     startDate: string,
+     *     endDate: string,
+     *     totalEquipment: int,
+     *     inUseCount: int,
+     *     underReviewCount: int,
+     *     outOfServiceCount: int,
+     *     overdueCalibrations: int,
+     *     dueSoonCalibrations: int,
+     *     complianceRate: float,
+     *     weeklyTicketsCount: int,
+     *     weeklyResolvedCount: int,
+     *     avgMttrMinutes: float,
+     *     departments: Collection<int, Department>,
+     *     recentResolvedTickets: Collection<int, IssueReport>
+     * }
      */
     public function getWeeklyMetrics(): array
     {
         $startDate = now()->subDays(7)->startOfDay();
         $endDate = now()->endOfDay();
+        $today = now()->toDateString();
+        $dueThreshold = now()->addDays(30)->toDateString();
 
         $totalEquipment = Equipment::count();
-        $inUseCount = Equipment::where('status', 'in_use')->count();
-        $underReviewCount = Equipment::where('status', 'under_review')->count();
-        $outOfServiceCount = Equipment::where('status', 'out_of_service')->count();
+        $inUseCount = Equipment::where('status', EquipmentStatus::InUse)->count();
+        $underReviewCount = Equipment::where('status', EquipmentStatus::UnderReview)->count();
+        $outOfServiceCount = Equipment::where('status', EquipmentStatus::OutOfService)->count();
 
         $overdueCalibrations = Equipment::whereNotNull('next_calibration_due')
-            ->where('next_calibration_due', '<', now())
+            ->where('next_calibration_due', '<', $today)
             ->count();
 
         $dueSoonCalibrations = Equipment::whereNotNull('next_calibration_due')
-            ->whereBetween('next_calibration_due', [now(), now()->addDays(30)])
+            ->whereBetween('next_calibration_due', [$today, $dueThreshold])
             ->count();
 
         $complianceRate = $totalEquipment > 0
             ? round((($totalEquipment - $overdueCalibrations) / $totalEquipment) * 100, 1)
-            : 100;
+            : 100.0;
 
-        $weeklyTickets = IssueReport::whereBetween('created_at', [$startDate, $endDate])->get();
-        $weeklyTicketsCount = $weeklyTickets->count();
+        $weeklyTicketsCount = IssueReport::whereBetween('created_at', [$startDate, $endDate])->count();
+        $weeklyResolvedCount = IssueReport::whereBetween('resolved_at', [$startDate, $endDate])->count();
 
-        $weeklyResolved = IssueReport::whereBetween('resolved_at', [$startDate, $endDate])->get();
-        $weeklyResolvedCount = $weeklyResolved->count();
+        $mttrExpression = match (DB::connection()->getDriverName()) {
+            'pgsql' => 'AVG(EXTRACT(EPOCH FROM (resolved_at - created_at)) / 60)',
+            default => 'AVG((julianday(resolved_at) - julianday(created_at)) * 24 * 60)',
+        };
 
-        $mttrSum = 0;
-        $mttrCount = 0;
-        foreach ($weeklyResolved as $res) {
-            if ($res->created_at && $res->resolved_at) {
-                $mttrSum += $res->created_at->diffInMinutes($res->resolved_at);
-                $mttrCount++;
-            }
-        }
-        $avgMttrMinutes = $mttrCount > 0 ? round($mttrSum / $mttrCount) : 0;
+        $avgMttrMinutes = round((float) (IssueReport::whereBetween('resolved_at', [$startDate, $endDate])
+            ->selectRaw($mttrExpression.' AS avg_mttr_minutes')
+            ->value('avg_mttr_minutes') ?? 0), 1);
 
         $departments = Department::withCount([
             'equipment',
             'activeEquipment as active_equipment_count',
-            'issues' => fn ($q) => $q->whereIn('progress_status', ['reported', 'in_triage', 'in_progress', 'waiting_on_parts']),
+            'issues' => static fn (Builder $query) => $query->whereIn('progress_status', IssueProgress::openValues()),
         ])->orderBy('name')->get();
 
         $recentResolvedTickets = IssueReport::with(['equipment', 'department', 'reporter', 'assignee'])

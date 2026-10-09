@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\DepartmentStatus;
+use App\Http\Requests\StoreDepartmentRequest;
+use App\Http\Requests\UpdateDepartmentRequest;
 use App\Models\ActivityLog;
 use App\Models\Department;
 use App\Support\FuzzySearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DepartmentController extends Controller
@@ -29,7 +33,7 @@ class DepartmentController extends Controller
                     'floor',
                     'contact_number',
                     'description',
-                ], $request->string('search'));
+                ], (string) $request->string('search'));
             })
             ->orderBy('name')
             ->paginate(12)
@@ -41,28 +45,22 @@ class DepartmentController extends Controller
     /**
      * Store a newly created department (Admin only).
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreDepartmentRequest $request): RedirectResponse
     {
-        $this->authorize('manage-departments');
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100', 'unique:departments,name'],
-            'code' => ['required', 'string', 'max:10', 'uppercase', 'unique:departments,code'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'status' => ['sometimes', Rule::enum(DepartmentStatus::class)],
-            'floor' => ['nullable', 'string', 'max:100'],
-            'contact_number' => ['nullable', 'string', 'max:50'],
-            'head_of_department' => ['nullable', 'string', 'max:100'],
-        ]);
+        $department = DB::transaction(function () use ($request, $validated): Department {
+            $department = Department::create($validated);
 
-        $department = Department::create($validated);
+            ActivityLog::record(
+                $request->user(),
+                'department.created',
+                "Created hospital department: {$department->name} [{$department->code}]",
+                $department
+            );
 
-        ActivityLog::record(
-            $request->user(),
-            'department.created',
-            "Created hospital department: {$department->name} [{$department->code}]",
-            $department
-        );
+            return $department;
+        });
 
         return redirect()->route('departments.index')->with('success', "Department '{$department->name}' created successfully.");
     }
@@ -70,28 +68,20 @@ class DepartmentController extends Controller
     /**
      * Update an existing hospital department (Admin only).
      */
-    public function update(Request $request, Department $department): RedirectResponse
+    public function update(UpdateDepartmentRequest $request, Department $department): RedirectResponse
     {
-        $this->authorize('manage-departments');
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100', Rule::unique('departments', 'name')->ignore($department->id)],
-            'code' => ['required', 'string', 'max:10', 'uppercase', Rule::unique('departments', 'code')->ignore($department->id)],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'status' => ['sometimes', Rule::enum(DepartmentStatus::class)],
-            'floor' => ['nullable', 'string', 'max:100'],
-            'contact_number' => ['nullable', 'string', 'max:50'],
-            'head_of_department' => ['nullable', 'string', 'max:100'],
-        ]);
+        DB::transaction(function () use ($request, $department, $validated): void {
+            $department->update($validated);
 
-        $department->update($validated);
-
-        ActivityLog::record(
-            $request->user(),
-            'department.updated',
-            "Updated hospital department: {$department->name} [{$department->code}]",
-            $department
-        );
+            ActivityLog::record(
+                $request->user(),
+                'department.updated',
+                "Updated hospital department: {$department->name} [{$department->code}]",
+                $department
+            );
+        });
 
         return back()->with('success', "Department '{$department->name}' updated successfully.");
     }
@@ -106,17 +96,20 @@ class DepartmentController extends Controller
         $department->status = $department->isActive()
             ? DepartmentStatus::Inactive
             : DepartmentStatus::Active;
-        $department->save();
 
         $state = $department->isActive() ? 'activated' : 'deactivated';
         $stateLabel = $department->isActive() ? 'active' : 'inactive';
 
-        ActivityLog::record(
-            $request->user(),
-            "department.{$state}",
-            "{$state} hospital department: {$department->name} [{$department->code}]",
-            $department
-        );
+        DB::transaction(function () use ($request, $department, $state): void {
+            $department->save();
+
+            ActivityLog::record(
+                $request->user(),
+                "department.{$state}",
+                "{$state} hospital department: {$department->name} [{$department->code}]",
+                $department
+            );
+        });
 
         return back()->with('success', "Department '{$department->name}' has been {$stateLabel}.");
     }
@@ -141,13 +134,15 @@ class DepartmentController extends Controller
         $name = $department->name;
         $code = $department->code;
 
-        ActivityLog::record(
-            $request->user(),
-            'department.deleted',
-            "Deleted hospital department: {$name} [{$code}]"
-        );
+        DB::transaction(function () use ($request, $department, $name, $code): void {
+            ActivityLog::record(
+                $request->user(),
+                'department.deleted',
+                "Deleted hospital department: {$name} [{$code}]"
+            );
 
-        $department->delete();
+            $department->delete();
+        });
 
         return back()->with('success', "Department '{$name}' [{$code}] has been deleted successfully.");
     }

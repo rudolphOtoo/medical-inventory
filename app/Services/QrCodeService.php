@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 class QrCodeService
@@ -76,6 +78,9 @@ class QrCodeService
 SVG;
     }
 
+    /**
+     * @param  array<int, array<int, int>>  $matrix
+     */
     private static function drawFinderPattern(array &$matrix, int $startRow, int $startCol): void
     {
         for ($r = 0; $r < 7; $r++) {
@@ -89,6 +94,9 @@ SVG;
         }
     }
 
+    /**
+     * @param  array<int, array<int, int>>  $matrix
+     */
     private static function drawAlignmentPattern(array &$matrix, int $centerRow, int $centerCol): void
     {
         for ($r = -2; $r <= 2; $r++) {
