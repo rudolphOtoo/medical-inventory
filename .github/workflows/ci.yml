@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   frontend:
-    name: Frontend build & audit
+    name: Frontend audit
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -22,27 +22,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
+          node-version: '20'
+          cache: 'npm'
 
-      - name: Install npm dependencies
+      - name: Install Node Dependencies
         run: npm ci
 
       - name: Check for npm dependency advisories
         run: npm audit --audit-level=high
-
-      - name: Build production assets
-        run: npm run build
-
-      - name: Upload built assets
-        uses: actions/upload-artifact@v4
-        with:
-          name: vite-build
-          path: public/build
-          retention-days: 1
 
   php:
     name: PHP ${{ matrix.php }}
@@ -85,11 +75,17 @@ jobs:
       - name: Static analysis (PHPStan)
         run: composer types:check
 
-      - name: Download built assets
-        uses: actions/download-artifact@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          name: vite-build
-          path: public/build
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Build Frontend Assets
+        run: npm run build
 
       - name: Prepare test environment
         run: |
