@@ -39,9 +39,13 @@ class BackupDatabase extends Command
         $publicPath = storage_path('app/public');
 
         if (! File::exists($dbPath)) {
-            $this->error('SQLite database not found at '.$dbPath);
+            File::ensureDirectoryExists(dirname($dbPath));
 
-            return self::FAILURE;
+            if (! touch($dbPath)) {
+                $this->error('SQLite database not found at '.$dbPath.' and could not be created.');
+
+                return self::FAILURE;
+            }
         }
 
         $zip = new ZipArchive;
