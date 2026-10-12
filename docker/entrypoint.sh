@@ -83,6 +83,14 @@ find storage bootstrap/cache -name .gitignore -exec chmod 644 {} + 2>/dev/null |
 #    accepts traffic, so nginx's healthcheck only passes once the schema is up).
 php artisan migrate --force
 
+# 5a. Plant the baseline organisational structure on the very first boot.
+#     DatabaseSeeder only ever creates the structural baseline in production
+#     (demo records stay gated behind SEED_DEMO_USERS), and the seeder itself
+#     uses firstOrCreate, so this is safe and cheap to guard on emptiness.
+if [ "$(php artisan tinker --execute='echo \App\Models\Department::query()->count();' 2>/dev/null | tr -d '[:space:]')" = "0" ]; then
+    php artisan db:seed --force
+fi
+
 # 5b. Provision the initial administrator when credentials are supplied.
 #     Idempotent: creates the account only when it is missing and never
 #     resets an existing password (rotate explicitly with `--force`). Runs
