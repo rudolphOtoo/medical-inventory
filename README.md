@@ -123,6 +123,34 @@ php artisan serve
 
 ---
 
+## 🐳 Docker Deployment
+
+Docker Compose runs PostgreSQL, the PHP-FPM `app`, and the nginx `webserver`. `docker-compose.yml` builds the images locally; `docker-compose.deploy.yml` pulls them pre-built from GitHub Container Registry (GHCR).
+
+### Build locally
+
+```bash
+docker compose build && docker compose up -d
+```
+
+### Publishing images (no source access needed on the target machine)
+
+The `app` and `webserver` images are self-contained (code and built frontend assets are baked in), so they can run elsewhere without cloning this repo.
+
+**CI (recommended):** `.github/workflows/docker-publish.yml` builds and pushes both images to GHCR on every push to `main` (tagged `latest` + short SHA), on `v*` tags (tagged with the semver), and on published releases. It uses the built-in `GITHUB_TOKEN` — no extra secrets required.
+
+**Running on another machine** (only `docker-compose.deploy.yml` and `.env` are needed — no repo checkout):
+
+```bash
+cp .env.lan.example .env    # fill in real secrets
+docker compose -f docker-compose.deploy.yml pull
+docker compose -f docker-compose.deploy.yml up -d
+```
+
+If the GHCR packages are private, that machine also needs `docker login ghcr.io` with a PAT that has `read:packages`. Set `IMAGE_TAG` in `.env` to pin a specific version instead of `latest`. See [`LAN_DEPLOYMENT.md`](LAN_DEPLOYMENT.md) for the full client walkthrough.
+
+---
+
 ## 🧪 Testing & Verification
 
 Run the full automated feature test suite (52 tests across RBAC, Equipment, Issues, Departments, Notes, and Health):

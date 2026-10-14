@@ -14,6 +14,50 @@ The host machine must remain powered on and connected to the network for client 
 
 ---
 
+## 0. Zero-Clone Deployment (Registry Images — Recommended for Clients)
+
+Instead of cloning the source repository, you can deploy using pre-built images pulled from GitHub Container Registry (GHCR). Only two files are needed on the host: `docker-compose.deploy.yml` and a `.env` file.
+
+**Step 1 — Create an empty folder and add the two files:**
+
+```
+medical-inventory/
+├── .env
+└── docker-compose.deploy.yml
+```
+
+Copy `docker-compose.deploy.yml` from the project and create `.env` from `.env.lan.example`. At minimum set:
+
+```dotenv
+APP_URL=http://<HOST_IP>:8080   # your host machine's LAN IP
+APP_PORT=8080
+MEDTRACK_ADMIN_NAME=Administrator
+MEDTRACK_ADMIN_EMAIL=admin@yourhospital.org
+MEDTRACK_ADMIN_PASSWORD=<at-least-12-characters>
+```
+
+Optionally set `DB_USERNAME`, `DB_PASSWORD`, and `DB_DATABASE` to override the defaults (`medtrack_user` / `medtrack_secret` / `medical_inventory`). Set `IMAGE_TAG=v1.2.0` to pin a specific release instead of `latest`.
+
+**Step 2 — Pull the pre-built images:**
+
+```bash
+docker compose -f docker-compose.deploy.yml pull
+```
+
+**Step 3 — Start the stack:**
+
+```bash
+docker compose -f docker-compose.deploy.yml up -d
+```
+
+The stack starts PostgreSQL, the PHP-FPM app (which runs migrations and provisions the initial administrator on boot), and the nginx webserver. Open `http://<HOST_IP>:8080` from any device on the LAN.
+
+> If the GHCR packages are private, run `docker login ghcr.io` first with a Personal Access Token that has `read:packages`.
+
+Once the stack is running, continue to [Find Your Host Machine's LAN IP Address](#3-find-your-host-machines-lan-ip-address-manual-method) and [Configure Firewall Rules](#4-configure-firewall-rules).
+
+---
+
 ## 1. Clone or Copy the Repository
 
 On the host machine, navigate to your desired location and clone the repository:
@@ -207,6 +251,8 @@ chmod -R 775 storage bootstrap/cache database
 | Restart containers | `docker-compose -f docker-compose.lan.yml restart` |
 | Rebuild after code changes | `docker-compose -f docker-compose.lan.yml up -d --build` |
 | Run migrations | `docker-compose -f docker-compose.lan.yml exec app php artisan migrate --force` |
+
+For the [zero-clone registry deployment](#0-zero-clone-deployment-registry-images--recommended-for-clients), use `docker compose -f docker-compose.deploy.yml <command>` in place of the commands above, and `pull` before `up -d` to fetch the latest images.
 
 ---
 

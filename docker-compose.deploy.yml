@@ -1,0 +1,115 @@
+name: medical-inventory
+
+# Zero-clone deployment compose file. Clients only need this file and a `.env`
+# in an empty folder; the `app` and `webserver` images are pulled pre-built from
+# GitHub Container Registry, so the source repository is not required.
+#
+#   docker compose -f docker-compose.deploy.yml pull
+#   docker compose -f docker-compose.deploy.yml up -d
+#
+# Pin a specific build with IMAGE_TAG in `.env` (defaults to `latest`).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: medical-inventory-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-medical_inventory}
+      POSTGRES_USER: ${DB_USERNAME:-medtrack_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-medtrack_secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-medtrack_user} -d ${DB_DATABASE:-medical_inventory}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - medinventory
+
+  app:
+    image: ghcr.io/rudolphotoo/medical-inventory-app:${IMAGE_TAG:-latest}
+    container_name: medical-inventory-app
+    restart: unless-stopped
+    # The image ships .env.example and docker/entrypoint.sh seeds .env from it,
+    # so a machine without a host .env still boots to documented defaults. The
+    # host file, when present, takes precedence.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ENV_TEMPLATE: .env.example
+      APP_NAME: "Medical Inventory"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: ${DB_DATABASE:-medical_inventory}
+      DB_USERNAME: ${DB_USERNAME:-medtrack_user}
+      DB_PASSWORD: ${DB_PASSWORD:-medtrack_secret}
+      SESSION_DRIVER: database
+      SESSION_LIFETIME: "120"
+      SESSION_ENCRYPT: "false"
+      SESSION_SECURE_COOKIE: "false"
+      SESSION_PATH: /
+      SESSION_DOMAIN: ""
+      CACHE_STORE: database
+      FILESYSTEM_DISK: public
+      QUEUE_CONNECTION: sync
+      LOG_CHANNEL: daily
+      LOG_LEVEL: info
+      # Initial administrator (created on first boot when both are set).
+      MEDTRACK_ADMIN_NAME: ${MEDTRACK_ADMIN_NAME:-Administrator}
+      MEDTRACK_ADMIN_EMAIL: ${MEDTRACK_ADMIN_EMAIL:-}
+      MEDTRACK_ADMIN_PASSWORD: ${MEDTRACK_ADMIN_PASSWORD:-}
+    volumes:
+      - app_env:/app/.env-store
+      - ./database:/app/database
+      - ./storage/app/public:/app/storage/app/public
+      - ./storage/logs:/app/storage/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'php-fpm: master' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    networks:
+      - medinventory
+
+  webserver:
+    image: ghcr.io/rudolphotoo/medical-inventory-webserver:${IMAGE_TAG:-latest}
+    container_name: medical-inventory-webserver
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      # Serves user uploads: /app/public/storage in the image is a relative
+      # symlink into this directory (created by `php artisan storage:link`).
+      - ./storage/app/public:/app/storage/app/public
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/login || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - medinventory
+
+volumes:
+  app_env:
+  postgres_data:
+
+networks:
+  medinventory:
+    driver: bridge
