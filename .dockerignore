@@ -21,11 +21,9 @@
 /storage/framework/views/*
 /storage/logs/*
 /bootstrap/cache/*.php
-/medtrack_poc
 /scripts
 /tests
 /.agents
 /.ai
 /.phpunit.cache
-/docker/Dockerfile.bak
 LAN_DEPLOYMENT.md

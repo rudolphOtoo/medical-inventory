@@ -72,11 +72,14 @@ fi
 mkdir -p "$ENV_STORE"
 cp .env "$ENV_STORE/.env"
 
-# 4. Permissions: Laravel must be able to write everything here. The spec
-#    mandates 777; tracked .gitignore files inside storage are restored to
-#    644 afterwards because the bind mount would otherwise flip their mode
-#    in the host git tree.
-chmod -R 777 storage bootstrap/cache
+# 4. Permissions: Laravel must be able to write everything here. The host
+#    bind mounts (storage/app/public, storage/logs) arrive owned by the host
+#    user, so hand them to the php-fpm user before applying group-writable
+#    775. Tracked .gitignore files inside storage are restored to 644
+#    afterwards because the bind mount would otherwise flip their mode in
+#    the host git tree.
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 find storage bootstrap/cache -name .gitignore -exec chmod 644 {} + 2>/dev/null || true
 
 # 5. Migrations — safe and idempotent on every boot (runs before php-fpm
@@ -104,6 +107,7 @@ fi
 php artisan storage:link || true
 php artisan config:clear
 php artisan route:clear
+php artisan view:clear
 
 # 7. Start the main web process (php-fpm; foreground via the image's
 #    daemonize=no). Overridable: `docker compose run app <command>`.
