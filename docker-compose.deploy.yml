@@ -66,14 +66,19 @@ services:
       MEDTRACK_ADMIN_PASSWORD: ${MEDTRACK_ADMIN_PASSWORD:-}
     volumes:
       - app_env:/app/.env-store
-      - ./database:/app/database
+      # NOTE: do NOT bind-mount ./database here. The image ships the migration
+      # and seeder files under /app/database; mounting an empty host directory
+      # over it hides them and `migrate` reports "Nothing to migrate", leaving
+      # the schema empty. Persistent data lives in PostgreSQL, not here.
       - ./storage/app/public:/app/storage/app/public
       - ./storage/logs:/app/storage/logs
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f 'php-fpm: master' || exit 1"]
+      # php-fpm only starts after the entrypoint finishes migrations/seeding,
+      # so a listening socket is an accurate readiness signal.
+      test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\", 9000) ? 0 : 1);'"]
       interval: 10s
       timeout: 5s
       retries: 5
