@@ -100,16 +100,16 @@
                 @endif
             </div>
         @else
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach ($departments as $dept)
                     @php
                         $eqCount = $dept->equipment_count ?? $dept->equipment()->count();
                         $staffCount = $dept->staff_count ?? $dept->staff()->count();
                         $canDelete = $eqCount === 0 && $staffCount === 0;
                     @endphp
-                    <div class="rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-700 transition shadow-xs">
+                    <div class="min-w-0 overflow-hidden rounded-xl border border-slate-200 dark:border-[#1c1f26] bg-white dark:bg-[#0c0d10] p-6 space-y-4 flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-700 transition shadow-xs">
                         <div class="space-y-3">
-                            <div class="flex items-center justify-between">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
                                 <div class="flex items-center gap-2">
                                     <span class="rounded font-mono text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-[#161820] border border-slate-300 dark:border-[#2c303d] px-2 py-0.5">
                                         {{ $dept->code }}
@@ -126,8 +126,8 @@
                                         </span>
                                     @endif
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="font-mono text-[10px] text-slate-500 dark:text-slate-400 uppercase">{{ $dept->floor ?? 'Main Wing' }}</span>
+                                <div class="flex min-w-0 items-center gap-2">
+                                    <span class="truncate font-mono text-[10px] text-slate-500 dark:text-slate-400 uppercase">{{ $dept->floor ?? 'Main Wing' }}</span>
                                     @if (auth()->user()->isAdmin())
                                         <button
                                             type="button"
@@ -158,8 +158,8 @@
                         </div>
 
                         <!-- Metrics & Action Bar -->
-                        <div class="pt-4 border-t border-slate-200 dark:border-[#1c1f26] flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs">
-                            <div class="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                        <div class="pt-4 border-t border-slate-200 dark:border-[#1c1f26] space-y-3 font-mono text-xs">
+                            <div class="flex flex-wrap items-center gap-3 text-slate-600 dark:text-slate-400">
                                 <div>
                                     <span class="font-bold text-slate-900 dark:text-white">{{ $eqCount }}</span>
                                     <span class="text-[10px] text-slate-500">units</span>
@@ -171,10 +171,10 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-2">
+                            <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100 dark:border-[#1c1f26]">
                                 <a
                                     href="{{ route('equipment.index', ['department_id' => $dept->id]) }}"
-                                    class="inline-flex items-center gap-1 rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition"
+                                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition"
                                 >
                                     <span>Units</span>
                                     <span>&rarr;</span>
@@ -184,7 +184,7 @@
                                     <button
                                         type="button"
                                         @click="openEdit({{ json_encode($dept) }})"
-                                        class="inline-flex items-center gap-1 rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
+                                        class="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#181a22] transition cursor-pointer"
                                         title="Edit Department"
                                     >
                                         <x-ui.icon name="pencil" class="size-3" />
@@ -196,7 +196,7 @@
                                         @method('PATCH')
                                         <button
                                             type="submit"
-                                            class="inline-flex items-center gap-1 rounded-md border {{ $dept->isActive() ? 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60' : 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60' }} px-2 py-1 text-xs font-medium transition cursor-pointer"
+                                            class="inline-flex items-center gap-1 whitespace-nowrap rounded-md border {{ $dept->isActive() ? 'border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60' : 'border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60' }} px-2 py-1 text-xs font-medium transition cursor-pointer"
                                             title="{{ $dept->isActive() ? 'Deactivate Department' : 'Reactivate Department' }}"
                                         >
                                             <x-ui.icon :name="$dept->isActive() ? 'x-mark' : 'check'" class="size-3" />
@@ -210,7 +210,7 @@
                                             @method('DELETE')
                                             <button
                                                 type="submit"
-                                                class="inline-flex items-center gap-1 rounded-md border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 px-2 py-1 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition cursor-pointer"
+                                                class="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 px-2 py-1 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition cursor-pointer"
                                                 title="Delete Department"
                                             >
                                                 <x-ui.icon name="trash" class="size-3" />
@@ -221,7 +221,7 @@
                                         <button
                                             type="button"
                                             @click="alert('Cannot delete \'{{ addslashes($dept->name) }}\': It currently has {{ $eqCount }} active medical devices and {{ $staffCount }} staff members assigned. Please reassign or transfer them before deleting.')"
-                                            class="inline-flex items-center gap-1 rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2 py-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer"
+                                            class="inline-flex items-center gap-1 whitespace-nowrap rounded-md border border-slate-200 dark:border-[#2c303d] bg-slate-50 dark:bg-[#12141a] px-2 py-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer"
                                             title="Active assignments prevent deletion"
                                         >
                                             <x-ui.icon name="trash" class="size-3 opacity-60" />
@@ -234,7 +234,7 @@
                     </div>
                 @endforeach
 
-                <div class="sm:col-span-full pt-2">
+                <div class="col-span-full pt-2">
                     {{ $departments->links() }}
                 </div>
             </div>
