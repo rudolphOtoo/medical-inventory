@@ -29,20 +29,6 @@ enum IssueProgress: string
         };
     }
 
-    public function badgeColor(): string
-    {
-        return match ($this) {
-            self::Reported => 'amber',
-            self::Acknowledged => 'sky',
-            self::Assigned => 'indigo',
-            self::InProgress => 'blue',
-            self::AwaitingParts => 'orange',
-            self::ReadyForTesting => 'purple',
-            self::Resolved => 'emerald',
-            self::Closed => 'zinc',
-        };
-    }
-
     public function isActive(): bool
     {
         return ! in_array($this, [self::Resolved, self::Closed], true);
@@ -58,19 +44,6 @@ enum IssueProgress: string
         return array_values(array_map(
             static fn (self $status): string => $status->value,
             array_filter(self::cases(), static fn (self $status): bool => $status->isActive()),
-        ));
-    }
-
-    /**
-     * Backing values for every resolved (terminal) progress state.
-     *
-     * @return array<int, string>
-     */
-    public static function closedValues(): array
-    {
-        return array_values(array_map(
-            static fn (self $status): string => $status->value,
-            array_filter(self::cases(), static fn (self $status): bool => ! $status->isActive()),
         ));
     }
 }

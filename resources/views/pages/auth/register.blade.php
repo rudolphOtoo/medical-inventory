@@ -1,4 +1,4 @@
-<x-layouts.auth :title="__('Register Staff Account')">
+<x-layouts::auth :title="__('Register Staff Account')">
     <div class="space-y-6">
         <!-- Header -->
         <div class="text-center">
@@ -116,4 +116,4 @@
             <a href="{{ route('login') }}" class="font-semibold text-teal-400 hover:underline ml-1">{{ __('Sign In') }}</a>
         </div>
     </div>
-</x-layouts.auth>
+</x-layouts::auth>

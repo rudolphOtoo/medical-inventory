@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('System Health')">
+<x-layouts::app :title="__('System Health')">
     <div class="space-y-6">
         <x-ui.page-header
             :title="__('System Health & LAN Operations')"
@@ -100,4 +100,4 @@
             </div>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts::app>

@@ -35,7 +35,7 @@ return [
     |
     */
 
-    'seed_demo_users' => env('SEED_DEMO_USERS', false),
+    'seed_demo_users' => (bool) env('SEED_DEMO_USERS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -48,6 +48,6 @@ return [
     |
     */
 
-    'require_email_verification' => env('REQUIRE_EMAIL_VERIFICATION', false),
+    'require_email_verification' => (bool) env('REQUIRE_EMAIL_VERIFICATION', false),
 
 ];

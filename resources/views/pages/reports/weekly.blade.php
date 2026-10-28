@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Weekly Operational Report')">
+<x-layouts::app :title="__('Weekly Operational Report')">
     <div class="space-y-6">
         <!-- Header Banner & Action Bar -->
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-6">
@@ -173,4 +173,4 @@
             </div>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts::app>

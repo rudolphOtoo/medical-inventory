@@ -20,14 +20,4 @@ enum IssuePriority: string
             self::Critical => 'Critical',
         };
     }
-
-    public function badgeColor(): string
-    {
-        return match ($this) {
-            self::Low => 'zinc',
-            self::Medium => 'blue',
-            self::High => 'amber',
-            self::Critical => 'rose',
-        };
-    }
 }

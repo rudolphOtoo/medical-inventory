@@ -24,21 +24,4 @@ enum EquipmentStatus: string
             self::Lost => 'Lost',
         };
     }
-
-    public function badgeColor(): string
-    {
-        return match ($this) {
-            self::InUse => 'emerald',
-            self::UnderReview => 'amber',
-            self::OutForRepair => 'blue',
-            self::OutOfService => 'rose',
-            self::Retired => 'zinc',
-            self::Lost => 'purple',
-        };
-    }
-
-    public function isAvailable(): bool
-    {
-        return $this === self::InUse;
-    }
 }

@@ -52,7 +52,6 @@ if [ "${DB_CONNECTION:-pgsql}" = "sqlite" ]; then
     if [ ! -f database/database.sqlite ]; then
         touch database/database.sqlite
     fi
-    chmod 666 database/database.sqlite || true
 else
     echo "[entrypoint] Waiting for PostgreSQL at ${DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_DATABASE:-medical_inventory}..."
     attempt=0
@@ -88,15 +87,7 @@ fi
 mkdir -p "$ENV_STORE"
 cp .env "$ENV_STORE/.env"
 
-# 4. Permissions: Laravel must be able to write everything here. The spec
-#    mandates 777; tracked .gitignore files inside storage are restored to
-#    644 afterwards because the bind mount would otherwise flip their mode
-#    in the host git tree.
-echo "[entrypoint] Fixing storage permissions..."
-chmod -R 777 storage bootstrap/cache
-find storage bootstrap/cache -name .gitignore -exec chmod 644 {} + 2>/dev/null || true
-
-# 5. Migrations — safe and idempotent on every boot (runs before php-fpm
+# 4. Migrations — safe and idempotent on every boot (runs before php-fpm
 #    accepts traffic, so nginx's healthcheck only passes once the schema is up).
 #    Guard first: an empty migrations directory means a host bind mount is
 #    shadowing the image's /app/database (the zero-clone deploy footgun), and
@@ -110,7 +101,7 @@ if [ "${migration_count:-0}" -eq 0 ]; then
 fi
 run_step "Running database migrations (${migration_count} files)" php artisan migrate --force
 
-# 5a. Plant the baseline organisational structure on the very first boot.
+# 4a. Plant the baseline organisational structure on the very first boot.
 #     DatabaseSeeder only ever creates the structural baseline in production
 #     (demo records stay gated behind SEED_DEMO_USERS), and the seeder itself
 #     uses firstOrCreate, so this is safe and cheap to guard on emptiness.
@@ -127,7 +118,7 @@ case "$department_count" in
         ;;
 esac
 
-# 5b. Provision the initial administrator when credentials are supplied.
+# 4b. Provision the initial administrator when credentials are supplied.
 #     Idempotent: creates the account only when it is missing and never
 #     resets an existing password (rotate explicitly with `--force`). Runs
 #     only when both MEDTRACK_ADMIN_EMAIL and MEDTRACK_ADMIN_PASSWORD are set,
@@ -136,11 +127,35 @@ if [ -n "${MEDTRACK_ADMIN_EMAIL:-}" ] && [ -n "${MEDTRACK_ADMIN_PASSWORD:-}" ]; 
     run_step "Provisioning initial administrator" php artisan medtrack:provision-admin --no-interaction
 fi
 
-# 6. Public disk symlink + stale cache cleanup.
-echo "[entrypoint] Linking public storage..."
-php artisan storage:link || echo "[entrypoint] WARNING: storage:link failed (continuing)." >&2
-run_step "Clearing stale config cache" php artisan config:clear
-run_step "Clearing stale route cache" php artisan route:clear
+# 5. Public disk symlink + framework caches. `optimize` rebuilds config, route,
+#    event and view caches from the current environment, so a changed .env is
+#    picked up on every container restart.
+if [ ! -L public/storage ]; then
+    echo "[entrypoint] Linking public storage..."
+    php artisan storage:link || echo "[entrypoint] WARNING: storage:link failed (continuing)." >&2
+fi
+run_step "Caching framework bootstrap files" php artisan optimize
+
+# 6. Permissions, applied last so files the root-run artisan steps above just
+#    created (daily log, caches) are handed to php-fpm's www-data user too.
+#    Least privilege: owner/group write only (775 dirs, 664 files). Tracked
+#    .gitignore files keep 644 so bind mounts do not dirty the host git tree.
+#    Non-fatal: some bind-mount filesystems reject chown/chmod.
+echo "[entrypoint] Fixing storage permissions..."
+{
+    chown -R www-data:www-data storage bootstrap/cache \
+        && find storage bootstrap/cache -type d -exec chmod 775 {} + \
+        && find storage bootstrap/cache -type f -exec chmod 664 {} + \
+        && find storage bootstrap/cache -name .gitignore -exec chmod 644 {} +
+} || echo "[entrypoint] WARNING: could not fully apply storage permissions." >&2
+if [ "${DB_CONNECTION:-pgsql}" = "sqlite" ]; then
+    # SQLite writes journal/WAL files beside the database, so the directory
+    # (not just the file) must be writable. Not recursive: ./database is
+    # bind-mounted from the host in the build-based compose files.
+    chown www-data:www-data database database/database.sqlite* \
+        && chmod 775 database && chmod 664 database/database.sqlite* \
+        || echo "[entrypoint] WARNING: could not set SQLite database permissions." >&2
+fi
 
 # 7. Start the main web process (php-fpm; foreground via the image's
 #    daemonize=no). Overridable: `docker compose run app <command>`.

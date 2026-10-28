@@ -1,4 +1,4 @@
-<x-layouts.app :title="$equipment->name">
+<x-layouts::app :title="$equipment->name">
     <div class="space-y-6" x-data="{
         showNoteModal: false,
         showCalModal: false,
@@ -771,4 +771,4 @@
             </div>
         @endif
     </div>
-</x-layouts.app>
+</x-layouts::app>

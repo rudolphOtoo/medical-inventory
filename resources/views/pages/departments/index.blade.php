@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Hospital Departments')">
+<x-layouts::app :title="__('Hospital Departments')">
     <div
         class="space-y-6"
         x-data="{
@@ -518,4 +518,4 @@
             </div>
         @endif
     </div>
-</x-layouts.app>
+</x-layouts::app>

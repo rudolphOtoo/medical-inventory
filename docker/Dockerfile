@@ -3,18 +3,44 @@
 # Multi-stage build: app (PHP-FPM) + webserver (nginx) on PostgreSQL,
 # mirroring the standard wis-cms Laravel deployment layout.
 
+# ---- Stage: composer dependencies ----
+# Resolved once and shared by the frontend build (Tailwind scans the framework
+# pagination views) and the runtime image, which therefore never ships the
+# composer binary. PHP extensions live in the runtime stage, not here.
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --prefer-dist \
+        --no-autoloader --no-scripts --ignore-platform-reqs
+COPY app ./app
+COPY database ./database
+RUN composer dump-autoload --no-dev --optimize --no-scripts
+
 # ---- Stage: frontend assets ----
 FROM node:20-alpine AS frontend
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+COPY --from=vendor /app/vendor/laravel/framework/src/Illuminate/Pagination/resources/views \
+    ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
 RUN npm run build
 
 # ---- Stage: app (php-fpm) ----
 FROM php:8.4-fpm-alpine AS app
 
+# Runtime shared libraries stay; headers are only needed to compile the
+# extensions and are removed in the same layer.
 RUN apk add --no-cache \
+        libpq \
+        sqlite-libs \
+        libzip \
+        libpng \
+        libjpeg-turbo \
+        freetype \
+        icu-libs \
+        oniguruma \
+    && apk add --no-cache --virtual .build-deps \
         postgresql-dev \
         sqlite-dev \
         libzip-dev \
@@ -25,18 +51,16 @@ RUN apk add --no-cache \
         oniguruma-dev \
     && docker-php-ext-configure gd --with-jpeg --with-freetype \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo_pgsql pgsql pdo_sqlite mbstring bcmath intl gd zip opcache pcntl
+        pdo_pgsql pgsql pdo_sqlite mbstring bcmath intl gd zip opcache pcntl \
+    && apk del .build-deps \
+    && php -r 'foreach (["pdo_pgsql", "pgsql", "pdo_sqlite", "mbstring", "bcmath", "intl", "gd", "zip", "pcntl"] as $ext) { extension_loaded($ext) || exit(1); }'
 
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-app.ini
 
 WORKDIR /app
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-COPY composer.json composer.lock* ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
-
 COPY . .
+COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 
 # Build-time boot prerequisites: package discovery output must ship in the
@@ -47,10 +71,8 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
         storage/logs storage/app/public bootstrap/cache \
     && php artisan package:discover --ansi \
     && php artisan storage:link \
-    && chown -R www-data:www-data storage bootstrap/cache
-
-COPY docker/entrypoint.sh /app/docker/entrypoint.sh
-RUN chmod +x /app/docker/entrypoint.sh
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod +x docker/entrypoint.sh
 
 # The entrypoint's .env seeding depends on the template being present in the
 # image. .dockerignore explicitly un-ignores .env.example — assert it rather

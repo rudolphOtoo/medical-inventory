@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Audit Ledger')">
+<x-layouts::app :title="__('Audit Ledger')">
     <div class="space-y-6" x-data="{ showPruneModal: false, pruneMode: 'older_than_30' }">
         <!-- Page Header -->
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-6">
@@ -169,4 +169,4 @@
             </div>
         @endif
     </div>
-</x-layouts.app>
+</x-layouts::app>

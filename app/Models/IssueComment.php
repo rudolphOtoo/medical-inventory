@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Database\Factories\IssueCommentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,16 +60,5 @@ class IssueComment extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * Scope for comments on a specific issue.
-     *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
-     */
-    public function scopeForIssue(Builder $query, int $issueReportId): Builder
-    {
-        return $query->where('issue_report_id', $issueReportId);
     }
 }

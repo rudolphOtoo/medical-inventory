@@ -1,4 +1,4 @@
-<x-layouts.auth :title="__('Password Recovery')">
+<x-layouts::auth :title="__('Password Recovery')">
     <div class="space-y-6">
         <div class="text-center">
             <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-950 text-teal-400 border border-teal-800/80 mb-3 shadow-inner">
@@ -50,4 +50,4 @@
             <a href="{{ route('login') }}" class="font-semibold text-teal-400 hover:underline ml-1">{{ __('Return to Sign In') }}</a>
         </div>
     </div>
-</x-layouts.auth>
+</x-layouts::auth>

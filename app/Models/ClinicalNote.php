@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Database\Factories\ClinicalNoteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -77,16 +76,5 @@ class ClinicalNote extends Model
     public function equipment(): BelongsTo
     {
         return $this->belongsTo(Equipment::class, 'equipment_id');
-    }
-
-    /**
-     * Scope for pinned notes.
-     *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
-     */
-    public function scopePinned(Builder $query): Builder
-    {
-        return $query->where('is_pinned', true);
     }
 }

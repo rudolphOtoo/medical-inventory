@@ -1,4 +1,4 @@
-<x-layouts.auth :title="__('Station Access')">
+<x-layouts::auth :title="__('Station Access')">
     @php
         $authFailed = $errors->has('email') && $errors->first('email') === __('auth.failed');
         $hasEmailError = $errors->has('email') && ! $authFailed;
@@ -226,4 +226,4 @@
             </p>
         </div>
     </div>
-</x-layouts.auth>
+</x-layouts::auth>

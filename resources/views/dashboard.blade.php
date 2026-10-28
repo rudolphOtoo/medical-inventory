@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Operations Console')">
+<x-layouts::app :title="__('Operations Console')">
     <div class="space-y-8" x-data="{
         showNoteModal: false,
         showEditNoteModal: false,
@@ -569,4 +569,4 @@
             </div>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts::app>

@@ -1,4 +1,4 @@
-<x-layouts.app :title="'Ticket #' . $issue->id . ' — ' . $issue->title">
+<x-layouts::app :title="'Ticket #' . $issue->id . ' — ' . $issue->title">
     <div class="space-y-6">
         <!-- Top Back Bar -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-[#1c1f26] pb-4">
@@ -387,4 +387,4 @@
             </div>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts::app>

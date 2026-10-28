@@ -28,3 +28,6 @@ yarn-error.log
 /database/*.sqlite-wal
 /database/*.sqlite-shm
 /llm-conscience/
+
+# Local database backups written by medtrack:backup
+/storage/backups
